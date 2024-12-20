@@ -1,4 +1,4 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.constant;
 
 public class BattleConstants {
 
@@ -8,5 +8,6 @@ public class BattleConstants {
 
     public static final int HIT_BOX_WIDTH = 30;
     public static final int HIT_BOX_HEIGHT = 30;
+    public static final int BATTLE_RING_ROLE_NUM = 2;
 
 }

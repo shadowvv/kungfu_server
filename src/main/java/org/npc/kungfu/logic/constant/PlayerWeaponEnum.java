@@ -1,29 +1,44 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.constant;
 
-enum PlayerWeaponEnum {
+import java.util.HashMap;
+import java.util.Map;
+
+public enum PlayerWeaponEnum {
 
     /**
      * 剑
      */
-    BLADE(3,1,1,1,1,1),
+    BLADE(0,3,1,1,1,1,1),
     /**
      * 刀
      */
-    SWORD(3,1,1,1,1,1),
+    SWORD(1,3,1,1,1,1,1),
     /**
      * 长矛
      */
-    SPEAR(3,1,1,1,1,1),
+    SPEAR(2,3,1,1,1,1,1),
     /**
      * 匕首
      */
-    KNIFE(3,1,1,1,1,1),
+    KNIFE(3,3,1,1,1,1,1),
     /**
      * 弓
      */
-    BOW(3,1,1,1,1,1);
+    BOW(4,3,1,1,1,1,1),
+    ;
 
+    private static final Map<Integer,PlayerWeaponEnum> map = new HashMap<>();
+    static {
+        for (PlayerWeaponEnum weaponEnum: PlayerWeaponEnum.values()) {
+            map.put(weaponEnum.getTypeId(),weaponEnum);
+        }
+    }
 
+    public static PlayerWeaponEnum fromValue(int weaponType){
+        return map.get(weaponType);
+    }
+
+    private final int typeId;
     private final int moveRange;
     private final int attack;
     private final int attackInnerRadius;
@@ -32,7 +47,8 @@ enum PlayerWeaponEnum {
     private final int endAngle;
 
 
-    PlayerWeaponEnum(int moveRange,int attack,int attackInnerRadius,int attackOuterRadius,int startAngle,int endAngle) {
+    PlayerWeaponEnum(int typeId,int moveRange,int attack,int attackInnerRadius,int attackOuterRadius,int startAngle,int endAngle) {
+        this.typeId = typeId;
         this.moveRange = moveRange;
         this.attack =  attack;
         this.attackInnerRadius = attackInnerRadius;
@@ -40,6 +56,8 @@ enum PlayerWeaponEnum {
         this.startAngle = startAngle;
         this.endAngle = endAngle;
     }
+
+    public int getTypeId() {return typeId;}
 
     public int getMoveRange() {
         return moveRange;

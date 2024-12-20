@@ -1,9 +1,9 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.constant;
 
 /**
  * 游戏状态
  */
-enum GameStateEnum {
+public enum GameStateEnum {
 
     /**
      * 准备
@@ -13,10 +13,6 @@ enum GameStateEnum {
      * 等待指令
      */
     WAIT_COMMAND,
-    /**
-     * 等待其他人
-     */
-    WAIT_OTHER,
     /**
      * 行动
      */

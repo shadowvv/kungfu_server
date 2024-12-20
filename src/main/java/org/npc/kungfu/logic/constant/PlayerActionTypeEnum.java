@@ -1,9 +1,9 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.constant;
 
 /**
  * 玩家行为枚举
  */
-enum PlayerActionTypeEnum {
+public enum PlayerActionTypeEnum {
 
     /**
      * 移动

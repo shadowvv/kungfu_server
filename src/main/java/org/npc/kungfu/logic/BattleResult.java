@@ -1,4 +1,4 @@
 package org.npc.kungfu.logic;
 
-public class BattleManager {
+public class BattleResult {
 }
