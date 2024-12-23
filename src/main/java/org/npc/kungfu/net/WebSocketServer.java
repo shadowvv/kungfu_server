@@ -12,9 +12,13 @@ import io.netty.handler.stream.ChunkedWriteHandler;
 public class WebSocketServer {
 
     private final int port;
+    private final IMessageDispatcher dispatcher;
+    private final IMessageCoder<Object,String> coder;
 
-    public WebSocketServer(int port) {
+    public WebSocketServer(int port, IMessageDispatcher dispatcher,IMessageCoder<Object,String> coder) {
         this.port = port;
+        this.dispatcher = dispatcher;
+        this.coder = coder;
     }
 
     public void start() throws InterruptedException {
@@ -24,24 +28,7 @@ public class WebSocketServer {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ChannelPipeline pipeline = ch.pipeline();
-
-                            // HTTP 编解码器
-                            pipeline.addLast(new HttpServerCodec());
-                            // 写入大块数据支持
-                            pipeline.addLast(new ChunkedWriteHandler());
-                            // 聚合 HTTP 消息
-                            pipeline.addLast(new HttpObjectAggregator(8192));
-                            // WebSocket 协议处理器，自动完成握手
-                            pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
-
-                            // 自定义业务逻辑处理器
-                            pipeline.addLast(new WebSocketFrameHandler());
-                        }
-                    });
+                    .childHandler(new ChannelInitializerImpl(this.dispatcher,this.coder));
 
             ChannelFuture future = bootstrap.bind(port).sync();
             System.out.println("WebSocket Server started at port " + port);
@@ -52,35 +39,30 @@ public class WebSocketServer {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        new WebSocketServer(8080).start();
-    }
+    static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
+        private final IMessageDispatcher dispatcher;
+        private final IMessageCoder<Object,String> coder;
 
-    // 自定义 WebSocket 处理器
-    static class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
-        @Override
-        protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
-            if (frame instanceof TextWebSocketFrame) {
-                // 处理文本帧
-                String request = ((TextWebSocketFrame) frame).text();
-                System.out.println("Received: " + request);
-
-                // 回送消息
-                ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
-            } else if (frame instanceof BinaryWebSocketFrame) {
-                // 处理二进制帧
-                System.out.println("Binary frame received");
-            } else if (frame instanceof CloseWebSocketFrame) {
-                // 处理关闭帧
-                System.out.println("Close frame received");
-                ctx.channel().close();
-            }
+        ChannelInitializerImpl(IMessageDispatcher dispatcher,IMessageCoder<Object,String> coder) {
+            this.dispatcher = dispatcher;
+            this.coder = coder;
         }
 
         @Override
-        public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-            cause.printStackTrace();
-            ctx.close();
+        protected void initChannel(SocketChannel ch) {
+            ChannelPipeline pipeline = ch.pipeline();
+
+            // HTTP 编解码器
+            pipeline.addLast(new HttpServerCodec());
+            // 写入大块数据支持
+            pipeline.addLast(new ChunkedWriteHandler());
+            // 聚合 HTTP 消息
+            pipeline.addLast(new HttpObjectAggregator(8192));
+            // WebSocket 协议处理器，自动完成握手
+            pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
+
+            // 自定义业务逻辑处理器
+            pipeline.addLast(new WebSocketFrameHandler(this.dispatcher,this.coder));
         }
     }
 }
