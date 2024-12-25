@@ -1,7 +1,7 @@
 package org.npc.kungfu.logic;
 
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
-import org.npc.kungfu.logic.match.BattleMatchService;
+import org.npc.kungfu.logic.match.MatchService;
 
 public class Player {
 
@@ -17,7 +17,7 @@ public class Player {
             role.resetRole(weaponType);
         }
         role = Role.build(1,playerId,PlayerWeaponEnum.fromValue(weaponType),true,1,1,10);
-        BattleMatchService.enterMatch(role);
+        MatchService.enterMatch(role);
     }
 
     public void onBattleOver(){

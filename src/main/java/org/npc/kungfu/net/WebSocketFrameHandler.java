@@ -8,9 +8,9 @@ import io.netty.handler.codec.http.websocketx.*;
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     IMessageDispatcher dispatcher;
-    IMessageCoder<Object,String> coder;
+    IMessageCoder<?,String> coder;
 
-    WebSocketFrameHandler(IMessageDispatcher dispatcher, IMessageCoder<Object,String> coder) {
+    WebSocketFrameHandler(IMessageDispatcher dispatcher, IMessageCoder<?,String> coder) {
         this.dispatcher = dispatcher;
         this.coder = coder;
     }
@@ -44,7 +44,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
 
             dispatcher.dispatchMessage(coder.decode(request));
             // 回送消息
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
+             ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
         } else if (frame instanceof CloseWebSocketFrame) {
             // 处理关闭帧
             System.out.println("Close frame received");

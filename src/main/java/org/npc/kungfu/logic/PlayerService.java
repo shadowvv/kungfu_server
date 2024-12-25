@@ -1,12 +1,14 @@
 package org.npc.kungfu.logic;
 
+import org.npc.kungfu.platfame.ITaskStation;
+
 import java.util.HashMap;
 
-public class PlayerManager {
+public class PlayerService {
 
     HashMap<Integer, Player> players;
 
-    public PlayerManager() {
+    public PlayerService(ITaskStation station) {
 
     }
 

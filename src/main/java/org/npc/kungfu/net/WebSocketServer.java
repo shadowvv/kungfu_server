@@ -13,9 +13,9 @@ public class WebSocketServer {
 
     private final int port;
     private final IMessageDispatcher dispatcher;
-    private final IMessageCoder<Object,String> coder;
+    private final IMessageCoder<?,String> coder;
 
-    public WebSocketServer(int port, IMessageDispatcher dispatcher,IMessageCoder<Object,String> coder) {
+    public WebSocketServer(int port, IMessageDispatcher dispatcher, IMessageCoder<?,String> coder) {
         this.port = port;
         this.dispatcher = dispatcher;
         this.coder = coder;
@@ -41,9 +41,9 @@ public class WebSocketServer {
 
     static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
         private final IMessageDispatcher dispatcher;
-        private final IMessageCoder<Object,String> coder;
+        private final IMessageCoder<?,String> coder;
 
-        ChannelInitializerImpl(IMessageDispatcher dispatcher,IMessageCoder<Object,String> coder) {
+        ChannelInitializerImpl(IMessageDispatcher dispatcher,IMessageCoder<?,String> coder) {
             this.dispatcher = dispatcher;
             this.coder = coder;
         }
