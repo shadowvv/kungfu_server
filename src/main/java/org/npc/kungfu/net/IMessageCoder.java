@@ -1,6 +1,6 @@
 package org.npc.kungfu.net;
 
-public interface IMessageCoder<T,V> {
+public interface IMessageCoder<T, V> {
 
     V encode(T message);
 

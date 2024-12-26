@@ -10,7 +10,7 @@ public class LoginReqMessage extends BaseMessage {
     private Channel loginChannel;
 
     public LoginReqMessage() {
-        id = 1001;
+        setId(1001);
     }
 
     public void setLoginChannel(Channel loginChannel) {
@@ -18,11 +18,11 @@ public class LoginReqMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic(){
-        if (playerId == 0){
+    public void doLogic() {
+        if (playerId == 0) {
             PlayerService.getService().newPlayerLoginOver(loginChannel);
-        }else {
-            PlayerService.getService().onPlayerLoginOver(playerId,loginChannel);
+        } else {
+            PlayerService.getService().onPlayerLoginOver(playerId, loginChannel);
         }
     }
 

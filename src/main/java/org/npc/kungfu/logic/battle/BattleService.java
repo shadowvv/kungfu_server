@@ -1,5 +1,8 @@
 package org.npc.kungfu.logic.battle;
 
+import io.netty.channel.Channel;
+import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.TaskStation;
 
 import java.util.concurrent.ExecutorService;
@@ -20,8 +23,8 @@ public class BattleService {
 
     }
 
-    public void init(TaskStation battleStation){
-        ExecutorService service = Executors.newFixedThreadPool(2,new ThreadFactory() {
+    public void init(TaskStation battleStation) {
+        ExecutorService service = Executors.newFixedThreadPool(2, new ThreadFactory() {
 
             @Override
             public Thread newThread(Runnable r) {
@@ -32,4 +35,6 @@ public class BattleService {
 //        service.submit();
     }
 
+    public void addMessage(BaseMessage msg, Player player) {
+    }
 }

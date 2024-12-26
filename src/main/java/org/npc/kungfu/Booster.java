@@ -1,37 +1,46 @@
 package org.npc.kungfu;
 
-import org.npc.kungfu.logic.*;
+import org.npc.kungfu.logic.LoginService;
+import org.npc.kungfu.logic.MessageCoder;
+import org.npc.kungfu.logic.MessageDispatcher;
+import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.net.WebSocketServer;
-import org.npc.kungfu.platfame.*;
+import org.npc.kungfu.platfame.StationDriver;
+import org.npc.kungfu.platfame.TaskStation;
 
 public class Booster {
 
     public static void main(String[] args) throws InterruptedException {
 
-        TaskStation loginStation = new TaskStation(2);
-        StationDriver loginDriver = new StationDriver(loginStation,0,30);
+        int threadNum = Runtime.getRuntime().availableProcessors() * 2;
+        //初始化登录服务
+        TaskStation loginStation = new TaskStation(threadNum, "login");
+        StationDriver loginDriver = new StationDriver(loginStation, 100, 30);
         loginDriver.runStation();
-
-        TaskStation playerStation = new TaskStation(2);
-        StationDriver playerDriver = new StationDriver(playerStation,0,30);
-        playerDriver.runStation();
-
-        TaskStation matchStation = new TaskStation(2);
-        StationDriver matchDriver = new StationDriver(matchStation,0,30);
-        matchDriver.runStation();
-
-        TaskStation battleStation = new TaskStation(2);
-        StationDriver battleDriver = new StationDriver(battleStation,0,30);
-        battleDriver.runStation();
-
         LoginService.getService().init(loginStation);
+
+        //初始化玩家服务
+        TaskStation playerStation = new TaskStation(threadNum, "player");
+        StationDriver playerDriver = new StationDriver(playerStation, 100, 30);
+        playerDriver.runStation();
         PlayerService.getService().init(playerStation);
+
+        //初始化匹配服务
+        TaskStation matchStation = new TaskStation(threadNum, "match");
+        StationDriver matchDriver = new StationDriver(matchStation, 100, 30);
+        matchDriver.runStation();
         MatchService.getService().init(matchStation);
+
+        //初始化战斗服务
+        TaskStation battleStation = new TaskStation(threadNum, "battle");
+        StationDriver battleDriver = new StationDriver(battleStation, 100, 30);
+        battleDriver.runStation();
         BattleService.getService().init(battleStation);
 
-        WebSocketServer net = new WebSocketServer(8080,new MessageDispatcher(),new MessageCoder());
+        //初始化网络服务
+        WebSocketServer net = new WebSocketServer(8080, threadNum,new MessageDispatcher(), new MessageCoder());
         net.start();
     }
 

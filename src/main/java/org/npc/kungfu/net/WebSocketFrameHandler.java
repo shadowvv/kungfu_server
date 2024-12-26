@@ -3,14 +3,17 @@ package org.npc.kungfu.net;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.websocketx.*;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 
-    IMessageDispatcher dispatcher;
-    IMessageCoder<?,String> coder;
+    private final IMessageDispatcher dispatcher;
+    private final IMessageCoder<?, String> coder;
 
-    WebSocketFrameHandler(IMessageDispatcher dispatcher, IMessageCoder<?,String> coder) {
+    WebSocketFrameHandler(IMessageDispatcher dispatcher, IMessageCoder<?, String> coder) {
         this.dispatcher = dispatcher;
         this.coder = coder;
     }
@@ -19,16 +22,13 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof WebSocketServerProtocolHandler.HandshakeComplete) {
             // 握手完成
-            WebSocketServerProtocolHandler.HandshakeComplete handshake =
-                    (WebSocketServerProtocolHandler.HandshakeComplete) evt;
-
+            WebSocketServerProtocolHandler.HandshakeComplete handshake = (WebSocketServerProtocolHandler.HandshakeComplete) evt;
             // 获取握手请求头信息
             String requestUri = handshake.requestUri();
             HttpHeaders headers = handshake.requestHeaders();
 
             System.out.println("WebSocket handshake complete:");
             System.out.println("Request URI: " + requestUri);
-
             // 可以根据具体需求执行其他逻辑，比如记录连接信息或通知业务系统
         } else {
             super.userEventTriggered(ctx, evt); // 保留其他事件的处理
@@ -40,11 +40,7 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
         if (frame instanceof TextWebSocketFrame) {
             // 处理文本帧
             String request = ((TextWebSocketFrame) frame).text();
-            System.out.println("Received: " + request);
-
-            dispatcher.dispatchMessage(coder.decode(request),ctx.channel());
-            // 回送消息
-            ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
+            dispatcher.dispatchMessage(coder.decode(request), ctx.channel());
         } else if (frame instanceof CloseWebSocketFrame) {
             // 处理关闭帧
             System.out.println("Close frame received");

@@ -20,12 +20,12 @@ public class LoginService {
     public LoginService() {
     }
 
-    public void init(ITaskStation station){
+    public void init(ITaskStation station) {
         station.addBus(taskBus);
     }
 
-    public void onPlayerLogin(BaseMessage msg, Channel senderChannel) {
-        if (msg instanceof LoginReqMessage){
+    public void addMessage(BaseMessage msg, Channel senderChannel) {
+        if (msg instanceof LoginReqMessage) {
             LoginReqMessage loginReqMsg = (LoginReqMessage) msg;
             loginReqMsg.setLoginChannel(senderChannel);
             taskBus.addMessage(msg);

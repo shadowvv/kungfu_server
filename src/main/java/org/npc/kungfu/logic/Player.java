@@ -22,11 +22,11 @@ public class Player {
         if (role != null) {
             role.resetRole(weaponType);
         }
-        role = Role.build(1,playerId,PlayerWeaponEnum.fromValue(weaponType),true,1,1,10);
+        role = Role.build(1, playerId, PlayerWeaponEnum.fromValue(weaponType), true, 1, 1, 10);
         MatchService.enterMatch(role);
     }
 
-    public void onBattleOver(){
+    public void onBattleOver() {
 
     }
 
@@ -42,5 +42,9 @@ public class Player {
         String message = gson.toJson(new LoginRespMessage(true));
         System.out.println(message);
         channel.writeAndFlush(new TextWebSocketFrame(message));
+    }
+
+    public Channel getChannel() {
+        return channel;
     }
 }

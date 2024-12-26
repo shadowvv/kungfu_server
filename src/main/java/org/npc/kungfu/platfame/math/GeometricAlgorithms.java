@@ -11,7 +11,7 @@ public class GeometricAlgorithms {
         double startAngle = (sector.getStartAngle() + 360) % 360;
         double endAngle = (sector.getEndAngle() + 360) % 360;
 
-        for (VectorTwo<T> point: hitBox.getBoxVectors()) {
+        for (VectorTwo<T> point : hitBox.getBoxVectors()) {
             if (isPointInSector(sector, point)) {
                 return true;
             }
@@ -21,17 +21,17 @@ public class GeometricAlgorithms {
         double innerRadius = sector.getInnerRadius().doubleValue();
 
         ArrayList<LineSegment<T>> sectorEdges = new ArrayList<>();
-        sectorEdges.add(LineSegment.createLineSegment(sector.getCenter(), (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(startAngle * Math.PI / 180),outerRadius * Math.sin(startAngle * Math.PI / 180)))));
-        sectorEdges.add(LineSegment.createLineSegment(sector.getCenter(), (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(endAngle * Math.PI / 180),outerRadius * Math.sin(endAngle * Math.PI / 180)))));
+        sectorEdges.add(LineSegment.createLineSegment(sector.getCenter(), (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(startAngle * Math.PI / 180), outerRadius * Math.sin(startAngle * Math.PI / 180)))));
+        sectorEdges.add(LineSegment.createLineSegment(sector.getCenter(), (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(endAngle * Math.PI / 180), outerRadius * Math.sin(endAngle * Math.PI / 180)))));
 
         VectorTwo<T> innerStart = (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(innerRadius * Math.cos(startAngle * Math.PI / 180), innerRadius * Math.sin(startAngle * Math.PI / 180)));
         VectorTwo<T> innerEnd = (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(innerRadius * Math.cos(endAngle * Math.PI / 180), innerRadius * Math.sin(endAngle * Math.PI / 180)));
-        LineSegment<T> innerArcPoints = LineSegment.createLineSegment(innerStart,innerEnd);
+        LineSegment<T> innerArcPoints = LineSegment.createLineSegment(innerStart, innerEnd);
         sectorEdges.add(innerArcPoints);
 
         VectorTwo<T> outerStart = (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(startAngle * Math.PI / 180), outerRadius * Math.sin(startAngle * Math.PI / 180)));
         VectorTwo<T> outerEnd = (VectorTwo<T>) sector.getCenter().addTo(VectorTwo.createDoubleVector(outerRadius * Math.cos(endAngle * Math.PI / 180), outerRadius * Math.sin(endAngle * Math.PI / 180)));
-        LineSegment<T> outerArcPoints = LineSegment.createLineSegment(outerStart,outerEnd);
+        LineSegment<T> outerArcPoints = LineSegment.createLineSegment(outerStart, outerEnd);
         sectorEdges.add(outerArcPoints);
 
         ArrayList<LineSegment<T>> rectEdges = new ArrayList<>();
@@ -55,11 +55,11 @@ public class GeometricAlgorithms {
     /**
      * 判断点是否在扇形范围内
      */
-    public static <T extends Number> boolean isPointInSector(Sector<T> sector,VectorTwo<T> point) {
-        if (sector.getInnerRadius().doubleValue() > 0 && point.inCirCle(sector.getCenter().getX(),sector.getCenter().getY(),sector.getInnerRadius())){
+    public static <T extends Number> boolean isPointInSector(Sector<T> sector, VectorTwo<T> point) {
+        if (sector.getInnerRadius().doubleValue() > 0 && point.inCirCle(sector.getCenter().getX(), sector.getCenter().getY(), sector.getInnerRadius())) {
             return false;
         }
-        if (!point.inCirCle(sector.getCenter().getX(),sector.getCenter().getY(),sector.getOuterRadius())){
+        if (!point.inCirCle(sector.getCenter().getX(), sector.getCenter().getY(), sector.getOuterRadius())) {
             return false;
         }
         return isAngleWithinRange(point, sector.getCenter(), sector.getStartAngle(), sector.getEndAngle());
@@ -68,7 +68,7 @@ public class GeometricAlgorithms {
     /**
      * 判断点是否在角度范围内
      */
-    public static <T extends Number> boolean isAngleWithinRange(VectorTwo<T> point,VectorTwo<T> center,double startAngle,double endAngle) {
+    public static <T extends Number> boolean isAngleWithinRange(VectorTwo<T> point, VectorTwo<T> center, double startAngle, double endAngle) {
         double angle = Math.atan2(point.getY().doubleValue() - center.getY().doubleValue(), point.getX().doubleValue() - center.getX().doubleValue()) * (180 / Math.PI);
         angle = (angle + 360) % 360;
         // 如果扇形跨越 360°，则需要考虑从 startAngle 到 endAngle 可能跨越 0°
@@ -113,15 +113,15 @@ public class GeometricAlgorithms {
         VectorTwo<T> bottomLeft = boxVectors.get(3);
 
         double cross = (topRight.subtract(topLeft)).cross(point.subtract(topLeft));
-        if (cross < 0){
+        if (cross < 0) {
             return false;
         }
         cross = (bottomRight.subtract(topRight)).cross(point.subtract(topRight));
-        if (cross < 0){
+        if (cross < 0) {
             return false;
         }
         cross = (bottomLeft.subtract(bottomRight)).cross(point.subtract(bottomRight));
-        if (cross < 0){
+        if (cross < 0) {
             return false;
         }
         cross = (topLeft.subtract(bottomLeft)).cross(point.subtract(bottomLeft));

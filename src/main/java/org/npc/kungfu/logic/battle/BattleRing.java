@@ -42,6 +42,7 @@ public class BattleRing {
 
     /**
      * 决斗工厂
+     *
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
@@ -50,7 +51,6 @@ public class BattleRing {
     }
 
     /**
-     *
      * @param roles 参与决斗的角色
      */
     private BattleRing(ArrayList<Role> roles) {
@@ -64,6 +64,7 @@ public class BattleRing {
 
     /**
      * 添加决斗角色
+     *
      * @param role 战斗角色
      * @return 是否加入成功
      */
@@ -72,11 +73,11 @@ public class BattleRing {
             return false;
         }
 
-        if (roles.size() >= BATTLE_RING_ROLE_NUM){
+        if (roles.size() >= BATTLE_RING_ROLE_NUM) {
             return false;
         }
 
-        if (roles.containsKey(role.getRoleId())){
+        if (roles.containsKey(role.getRoleId())) {
             return false;
         }
 
@@ -90,6 +91,7 @@ public class BattleRing {
 
     /**
      * 接收消息
+     *
      * @param message 玩家操作消息
      */
     public void onReceiveMessage(OperationReqMessage message) {
@@ -100,6 +102,7 @@ public class BattleRing {
 
     /**
      * 更新决斗逻辑
+     *
      * @param deltaTime 更新时间间隔
      */
     public BattleResult update(long deltaTime) {
@@ -145,7 +148,7 @@ public class BattleRing {
      * 构建战斗结果
      */
     private void buildBattleResult() {
-        for(Role role : roles.values()) {
+        for (Role role : roles.values()) {
 
         }
     }
@@ -153,10 +156,10 @@ public class BattleRing {
     /**
      * 检测角色之间是否击中
      */
-    private void checkHit(){
+    private void checkHit() {
         for (Role role : roles.values()) {
             for (Role otherRole : roles.values()) {
-                if (role.getRoleId() != otherRole.getRoleId() && checkHit(role.getAttackSector(),otherRole.getHitBox())){
+                if (role.getRoleId() != otherRole.getRoleId() && checkHit(role.getAttackSector(), otherRole.getHitBox())) {
                     otherRole.onRoleBeHit(role.getAttackPoint());
                 }
             }
@@ -165,12 +168,13 @@ public class BattleRing {
 
     /**
      * 检测是否击中
+     *
      * @param attackSector 攻击范围
-     * @param hitBox 受击盒
+     * @param hitBox       受击盒
      * @return 是否击中
      */
-    private boolean checkHit(Sector<Integer> attackSector, HitBox<Integer> hitBox){
-        return GeometricAlgorithms.isSectorCollidingWithRect(attackSector,hitBox);
+    private boolean checkHit(Sector<Integer> attackSector, HitBox<Integer> hitBox) {
+        return GeometricAlgorithms.isSectorCollidingWithRect(attackSector, hitBox);
     }
 
     public int getBattleId() {

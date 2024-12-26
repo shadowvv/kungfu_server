@@ -5,8 +5,8 @@ public class LineSegment<T extends Number> {
     private VectorTwo<T> start;
     private VectorTwo<T> end;
 
-    public static <T extends Number> LineSegment<T> createLineSegment(VectorTwo<T> start, VectorTwo<T> end){
-        return new LineSegment<T>(start,end);
+    public static <T extends Number> LineSegment<T> createLineSegment(VectorTwo<T> start, VectorTwo<T> end) {
+        return new LineSegment<T>(start, end);
     }
 
     private LineSegment(VectorTwo<T> start, VectorTwo<T> end) {

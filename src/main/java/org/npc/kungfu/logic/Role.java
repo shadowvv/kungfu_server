@@ -71,42 +71,42 @@ public class Role {
 
     /**
      * 角色工厂
-     * @param roleId 角色id
-     * @param playerId 玩家id
+     *
+     * @param roleId     角色id
+     * @param playerId   玩家id
      * @param weaponType 武器
-     * @param active 是否已激活
-     * @param positionX 位置x坐标
-     * @param positionY 位置y坐标
-     * @param faceAngle 朝向
+     * @param active     是否已激活
+     * @param positionX  位置x坐标
+     * @param positionY  位置y坐标
+     * @param faceAngle  朝向
      * @return 战斗角色
      */
-    public static Role build(int roleId,int playerId,PlayerWeaponEnum weaponType, boolean active,int positionX,int positionY,int faceAngle){
-        return new Role(roleId, playerId,weaponType, active, positionX, positionY, faceAngle);
+    public static Role build(int roleId, int playerId, PlayerWeaponEnum weaponType, boolean active, int positionX, int positionY, int faceAngle) {
+        return new Role(roleId, playerId, weaponType, active, positionX, positionY, faceAngle);
     }
 
     /**
-     *
-     * @param roleId 角色id
-     * @param playerId 玩家id
+     * @param roleId     角色id
+     * @param playerId   玩家id
      * @param weaponType 武器
-     * @param active 是否已激活
-     * @param positionX 位置x坐标
-     * @param positionY 位置y坐标
-     * @param faceAngle 朝向
+     * @param active     是否已激活
+     * @param positionX  位置x坐标
+     * @param positionY  位置y坐标
+     * @param faceAngle  朝向
      */
-    private Role(int roleId,int playerId,PlayerWeaponEnum weaponType, boolean active,int positionX,int positionY,int faceAngle) {
+    private Role(int roleId, int playerId, PlayerWeaponEnum weaponType, boolean active, int positionX, int positionY, int faceAngle) {
         this.roleId = roleId;
         this.playerId = playerId;
         this.weaponType = weaponType;
         this.active = active;
         this.actionType = PlayerActionTypeEnum.MOVE;
-        this.center = VectorTwo.createIntegerVector(positionX,positionY);
+        this.center = VectorTwo.createIntegerVector(positionX, positionY);
         this.faceAngle = faceAngle;
 
         this.attackPoint = this.weaponType.getAttack();
         this.moveRange = this.weaponType.getMoveRange();
-        this.hitBox = HitBox.createIntegerHitBox(positionX,positionY,HIT_BOX_WIDTH,HIT_BOX_HEIGHT);
-        this.attackSector = Sector.createIntegerSector(positionX,positionY,this.weaponType.getAttackInnerRadius(),this.weaponType.getAttackOuterRadius(),this.weaponType.getStartAngle(),this.weaponType.getEndAngle());
+        this.hitBox = HitBox.createIntegerHitBox(positionX, positionY, HIT_BOX_WIDTH, HIT_BOX_HEIGHT);
+        this.attackSector = Sector.createIntegerSector(positionX, positionY, this.weaponType.getAttackInnerRadius(), this.weaponType.getAttackOuterRadius(), this.weaponType.getStartAngle(), this.weaponType.getEndAngle());
     }
 
     public void resetRole(int weaponType) {
@@ -114,11 +114,12 @@ public class Role {
 
     /**
      * 角色移动
+     *
      * @param x 目标x坐标
      * @param y 目标y坐标
      * @return 移动是否成功
      */
-    public boolean onRoleMove(int x,int y) {
+    public boolean onRoleMove(int x, int y) {
         if (!this.active) {
             return false;
         }
@@ -127,21 +128,22 @@ public class Role {
             return false;
         }
 
-        if (this.center.inCirCle(x,y,moveRange)){
+        if (this.center.inCirCle(x, y, moveRange)) {
             return false;
         }
 
-        this.center.moveTo(x,y);
+        this.center.moveTo(x, y);
         this.actionType = PlayerActionTypeEnum.ATTACK;
         return true;
     }
 
     /**
      * 角色转向
+     *
      * @param faceAngle 角色朝向
      * @return 转向是否成功
      */
-    public boolean onRoleHit(int faceAngle){
+    public boolean onRoleHit(int faceAngle) {
         if (!this.active) {
             return false;
         }
@@ -155,12 +157,13 @@ public class Role {
 
     /**
      * 角色被击中
+     *
      * @param attackPoint 攻击力
      * @return 剩余血量
      */
     public int onRoleBeHit(int attackPoint) {
         this.hpPoint = this.hpPoint - attackPoint;
-        if(this.hpPoint < 0){
+        if (this.hpPoint < 0) {
             this.hpPoint = 0;
         }
         return this.hpPoint;
@@ -168,6 +171,7 @@ public class Role {
 
     /**
      * 设置玩家是否激活
+     *
      * @param active 激活
      */
     public void setActive(boolean active) {
@@ -175,23 +179,20 @@ public class Role {
     }
 
     /**
-     *
      * @return 玩家是否激活
      */
-    public boolean isActive(){
+    public boolean isActive() {
         return active;
     }
 
     /**
-     *
      * @return 攻击力
      */
-    public int getAttackPoint(){
+    public int getAttackPoint() {
         return this.attackPoint;
     }
 
     /**
-     *
      * @return 生命值
      */
     public int getHpPoint() {
@@ -199,7 +200,6 @@ public class Role {
     }
 
     /**
-     *
      * @return 角色受击盒
      */
     public HitBox<Integer> getHitBox() {
@@ -207,15 +207,15 @@ public class Role {
     }
 
     /**
-     *
      * @return 攻击范围
      */
-    public Sector<Integer> getAttackSector(){
+    public Sector<Integer> getAttackSector() {
         return attackSector;
     }
 
     /**
-     *s
+     * s
+     *
      * @return 角色id
      */
     public int getRoleId() {

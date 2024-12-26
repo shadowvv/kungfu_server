@@ -12,16 +12,15 @@ public class StationDriver {
     TaskStation station;
     ScheduledExecutorService executor;
 
-    public StationDriver(TaskStation station,int initialDelay,int period) {
+    public StationDriver(TaskStation station, int initialDelay, int period) {
         this.station = station;
         this.initialDelay = initialDelay;
         this.period = period;
     }
 
-    public void runStation(){
+    public void runStation() {
         executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(station,initialDelay,period,TimeUnit.MILLISECONDS);
+        executor.scheduleAtFixedRate(station, initialDelay, period, TimeUnit.MILLISECONDS);
     }
-
 
 }

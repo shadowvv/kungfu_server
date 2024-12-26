@@ -14,7 +14,7 @@ public class BattleRingManager {
     /**
      * 战斗集合
      */
-    private static HashMap<Integer,BattleRing> battleRingHashMap;
+    private static HashMap<Integer, BattleRing> battleRingHashMap;
 
     public BattleRingManager() {
 
@@ -25,7 +25,7 @@ public class BattleRingManager {
         for (Role role : roles) {
             role.bindBattleId(battleRing.getBattleId());
         }
-        battleRingHashMap.put(battleRing.getBattleId(),battleRing);
+        battleRingHashMap.put(battleRing.getBattleId(), battleRing);
     }
 
     public void onReceiveMessage(int battleId, OperationReqMessage message) {

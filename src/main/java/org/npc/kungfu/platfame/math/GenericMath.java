@@ -18,7 +18,7 @@ public class GenericMath {
                     if (b == 0) throw new ArithmeticException("Division by zero");
                     return a / b;
                 },
-                (a, b) -> Integer.compare(a,b) > 0
+                (a, b) -> Integer.compare(a, b) > 0
         ));
 
         // Double 类型操作
@@ -30,7 +30,7 @@ public class GenericMath {
                     if (b == 0) throw new ArithmeticException("Division by zero");
                     return a / b;
                 },
-                (a, b) -> Double.compare(a,b) > 0
+                (a, b) -> Double.compare(a, b) > 0
         ));
     }
 
@@ -89,7 +89,7 @@ public class GenericMath {
         }
 
         public boolean biggerThen(T a, T b) {
-            return biggerThen.apply(a,b);
+            return biggerThen.apply(a, b);
         }
     }
 

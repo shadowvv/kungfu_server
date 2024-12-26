@@ -1,14 +1,17 @@
 package org.npc.kungfu.logic;
 
-import com.google.gson.*;
-
-import org.npc.kungfu.logic.message.LoginReqMessage;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import org.npc.kungfu.logic.message.MessageEnum;
 import org.npc.kungfu.net.IMessageCoder;
 import org.npc.kungfu.platfame.LogicMessage;
 
-public class MessageCoder implements IMessageCoder<LogicMessage,String> {
+/**
+ * 编解码器
+ */
+public class MessageCoder implements IMessageCoder<LogicMessage, String> {
 
-    Gson gson = new Gson();
+    private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     public MessageCoder() {
 
@@ -16,16 +19,17 @@ public class MessageCoder implements IMessageCoder<LogicMessage,String> {
 
     @Override
     public String encode(LogicMessage message) {
-        return null;
+        return gson.toJson(message);
     }
 
     @Override
     public LogicMessage decode(String data) {
         LogicMessage msg = gson.fromJson(data, LogicMessage.class);
-        System.out.println("messageId:"+msg.id);
+        MessageEnum messageEnum = MessageEnum.fromValue(msg.getId());
+        if (messageEnum == null) {
+            throw new RuntimeException("messageEnum is null");
+        }
 
-        LoginReqMessage message = gson.fromJson(data, LoginReqMessage.class);
-        System.out.println("playerId:"+message.playerId);
-        return message;
+        return gson.fromJson(data, messageEnum.getClazz());
     }
 }

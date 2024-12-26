@@ -1,18 +1,14 @@
 package org.npc.kungfu.platfame;
 
-import java.util.LinkedList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TaskBus implements Callable<Boolean> {
 
-    private LinkedList<LogicMessage> messages;
+    private final ConcurrentLinkedQueue<LogicMessage> messages;
 
     public TaskBus() {
-        messages = new LinkedList<>();
-    }
-
-    public void drainToMessages(LinkedList<LogicMessage> messages) {
-        this.messages.addAll(messages);
+        messages = new ConcurrentLinkedQueue<>();
     }
 
     public void addMessage(LogicMessage message) {
@@ -23,7 +19,7 @@ public class TaskBus implements Callable<Boolean> {
     public Boolean call() throws Exception {
         while (!messages.isEmpty()) {
             LogicMessage message = messages.poll();
-            System.out.println("run message id:"+message.id+" thread:"+Thread.currentThread().getName());
+            System.out.println("run message id:" + message.getId() + " thread:" + Thread.currentThread().getName());
             message.doLogic();
         }
         return true;

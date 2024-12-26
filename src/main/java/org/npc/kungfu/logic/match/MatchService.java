@@ -1,7 +1,10 @@
 package org.npc.kungfu.logic.match;
 
-import org.npc.kungfu.logic.battle.BattleRingManager;
+import io.netty.channel.Channel;
+import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.Role;
+import org.npc.kungfu.logic.battle.BattleRingManager;
+import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.TaskStation;
 
 import java.util.ArrayList;
@@ -21,13 +24,17 @@ public class MatchService {
     }
 
     public void init(TaskStation matchStation) {
+
     }
 
-    public static void enterMatch(Role role){
+    public static void enterMatch(Role role) {
         roles.add(role);
     }
 
-    public void matchUp(){
+    public void matchUp() {
         BattleRingManager.startNewBattleRing(roles);
+    }
+
+    public void addMessage(BaseMessage msg, Player player) {
     }
 }

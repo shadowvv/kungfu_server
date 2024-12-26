@@ -8,15 +8,15 @@ public class Sector<T extends Number> {
     private double startAngle;
     private double endAngle;
 
-    public static Sector<Integer> createIntegerSector(int positionX, int positionY,int innerRadius, int outerRadius,double startAngle,double endAngle) {
-        return new Sector<>(VectorTwo.createIntegerVector(positionX,positionY),innerRadius,outerRadius,startAngle,endAngle,Integer.class);
+    public static Sector<Integer> createIntegerSector(int positionX, int positionY, int innerRadius, int outerRadius, double startAngle, double endAngle) {
+        return new Sector<>(VectorTwo.createIntegerVector(positionX, positionY), innerRadius, outerRadius, startAngle, endAngle, Integer.class);
     }
 
-    public static Sector<Double> createDoubleSector(double positionX, double positionY, double innerRadius, double outerRadius,double startAngle,double endAngle) {
-        return new Sector<>(VectorTwo.createDoubleVector(positionX, positionY),innerRadius,outerRadius,startAngle,endAngle,Double.class);
+    public static Sector<Double> createDoubleSector(double positionX, double positionY, double innerRadius, double outerRadius, double startAngle, double endAngle) {
+        return new Sector<>(VectorTwo.createDoubleVector(positionX, positionY), innerRadius, outerRadius, startAngle, endAngle, Double.class);
     }
 
-    private Sector(VectorTwo<T> center,T innerRadius, T outerRadius, double startAngle, double endAngle,Class<T> type) {
+    private Sector(VectorTwo<T> center, T innerRadius, T outerRadius, double startAngle, double endAngle, Class<T> type) {
         this.center = center;
         this.innerRadius = innerRadius;
         this.outerRadius = outerRadius;
