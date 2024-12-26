@@ -1,5 +1,6 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.battle;
 
+import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.message.OperationReqMessage;
 
 import java.util.ArrayList;

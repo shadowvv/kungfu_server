@@ -1,5 +1,6 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.battle;
 
+import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.OperationReqMessage;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
@@ -25,7 +26,7 @@ public class BattleRing {
     /**
      * 参加决斗的角色
      */
-    private HashMap<Integer,Role> roles;
+    private HashMap<Integer, Role> roles;
     /**
      * 决斗阶段
      */

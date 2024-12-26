@@ -1,13 +1,12 @@
 package org.npc.kungfu;
 
-import org.npc.kungfu.logic.MessageCoder;
-import org.npc.kungfu.logic.MessageDispatcher;
-import org.npc.kungfu.logic.PlayerService;
+import org.npc.kungfu.logic.*;
+import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.net.WebSocketServer;
 import org.npc.kungfu.platfame.*;
 
-public class booster {
+public class Booster {
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -27,10 +26,10 @@ public class booster {
         StationDriver battleDriver = new StationDriver(battleStation,0,30);
         battleDriver.runStation();
 
-        LoginService loginService = new LoginService(loginStation);
-        PlayerService playerService = new PlayerService(playerStation);
-        MatchService matchService = new MatchService(matchStation);
-        BattleService battleService = new BattleService(battleStation);
+        LoginService.getService().init(loginStation);
+        PlayerService.getService().init(playerStation);
+        MatchService.getService().init(matchStation);
+        BattleService.getService().init(battleStation);
 
         WebSocketServer net = new WebSocketServer(8080,new MessageDispatcher(),new MessageCoder());
         net.start();

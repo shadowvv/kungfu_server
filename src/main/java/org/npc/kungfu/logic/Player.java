@@ -1,15 +1,21 @@
 package org.npc.kungfu.logic;
 
+import com.google.gson.Gson;
+import io.netty.channel.Channel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.match.MatchService;
+import org.npc.kungfu.logic.message.LoginRespMessage;
 
 public class Player {
 
     private final int playerId;
+    private Channel channel;
     private Role role;
 
-    Player(int playerId) {
+    Player(int playerId, Channel channel) {
         this.playerId = playerId;
+        this.channel = channel;
     }
 
     public void onPlayerApplyBattle(int weaponType) {
@@ -29,5 +35,12 @@ public class Player {
     }
 
     public void onPlayerLoginOut() {
+    }
+
+    public void sendLoginSuccess() {
+        Gson gson = new Gson();
+        String message = gson.toJson(new LoginRespMessage(true));
+        System.out.println(message);
+        channel.writeAndFlush(new TextWebSocketFrame(message));
     }
 }

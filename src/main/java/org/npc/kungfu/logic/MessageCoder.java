@@ -21,7 +21,11 @@ public class MessageCoder implements IMessageCoder<LogicMessage,String> {
 
     @Override
     public LogicMessage decode(String data) {
+        LogicMessage msg = gson.fromJson(data, LogicMessage.class);
+        System.out.println("messageId:"+msg.id);
+
         LoginReqMessage message = gson.fromJson(data, LoginReqMessage.class);
+        System.out.println("playerId:"+message.playerId);
         return message;
     }
 }

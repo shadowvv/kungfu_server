@@ -42,9 +42,9 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
             String request = ((TextWebSocketFrame) frame).text();
             System.out.println("Received: " + request);
 
-            dispatcher.dispatchMessage(coder.decode(request));
+            dispatcher.dispatchMessage(coder.decode(request),ctx.channel());
             // 回送消息
-             ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
+            ctx.channel().writeAndFlush(new TextWebSocketFrame("Server received: " + request));
         } else if (frame instanceof CloseWebSocketFrame) {
             // 处理关闭帧
             System.out.println("Close frame received");

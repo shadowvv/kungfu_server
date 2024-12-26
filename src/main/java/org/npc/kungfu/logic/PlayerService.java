@@ -1,27 +1,44 @@
 package org.npc.kungfu.logic;
 
-import org.npc.kungfu.platfame.ITaskStation;
+import io.netty.channel.Channel;
+import org.npc.kungfu.platfame.TaskStation;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PlayerService {
 
-    HashMap<Integer, Player> players;
+    private static final PlayerService service = new PlayerService();
+    private PlayerService() {}
 
-    public PlayerService(ITaskStation station) {
-
+    public static PlayerService getService() {
+        return service;
     }
 
-    public void onPlayerLogin(int playerId) {
+    private ConcurrentHashMap<Integer, Player> players;
+    private AtomicInteger playerId = new AtomicInteger(1);
+
+    public void init(TaskStation playerStation) {
+        players = new ConcurrentHashMap<>();
+    }
+
+    public void newPlayerLoginOver(Channel loginChannel) {
+        int id = playerId.incrementAndGet();
+        if (players.containsKey(id)) {
+            return;
+        }
+        Player player = new Player(id,loginChannel);
+        players.put(id, player);
+        player.sendLoginSuccess();
+    }
+
+    public void onPlayerLoginOver(int playerId, Channel loginChannel) {
         if (players.containsKey(playerId)) {
             return;
         }
-        Player player = new Player(playerId);
+        Player player = new Player(playerId,loginChannel);
         players.put(playerId, player);
-    }
-
-    public void onPlayerReconnect(){
-
+        player.sendLoginSuccess();
     }
 
     public void onPlayerLogout(int playerId) {
@@ -38,5 +55,4 @@ public class PlayerService {
         }
         player.onPlayerApplyBattle(weaponType);
     }
-
 }

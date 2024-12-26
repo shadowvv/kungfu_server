@@ -1,7 +1,9 @@
 package org.npc.kungfu.net;
 
+import io.netty.channel.Channel;
+
 public interface IMessageDispatcher {
 
-    void dispatchMessage(Object message);
+    void dispatchMessage(Object message, Channel senderChannel);
 
 }
