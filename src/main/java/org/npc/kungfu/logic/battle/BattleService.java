@@ -1,9 +1,8 @@
 package org.npc.kungfu.logic.battle;
 
-import io.netty.channel.Channel;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.message.BaseMessage;
-import org.npc.kungfu.platfame.TaskStation;
+import org.npc.kungfu.platfame.bus.TaskStation;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,6 +34,6 @@ public class BattleService {
 //        service.submit();
     }
 
-    public void addMessage(BaseMessage msg, Player player) {
+    public void putMessage(BaseMessage msg, Player player) {
     }
 }

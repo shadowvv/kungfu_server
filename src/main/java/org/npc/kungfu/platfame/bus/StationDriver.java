@@ -1,4 +1,4 @@
-package org.npc.kungfu.platfame;
+package org.npc.kungfu.platfame.bus;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

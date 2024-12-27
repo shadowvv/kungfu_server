@@ -1,10 +1,11 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
+import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.logic.message.ApplyBattleReqMessage;
 import org.npc.kungfu.logic.message.BaseMessage;
-import org.npc.kungfu.platfame.TaskBus;
-import org.npc.kungfu.platfame.TaskStation;
+import org.npc.kungfu.platfame.bus.ITaskStation;
+import org.npc.kungfu.platfame.bus.TaskStation;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,20 +22,21 @@ public class PlayerService {
     }
 
     private ConcurrentHashMap<Integer, Player> idPlayers;
-    private ConcurrentHashMap<Channel, Player> channelPlayers;
-    private AtomicInteger playerId = new AtomicInteger(1);
-    private final TaskBus taskBus = new TaskBus();
+    private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
+    private final AtomicInteger playerId = new AtomicInteger(1);
+    private ITaskStation taskStation;
 
     public void init(TaskStation playerStation) {
         idPlayers = new ConcurrentHashMap<>();
-        channelPlayers = new ConcurrentHashMap<>();
-        playerStation.addBus(taskBus);
+        channelPlayerIds = new ConcurrentHashMap<>();
+        taskStation = playerStation;
     }
 
-    public void addMessage(BaseMessage msg, Channel senderChannel) {
+    public void putMessage(BaseMessage msg, Channel senderChannel) {
         if (msg instanceof ApplyBattleReqMessage){
             ApplyBattleReqMessage req = (ApplyBattleReqMessage) msg;
-            taskBus.addMessage(req);
+            req.setPlayerId(channelPlayerIds.get(senderChannel));
+            taskStation.putMessage(req);
         }
     }
 
@@ -45,7 +47,7 @@ public class PlayerService {
         }
         Player player = new Player(id, loginChannel);
         idPlayers.put(id, player);
-        channelPlayers.put(loginChannel, player);
+        channelPlayerIds.put(loginChannel, player.getPlayerId());
         player.sendLoginSuccess();
     }
 
@@ -55,14 +57,14 @@ public class PlayerService {
         }
         Player player = new Player(playerId, loginChannel);
         idPlayers.put(playerId, player);
-        channelPlayers.put(loginChannel, player);
+        channelPlayerIds.put(loginChannel, player.getPlayerId());
         player.sendLoginSuccess();
     }
 
     public void onPlayerLogout(int playerId) {
         Player player = idPlayers.remove(playerId);
         if (player != null) {
-            channelPlayers.remove(player.getChannel());
+            channelPlayerIds.remove(player.getChannel());
             player.onPlayerLoginOut();
         }
     }
@@ -72,10 +74,21 @@ public class PlayerService {
         if (player == null) {
             return;
         }
+        if (player.isInBattle()){
+            return;
+        }
+        if (player.isInMatch()){
+            return;
+        }
         player.onPlayerApplyBattle(weaponType);
+        MatchService.getService().enterMatch(player.getRole());
+        System.out.println("enter match");
     }
 
     public Player getPlayer(Channel senderChannel) {
-        return channelPlayers.get(senderChannel);
+        if (!channelPlayerIds.containsKey(senderChannel)) {
+            return null;
+        }
+        return idPlayers.get(channelPlayerIds.get(senderChannel));
     }
 }

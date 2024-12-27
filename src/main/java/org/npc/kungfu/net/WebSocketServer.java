@@ -66,7 +66,8 @@ public class WebSocketServer {
             pipeline.addLast(new HttpObjectAggregator(8192));
             // WebSocket 协议处理器，自动完成握手
             pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
-
+            //
+//            pipeline.addLast(new CoderHandler(coder));
             // 自定义业务逻辑处理器
             pipeline.addLast(new WebSocketFrameHandler(this.dispatcher, this.coder));
         }

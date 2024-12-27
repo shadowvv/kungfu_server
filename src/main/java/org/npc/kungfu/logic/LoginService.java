@@ -3,8 +3,7 @@ package org.npc.kungfu.logic;
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.LoginReqMessage;
-import org.npc.kungfu.platfame.ITaskStation;
-import org.npc.kungfu.platfame.TaskBus;
+import org.npc.kungfu.platfame.bus.ITaskStation;
 
 
 public class LoginService {
@@ -15,22 +14,28 @@ public class LoginService {
         return service;
     }
 
-    private final TaskBus taskBus = new TaskBus();
-
     public LoginService() {
     }
 
+    private ITaskStation taskStation;
+
     public void init(ITaskStation station) {
-        station.addBus(taskBus);
+        taskStation = station;
     }
 
-    public void addMessage(BaseMessage msg, Channel senderChannel) {
+    public void putMessage(BaseMessage msg, Channel senderChannel) {
         if (msg instanceof LoginReqMessage) {
             LoginReqMessage loginReqMsg = (LoginReqMessage) msg;
             loginReqMsg.setLoginChannel(senderChannel);
-            taskBus.addMessage(msg);
+            taskStation.putMessage(msg);
         }
     }
 
 
+    public void createPlayer(int playerId) {
+    }
+
+    public void LoadPlayer(int playerId) {
+
+    }
 }
