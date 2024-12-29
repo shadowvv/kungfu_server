@@ -1,15 +1,15 @@
 package org.npc.kungfu.logic;
 
-import com.google.gson.Gson;
 import io.netty.channel.Channel;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
+import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
+import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
 
 public class Player {
 
     private final int playerId;
-    private Channel channel;
+    private final Channel channel;
     private Role role;
     private boolean inMatch;
     private boolean inBattle;
@@ -22,21 +22,14 @@ public class Player {
     public void onPlayerApplyBattle(int weaponType) {
         if (role != null) {
             role.resetRole(weaponType);
-        }else {
-            role = Role.build(1, playerId, PlayerWeaponEnum.fromValue(weaponType), true, 1, 1, 10);
+        } else {
+            role = Role.build(playerId, playerId, PlayerWeaponEnum.fromValue(weaponType), true, 1, 1, 10);
         }
         this.inMatch = true;
     }
 
-    public void onBattleOver() {
-        this.inBattle = false;
-    }
-
     public int getPlayerId() {
         return playerId;
-    }
-
-    public void onPlayerLoginOut() {
     }
 
     public void sendLoginSuccess() {
@@ -44,13 +37,16 @@ public class Player {
         resp.setPlayerId(playerId);
         resp.setSuccess(Boolean.TRUE);
 
-        Gson gson = new Gson();
-        String message = gson.toJson(resp);
-        channel.writeAndFlush(new TextWebSocketFrame(message));
+        channel.writeAndFlush(resp);
     }
 
-    public Channel getChannel() {
-        return channel;
+    public void sendApplyBattleSuccess() {
+        this.inMatch = true;
+
+        ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
+        resp.setRoleId(role.getRoleId());
+        resp.setWeaponType(this.role.getWeaponType());
+        channel.writeAndFlush(resp);
     }
 
     public boolean isInBattle() {
@@ -63,5 +59,9 @@ public class Player {
 
     public Role getRole() {
         return role;
+    }
+
+    public void sendMessage(BaseMessage message) {
+        channel.writeAndFlush(message);
     }
 }

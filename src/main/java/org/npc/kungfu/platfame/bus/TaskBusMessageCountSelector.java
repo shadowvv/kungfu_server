@@ -1,6 +1,6 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class TaskBusMessageCountSelector implements ITaskBusSelector {
         TaskBus bus = busList.get(0);
         int count = Integer.MAX_VALUE;
         for (TaskBus tempBus : busList) {
-            if (tempBus.getMessageCount() < count){
+            if (tempBus.getMessageCount() < count) {
                 count = tempBus.getMessageCount();
                 bus = tempBus;
             }

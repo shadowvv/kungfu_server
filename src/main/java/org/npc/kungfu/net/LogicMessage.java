@@ -1,4 +1,4 @@
-package org.npc.kungfu.platfame;
+package org.npc.kungfu.net;
 
 import com.google.gson.annotations.Expose;
 

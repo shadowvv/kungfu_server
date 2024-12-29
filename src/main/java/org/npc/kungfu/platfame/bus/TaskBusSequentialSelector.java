@@ -1,11 +1,11 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskBusSequentialSelector implements ITaskBusSelector{
+public class TaskBusSequentialSelector implements ITaskBusSelector {
 
     private List<TaskBus> busList;
     private AtomicInteger index;

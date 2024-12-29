@@ -1,6 +1,6 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.List;
 

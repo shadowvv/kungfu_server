@@ -1,6 +1,6 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -9,11 +9,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TaskBus implements Callable<Boolean> {
 
     private final ConcurrentLinkedQueue<LogicMessage> messages;
+    private final ConcurrentLinkedQueue<Runnable> runnables;
     private final AtomicInteger messageCount;
     private final String signature;
 
     public TaskBus(String signature) {
         messages = new ConcurrentLinkedQueue<>();
+        runnables = new ConcurrentLinkedQueue<>();
         messageCount = new AtomicInteger(0);
         this.signature = signature;
     }
@@ -28,7 +30,7 @@ public class TaskBus implements Callable<Boolean> {
         while (!messages.isEmpty()) {
             LogicMessage message = messages.poll();
             messageCount.decrementAndGet();
-            System.out.println("run message id:" + message.getId() + " thread:" + Thread.currentThread().getName());
+//            System.out.println("run message id:" + message.getId() + " thread:" + Thread.currentThread().getName());
             message.doLogic();
         }
         return true;
@@ -40,5 +42,9 @@ public class TaskBus implements Callable<Boolean> {
 
     public String getSignature() {
         return signature;
+    }
+
+    public void addRunnable(Runnable r) {
+        runnables.add(r);
     }
 }

@@ -1,10 +1,10 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.List;
 
-public class TaskBusHashSelector implements ITaskBusSelector{
+public class TaskBusHashSelector implements ITaskBusSelector {
 
     private List<TaskBus> busList;
 
@@ -19,6 +19,6 @@ public class TaskBusHashSelector implements ITaskBusSelector{
 
     @Override
     public TaskBus selectBus(LogicMessage message) {
-        return busList.get(message.getId()%busList.size());
+        return busList.get(message.getId() % busList.size());
     }
 }

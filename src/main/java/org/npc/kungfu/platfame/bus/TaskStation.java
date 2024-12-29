@@ -1,6 +1,6 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 import java.util.ArrayList;
 import java.util.concurrent.*;
@@ -14,11 +14,11 @@ public class TaskStation implements ITaskStation {
     private final ConcurrentHashMap<TaskBus, Future<?>> futures;
     private final ITaskBusSelector selector;
 
-    public TaskStation(final int threadNum, final String threadName,final ITaskBusSelector selector) {
+    public TaskStation(final int threadNum, final String threadName, final ITaskBusSelector selector) {
         this.threadNum = threadNum;
         this.tasks = new ArrayList<>();
         for (int i = 0; i < threadNum; i++) {
-            this.tasks.add(new TaskBus(threadName+"_"+i));
+            this.tasks.add(new TaskBus(threadName + "_" + i));
         }
         this.selector = selector;
         this.selector.init(tasks);
@@ -28,7 +28,7 @@ public class TaskStation implements ITaskStation {
         service = Executors.newFixedThreadPool(this.threadNum, new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
-                t.setName(threadName+"_"+threadIndex.getAndIncrement());
+                t.setName(threadName + "_" + threadIndex.getAndIncrement());
                 t.setDaemon(true);
                 return t;
             }
@@ -39,6 +39,14 @@ public class TaskStation implements ITaskStation {
         TaskBus task = selector.selectBus(message);
         if (task != null) {
             task.addMessage(message);
+        }
+    }
+
+    @Override
+    public void putRunnable(Runnable r) {
+        TaskBus task = selector.selectBus(null);
+        if (task != null) {
+            task.addRunnable(r);
         }
     }
 

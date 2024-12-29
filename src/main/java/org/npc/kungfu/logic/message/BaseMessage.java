@@ -1,6 +1,6 @@
 package org.npc.kungfu.logic.message;
 
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 public abstract class BaseMessage extends LogicMessage {
 

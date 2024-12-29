@@ -3,19 +3,14 @@ package org.npc.kungfu.net;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 
-public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
 
     private final IMessageDispatcher dispatcher;
-    private final IMessageCoder<?, String> coder;
 
-    WebSocketFrameHandler(IMessageDispatcher dispatcher, IMessageCoder<?, String> coder) {
+    WebSocketFrameHandler(IMessageDispatcher dispatcher) {
         this.dispatcher = dispatcher;
-        this.coder = coder;
     }
 
     @Override
@@ -36,17 +31,8 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<WebSocket
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
-        if (frame instanceof TextWebSocketFrame) {
-            // 处理文本帧
-            String request = ((TextWebSocketFrame) frame).text();
-            dispatcher.dispatchMessage(coder.decode(request), ctx.channel());
-        } else if (frame instanceof CloseWebSocketFrame) {
-            // 处理关闭帧
-            System.out.println("Close frame received");
-            ctx.channel().close();
-        }
-
+    protected void channelRead0(ChannelHandlerContext ctx, Object frame) {
+        dispatcher.dispatchMessage(frame, ctx.channel());
     }
 
     @Override

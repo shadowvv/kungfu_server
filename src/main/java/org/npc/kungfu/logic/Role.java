@@ -2,6 +2,9 @@ package org.npc.kungfu.logic;
 
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
+import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.MatchResultBroadMessage;
+import org.npc.kungfu.net.LogicMessage;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
 import org.npc.kungfu.platfame.math.VectorTwo;
@@ -224,5 +227,20 @@ public class Role {
 
     public void bindBattleId(int battleId) {
         this.battleId = battleId;
+    }
+
+    public int getWeaponType() {
+        return this.weaponType.getTypeId();
+    }
+
+    public void sendMessage(BaseMessage message) {
+        Player player = PlayerService.getService().getPlayer(this.playerId);
+        if (player != null) {
+            player.sendMessage(message);
+        }
+    }
+
+    public int getBattleId() {
+        return battleId;
     }
 }

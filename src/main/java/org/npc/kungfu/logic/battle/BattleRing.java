@@ -9,6 +9,7 @@ import org.npc.kungfu.platfame.math.Sector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.npc.kungfu.logic.constant.BattleConstants.BATTLE_RING_ROLE_NUM;
 import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
@@ -16,7 +17,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 /**
  * 决斗场
  */
-public class BattleRing {
+public class BattleRing implements Runnable {
 
     private int battleId;
     /**
@@ -46,14 +47,14 @@ public class BattleRing {
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(ArrayList<Role> roles) {
+    public static BattleRing build(List<Role> roles) {
         return new BattleRing(roles);
     }
 
     /**
      * @param roles 参与决斗的角色
      */
-    private BattleRing(ArrayList<Role> roles) {
+    private BattleRing(List<Role> roles) {
         this.roles = new HashMap<>();
         for (Role role : roles) {
             addRole(role);
@@ -179,5 +180,10 @@ public class BattleRing {
 
     public int getBattleId() {
         return battleId;
+    }
+
+    @Override
+    public void run() {
+        update(20);
     }
 }

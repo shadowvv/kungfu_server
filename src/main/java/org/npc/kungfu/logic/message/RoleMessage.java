@@ -2,15 +2,16 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
-public class ApplyBattleRespMessage extends BaseMessage {
+public class RoleMessage {
 
     @Expose
     private int roleId;
+
     @Expose
     private int weaponType;
 
-    public ApplyBattleRespMessage(){
-        setId(2002);
+    public RoleMessage() {
+
     }
 
     public int getRoleId() {
@@ -27,10 +28,5 @@ public class ApplyBattleRespMessage extends BaseMessage {
 
     public void setWeaponType(int weaponType) {
         this.weaponType = weaponType;
-    }
-
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.PLAYER_MESSAGE;
     }
 }

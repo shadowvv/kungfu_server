@@ -16,21 +16,21 @@ public class MessageDispatcher implements IMessageDispatcher {
                 case LOGIN_MESSAGE:
                     LoginService.getService().putMessage(msg, senderChannel);
                     break;
-                case PLAYER_MESSAGE:
-                    PlayerService.getService().putMessage(msg, senderChannel);
+                case PLAYER_MESSAGE: {
+                    int playerId = LoginService.getService().getPlayerId(senderChannel);
+                    PlayerService.getService().putMessage(msg, playerId);
                     break;
-                case MATCH_MESSAGE:
-                    Player matchPlayer = PlayerService.getService().getPlayer(senderChannel);
-                    if (matchPlayer != null) {
-                        MatchService.getService().putMessage(msg, matchPlayer);
-                    }
+                }
+                case MATCH_MESSAGE: {
+                    int playerId = LoginService.getService().getPlayerId(senderChannel);
+                    MatchService.getService().putMessage(msg, playerId);
                     break;
-                case BATTLE_MESSAGE:
-                    Player battlePlayer = PlayerService.getService().getPlayer(senderChannel);
-                    if (battlePlayer != null) {
-                        BattleService.getService().putMessage(msg, battlePlayer);
-                    }
+                }
+                case BATTLE_MESSAGE: {
+                    int playerId = LoginService.getService().getPlayerId(senderChannel);
+                    BattleService.getService().putMessage(msg, playerId);
                     break;
+                }
                 default:
                     System.out.println("error");
             }

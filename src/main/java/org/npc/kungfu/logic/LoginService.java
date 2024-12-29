@@ -5,6 +5,9 @@ import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.LoginReqMessage;
 import org.npc.kungfu.platfame.bus.ITaskStation;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class LoginService {
 
@@ -19,8 +22,12 @@ public class LoginService {
 
     private ITaskStation taskStation;
 
+    private final AtomicInteger playerIdCreator = new AtomicInteger(0);
+    private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
+
     public void init(ITaskStation station) {
         taskStation = station;
+        channelPlayerIds = new ConcurrentHashMap<>();
     }
 
     public void putMessage(BaseMessage msg, Channel senderChannel) {
@@ -31,11 +38,22 @@ public class LoginService {
         }
     }
 
-
-    public void createPlayer(int playerId) {
+    public Player createPlayer(Channel loginChannel) {
+        int id = playerIdCreator.incrementAndGet();
+        if (channelPlayerIds.containsKey(loginChannel)) {
+            return null;
+        }
+        Player player = new Player(id, loginChannel);
+        channelPlayerIds.put(loginChannel, player.getPlayerId());
+        return player;
     }
 
-    public void LoadPlayer(int playerId) {
+    public Player LoadPlayer(int playerId, Channel loginChannel) {
+        //TODO:
+        return null;
+    }
 
+    public int getPlayerId(Channel senderChannel) {
+        return channelPlayerIds.get(senderChannel);
     }
 }

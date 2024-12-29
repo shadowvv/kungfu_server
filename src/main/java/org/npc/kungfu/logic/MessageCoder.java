@@ -4,12 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.npc.kungfu.logic.message.MessageEnum;
 import org.npc.kungfu.net.IMessageCoder;
-import org.npc.kungfu.platfame.LogicMessage;
+import org.npc.kungfu.net.LogicMessage;
 
 /**
  * 编解码器
  */
-public class MessageCoder implements IMessageCoder<LogicMessage, String> {
+public class MessageCoder implements IMessageCoder<String> {
 
     private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 

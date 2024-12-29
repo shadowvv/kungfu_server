@@ -18,9 +18,9 @@ public class WebSocketServer {
     private final int port;
     private final int threadNum;
     private final IMessageDispatcher dispatcher;
-    private final IMessageCoder<?, String> coder;
+    private final IMessageCoder<String> coder;
 
-    public WebSocketServer(int port, int threadNum, IMessageDispatcher dispatcher, IMessageCoder<?, String> coder) {
+    public WebSocketServer(int port, int threadNum, IMessageDispatcher dispatcher, IMessageCoder<String> coder) {
         this.port = port;
         this.threadNum = threadNum;
         this.dispatcher = dispatcher;
@@ -47,9 +47,9 @@ public class WebSocketServer {
 
     static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
         private final IMessageDispatcher dispatcher;
-        private final IMessageCoder<?, String> coder;
+        private final IMessageCoder<String> coder;
 
-        ChannelInitializerImpl(IMessageDispatcher dispatcher, IMessageCoder<?, String> coder) {
+        ChannelInitializerImpl(IMessageDispatcher dispatcher, IMessageCoder<String> coder) {
             this.dispatcher = dispatcher;
             this.coder = coder;
         }
@@ -67,9 +67,9 @@ public class WebSocketServer {
             // WebSocket 协议处理器，自动完成握手
             pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
             //
-//            pipeline.addLast(new CoderHandler(coder));
+            pipeline.addLast(new CoderHandler(coder));
             // 自定义业务逻辑处理器
-            pipeline.addLast(new WebSocketFrameHandler(this.dispatcher, this.coder));
+            pipeline.addLast(new WebSocketFrameHandler(this.dispatcher));
         }
     }
 }

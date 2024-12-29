@@ -1,9 +1,9 @@
 package org.npc.kungfu.net;
 
-public interface IMessageCoder<T, V> {
+public interface IMessageCoder<T> {
 
-    V encode(T message);
+    T encode(LogicMessage message);
 
-    T decode(V data);
+    LogicMessage decode(T data);
 
 }
