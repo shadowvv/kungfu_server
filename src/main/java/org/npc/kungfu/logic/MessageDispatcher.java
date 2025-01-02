@@ -12,9 +12,10 @@ public class MessageDispatcher implements IMessageDispatcher {
     public void dispatchMessage(Object message, Channel senderChannel) {
         if (message instanceof BaseMessage) {
             BaseMessage msg = (BaseMessage) message;
+            msg.setSenderChannel(senderChannel);
             switch (msg.getMessageType()) {
                 case LOGIN_MESSAGE:
-                    LoginService.getService().putMessage(msg, senderChannel);
+                    LoginService.getService().putMessage(msg);
                     break;
                 case PLAYER_MESSAGE: {
                     int playerId = LoginService.getService().getPlayerId(senderChannel);

@@ -1,7 +1,5 @@
 package org.npc.kungfu.logic.message;
 
-import org.npc.kungfu.logic.match.MatchService;
-
 public class SSStartMatchUpMessage extends BaseMessage {
 
     public SSStartMatchUpMessage() {
@@ -10,8 +8,8 @@ public class SSStartMatchUpMessage extends BaseMessage {
 
     @Override
     public void doLogic() {
-        MatchService.getService().matchUp();
-        MatchService.getService().putMessage(this,0);
+//        MatchService.getService().matchUp();
+//        MatchService.getService().putMessage(this,0);
     }
 
     @Override

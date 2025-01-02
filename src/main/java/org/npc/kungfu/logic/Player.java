@@ -9,13 +9,15 @@ import org.npc.kungfu.logic.message.LoginRespMessage;
 public class Player {
 
     private final int playerId;
+    private final String username;
     private final Channel channel;
     private Role role;
     private boolean inMatch;
     private boolean inBattle;
 
-    Player(int playerId, Channel channel) {
+    Player(int playerId, String userName, Channel channel) {
         this.playerId = playerId;
+        this.username = userName;
         this.channel = channel;
     }
 

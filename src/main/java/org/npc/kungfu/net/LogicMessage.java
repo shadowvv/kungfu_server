@@ -1,8 +1,9 @@
 package org.npc.kungfu.net;
 
 import com.google.gson.annotations.Expose;
+import org.npc.kungfu.platfame.bus.IPassenger;
 
-public class LogicMessage {
+public class LogicMessage implements IPassenger {
 
     @Expose
     private int id;

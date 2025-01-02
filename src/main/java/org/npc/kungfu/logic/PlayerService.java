@@ -1,10 +1,8 @@
 package org.npc.kungfu.logic;
 
-import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.logic.message.ApplyBattleReqMessage;
 import org.npc.kungfu.logic.message.BaseMessage;
-import org.npc.kungfu.platfame.bus.ITaskStation;
-import org.npc.kungfu.platfame.bus.TaskStation;
+import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,10 +17,10 @@ public class PlayerService {
         return service;
     }
 
+    private BusStation<BaseMessage> taskStation;
     private ConcurrentHashMap<Integer, Player> idPlayers;
-    private ITaskStation taskStation;
 
-    public void init(TaskStation playerStation) {
+    public void init(BusStation<BaseMessage> playerStation) {
         idPlayers = new ConcurrentHashMap<>();
         taskStation = playerStation;
     }
@@ -31,15 +29,12 @@ public class PlayerService {
         if (msg instanceof ApplyBattleReqMessage) {
             ApplyBattleReqMessage req = (ApplyBattleReqMessage) msg;
             req.setPlayerId(playerId);
-            taskStation.putMessage(req);
+            taskStation.put(req);
         }
     }
 
     public void onPlayerLoginOver(Player player) {
-        if (idPlayers.containsKey(player.getPlayerId())) {
-            return;
-        }
-        idPlayers.put(player.getPlayerId(), player);
+        idPlayers.putIfAbsent(player.getPlayerId(), player);
     }
 
     public Player getPlayer(int playerId) {

@@ -9,7 +9,7 @@ public class ApplyBattleRespMessage extends BaseMessage {
     @Expose
     private int weaponType;
 
-    public ApplyBattleRespMessage(){
+    public ApplyBattleRespMessage() {
         setId(2002);
     }
 

@@ -1,28 +1,26 @@
 package org.npc.kungfu.platfame.bus;
 
-import org.npc.kungfu.net.LogicMessage;
-
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class TaskBusSequentialSelector implements ITaskBusSelector {
+public class BusSequentialSelector<T extends IPassenger> implements IBusSelector<T> {
 
-    private List<TaskBus> busList;
+    private List<IBus<T>> busList;
     private AtomicInteger index;
 
-    public TaskBusSequentialSelector() {
+    public BusSequentialSelector() {
 
     }
 
     @Override
-    public void init(List<TaskBus> buses) {
-        this.busList = buses;
+    public void init(List<IBus<T>> iBuses) {
+        this.busList = iBuses;
         index = new AtomicInteger(0);
     }
 
     @Override
-    public TaskBus selectBus(LogicMessage message) {
-        TaskBus bus = busList.get(index.intValue());
+    public IBus<T> selectBus(T passenger) {
+        IBus<T> bus = busList.get(index.intValue());
         int currentIndex = index.incrementAndGet();
         if (currentIndex >= busList.size()) {
             index.set(0);

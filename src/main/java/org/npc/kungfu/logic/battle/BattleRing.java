@@ -3,6 +3,7 @@ package org.npc.kungfu.logic.battle;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.OperationReqMessage;
+import org.npc.kungfu.platfame.bus.IRunnablePassenger;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
@@ -17,7 +18,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 /**
  * 决斗场
  */
-public class BattleRing implements Runnable {
+public class BattleRing implements IRunnablePassenger {
 
     private int battleId;
     /**
@@ -178,12 +179,18 @@ public class BattleRing implements Runnable {
         return GeometricAlgorithms.isSectorCollidingWithRect(attackSector, hitBox);
     }
 
-    public int getBattleId() {
+    @Override
+    public void run() {
+        update(20);
+    }
+
+    @Override
+    public int getId() {
         return battleId;
     }
 
     @Override
-    public void run() {
-        update(20);
+    public void doLogic() {
+        update(1);
     }
 }

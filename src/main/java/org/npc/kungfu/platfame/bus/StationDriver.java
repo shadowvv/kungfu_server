@@ -9,10 +9,10 @@ public class StationDriver {
     private final int initialDelay;
     private final int period;
 
-    TaskStation station;
+    IBusStation<?> station;
     ScheduledExecutorService executor;
 
-    public StationDriver(TaskStation station, int initialDelay, int period) {
+    public StationDriver(IBusStation<?> station, int initialDelay, int period) {
         this.station = station;
         this.initialDelay = initialDelay;
         this.period = period;

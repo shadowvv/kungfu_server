@@ -2,8 +2,7 @@ package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.message.BaseMessage;
-import org.npc.kungfu.logic.message.LoginReqMessage;
-import org.npc.kungfu.platfame.bus.ITaskStation;
+import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,38 +12,44 @@ public class LoginService {
 
     private static final LoginService service = new LoginService();
 
+    private LoginService() {
+    }
+
     public static LoginService getService() {
         return service;
     }
 
-    public LoginService() {
-    }
-
-    private ITaskStation taskStation;
-
-    private final AtomicInteger playerIdCreator = new AtomicInteger(0);
+    private BusStation<BaseMessage> taskStation;
+    private AtomicInteger playerIdCreator;
     private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
+    private ConcurrentHashMap<String, Boolean> userNameMutex;
 
-    public void init(ITaskStation station) {
+    public void init(BusStation<BaseMessage> station) {
         taskStation = station;
+        playerIdCreator = new AtomicInteger(0);
         channelPlayerIds = new ConcurrentHashMap<>();
+        userNameMutex = new ConcurrentHashMap<>();
     }
 
-    public void putMessage(BaseMessage msg, Channel senderChannel) {
-        if (msg instanceof LoginReqMessage) {
-            LoginReqMessage loginReqMsg = (LoginReqMessage) msg;
-            loginReqMsg.setLoginChannel(senderChannel);
-            taskStation.putMessage(msg);
-        }
+    public void putMessage(BaseMessage msg) {
+        taskStation.put(msg);
     }
 
-    public Player createPlayer(Channel loginChannel) {
+    public Boolean enterMutex(String userName) {
+        return userNameMutex.putIfAbsent(userName, true);
+    }
+
+    public void ExitMutex(String userName) {
+        userNameMutex.remove(userName);
+    }
+
+    public Player createPlayer(Channel loginChannel, String userName) {
         int id = playerIdCreator.incrementAndGet();
         if (channelPlayerIds.containsKey(loginChannel)) {
             return null;
         }
-        Player player = new Player(id, loginChannel);
-        channelPlayerIds.put(loginChannel, player.getPlayerId());
+        Player player = new Player(id, userName, loginChannel);
+        channelPlayerIds.putIfAbsent(loginChannel, player.getPlayerId());
         return player;
     }
 

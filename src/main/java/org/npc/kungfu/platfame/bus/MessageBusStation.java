@@ -1,4 +1,4 @@
 package org.npc.kungfu.platfame.bus;
 
-public class RingTaskStation {
+public class MessageBusStation {
 }

@@ -5,14 +5,10 @@ import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.OperationReqMessage;
-import org.npc.kungfu.platfame.bus.ITaskStation;
-import org.npc.kungfu.platfame.bus.TaskStation;
+import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 public class BattleService {
 
@@ -26,13 +22,13 @@ public class BattleService {
 
     }
 
-    private ITaskStation taskStation;
+    private BusStation<BattleRing> taskStation;
     /**
      * 战斗集合
      */
     private static HashMap<Integer, BattleRing> battleRingHashMap;
 
-    public void init(TaskStation battleStation) {
+    public void init(BusStation<BattleRing> battleStation) {
         taskStation = battleStation;
     }
 
@@ -52,9 +48,9 @@ public class BattleService {
     public void startBattle(List<Role> roles) {
         BattleRing battleRing = BattleRing.build(roles);
         for (Role role : roles) {
-            role.bindBattleId(battleRing.getBattleId());
+            role.bindBattleId(battleRing.getId());
         }
-        battleRingHashMap.put(battleRing.getBattleId(), battleRing);
-        taskStation.putRunnable(battleRing);
+        battleRingHashMap.put(battleRing.getId(), battleRing);
+        taskStation.put(battleRing);
     }
 }
