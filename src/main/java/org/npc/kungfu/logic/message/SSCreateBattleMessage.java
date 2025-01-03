@@ -29,6 +29,6 @@ public class SSCreateBattleMessage extends BaseMessage {
 
     @Override
     public void doLogic() {
-        BattleService.getService().startBattle(roles);
+
     }
 }

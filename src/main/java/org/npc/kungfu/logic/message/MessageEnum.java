@@ -19,7 +19,6 @@ public enum MessageEnum {
     MATCH_RESULT_BROAD(10001, MatchResultBroadMessage.class),
     BATTLE_RESULT_BROAD(10002, BattleResultBroadMessage.class),
 
-    SS_START_MATCH(20001, SSStartMatchUpMessage.class),
     SS_CREATE_BATTLE(20002, SSCreateBattleMessage.class),
     ;
 

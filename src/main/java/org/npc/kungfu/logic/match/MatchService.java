@@ -15,21 +15,13 @@ public class MatchService {
         return service;
     }
 
-    private BusStation<MatchPool> taskStation;
+    private MatchBusStation taskStation;
 
-    public void init(BusStation<MatchPool> matchStation) {
+    public void init(MatchBusStation matchStation) {
         this.taskStation = matchStation;
-        for (int i = 0; i < 5; i++) {
-            MatchPool pool = new MatchPool();
-            taskStation.put(pool);
-        }
     }
 
     public void enterMatch(Role role) {
-        MatchPool pool = new MatchPool();
-        pool.enterPool(role);
-    }
-
-    public void putMessage(BaseMessage msg, int playerId) {
+        this.taskStation.put(role);
     }
 }

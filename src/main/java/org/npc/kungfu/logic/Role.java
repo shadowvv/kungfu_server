@@ -3,6 +3,7 @@ package org.npc.kungfu.logic;
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
 import org.npc.kungfu.platfame.math.VectorTwo;
@@ -13,7 +14,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_WIDTH;
 /**
  * 玩家操作的角色
  */
-public class Role {
+public class Role implements IPassenger {
 
     /**
      * 角色id
@@ -240,5 +241,15 @@ public class Role {
 
     public int getBattleId() {
         return battleId;
+    }
+
+    @Override
+    public int getId() {
+        return 0;
+    }
+
+    @Override
+    public void doLogic() {
+
     }
 }

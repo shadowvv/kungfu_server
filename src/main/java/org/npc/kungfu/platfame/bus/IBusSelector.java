@@ -2,10 +2,10 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.List;
 
-public interface IBusSelector<T extends IPassenger> {
+public interface IBusSelector<T extends IPassenger,V extends IBus<T>> {
 
-    void init(List<IBus<T>> buses);
+    void init(List<V> buses);
 
-    IBus<T> selectBus(T passenger);
+    V selectBus(T passenger);
 
 }

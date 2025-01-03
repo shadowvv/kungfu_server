@@ -2,21 +2,21 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.List;
 
-public class BusHashSelector<T extends IPassenger> implements IBusSelector<T> {
+public class BusHashSelector<T extends IPassenger,V extends IBus<T>> implements IBusSelector<T,V> {
 
-    private List<IBus<T>> busList;
+    private List<V> busList;
 
     public BusHashSelector() {
 
     }
 
     @Override
-    public void init(List<IBus<T>> iBuses) {
+    public void init(List<V> iBuses) {
         this.busList = iBuses;
     }
 
     @Override
-    public IBus<T> selectBus(T passenger) {
+    public V selectBus(T passenger) {
         int index = (int) (passenger.getId() % busList.size());
         return busList.get(index);
     }

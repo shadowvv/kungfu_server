@@ -2,6 +2,7 @@ package org.npc.kungfu.logic;
 
 import org.npc.kungfu.logic.message.ApplyBattleReqMessage;
 import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,10 +18,10 @@ public class PlayerService {
         return service;
     }
 
-    private BusStation<BaseMessage> taskStation;
+    private BusStation<BaseMessage, Bus<BaseMessage>> taskStation;
     private ConcurrentHashMap<Integer, Player> idPlayers;
 
-    public void init(BusStation<BaseMessage> playerStation) {
+    public void init(BusStation<BaseMessage,Bus<BaseMessage>> playerStation) {
         idPlayers = new ConcurrentHashMap<>();
         taskStation = playerStation;
     }

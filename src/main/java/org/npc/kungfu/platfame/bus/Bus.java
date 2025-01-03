@@ -1,10 +1,9 @@
 package org.npc.kungfu.platfame.bus;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Bus<T extends IPassenger> implements IBus<T>, Callable<Boolean> {
+public class Bus<T extends IPassenger> implements IBus<T> {
 
     private final ConcurrentLinkedQueue<T> passengers;
     private final AtomicInteger passengerCount;

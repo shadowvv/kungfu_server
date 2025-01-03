@@ -5,29 +5,49 @@ import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
 import org.npc.kungfu.logic.message.RoleMessage;
 import org.npc.kungfu.logic.message.SSCreateBattleMessage;
-import org.npc.kungfu.platfame.bus.IRunnablePassenger;
+import org.npc.kungfu.platfame.bus.IBus;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MatchPool implements IRunnablePassenger {
+public class MatchPool implements IBus<Role> {
 
-    private final ConcurrentLinkedQueue<Role> roles = new ConcurrentLinkedQueue<>();
-    private final AtomicInteger roleNum = new AtomicInteger(0);
+    private final ConcurrentLinkedQueue<Role> roles;
+    private final AtomicInteger roleNum;
+    private final String signature;
 
-    @Override
-    public void run() {
-
+    public MatchPool(String signature) {
+        roles = new ConcurrentLinkedQueue<>();
+        roleNum = new AtomicInteger(0);
+        this.signature = signature;
     }
 
     @Override
-    public int getId() {
-        return 0;
+    public boolean put(Role passenger) {
+        roles.add(passenger);
+        roleNum.incrementAndGet();
+        return true;
     }
 
-    public void matchUp() {
+    @Override
+    public String getSignature() {
+        return this.signature;
+    }
+
+    @Override
+    public int getPassengerCount() {
+        return roleNum.get();
+    }
+
+    @Override
+    public Boolean call() throws Exception {
+        matchUp();
+        return true;
+    }
+
+    private void matchUp() {
         if (roles.isEmpty()) {
             return;
         }
@@ -48,7 +68,8 @@ public class MatchPool implements IRunnablePassenger {
             role1.sendMessage(matchResultBroadMessage);
             assert role2 != null;
             role2.sendMessage(matchResultBroadMessage);
-            BattleService.getService().putMessage(new SSCreateBattleMessage(list), 0);
+            BattleService.getService().startBattle(list);
+
             if (roles.isEmpty()) {
                 return;
             }
@@ -69,15 +90,5 @@ public class MatchPool implements IRunnablePassenger {
         }
         matchResultBroadMessage.setRoles(roleMessages);
         return matchResultBroadMessage;
-    }
-
-    @Override
-    public void doLogic() {
-
-    }
-
-    public void enterPool(Role role) {
-        roles.add(role);
-        roleNum.incrementAndGet();
     }
 }

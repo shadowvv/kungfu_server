@@ -24,7 +24,7 @@ public class MessageDispatcher implements IMessageDispatcher {
                 }
                 case MATCH_MESSAGE: {
                     int playerId = LoginService.getService().getPlayerId(senderChannel);
-                    MatchService.getService().putMessage(msg, playerId);
+//                    MatchService.getService().putMessage(msg, playerId);
                     break;
                 }
                 case BATTLE_MESSAGE: {

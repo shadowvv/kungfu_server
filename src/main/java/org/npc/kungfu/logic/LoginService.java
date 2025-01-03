@@ -2,6 +2,7 @@ package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,12 +20,12 @@ public class LoginService {
         return service;
     }
 
-    private BusStation<BaseMessage> taskStation;
+    private BusStation<BaseMessage, Bus<BaseMessage>> taskStation;
     private AtomicInteger playerIdCreator;
     private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
     private ConcurrentHashMap<String, Boolean> userNameMutex;
 
-    public void init(BusStation<BaseMessage> station) {
+    public void init(BusStation<BaseMessage,Bus<BaseMessage>> station) {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
         channelPlayerIds = new ConcurrentHashMap<>();

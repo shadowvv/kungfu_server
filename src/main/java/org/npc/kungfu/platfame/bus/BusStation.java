@@ -1,21 +1,18 @@
 package org.npc.kungfu.platfame.bus;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BusStation<T extends IPassenger> implements IBusStation<T> {
+public class BusStation<T extends IPassenger,V extends IBus<T>> implements IBusStation<T> {
 
     private final ExecutorService service;
-    private final ArrayList<IBus<T>> buses;
-    private final ConcurrentHashMap<IBus<T>, Future<?>> futures;
-    private final IBusSelector<T> selector;
+    private final List<V> buses;
+    private final ConcurrentHashMap<V, Future<?>> futures;
+    private final IBusSelector<T,V> selector;
 
-    public BusStation(final int busCount, final String busName, IBusSelector<T> selector) {
-        this.buses = new ArrayList<>();
-        for (int i = 0; i < busCount; i++) {
-            this.buses.add(new Bus<>(busName));
-        }
+    public BusStation(final int busCount, final String busName, List<V> buses, IBusSelector<T,V> selector) {
+        this.buses = buses;
         this.selector = selector;
         this.selector.init(this.buses);
         this.futures = new ConcurrentHashMap<>();
@@ -41,7 +38,7 @@ public class BusStation<T extends IPassenger> implements IBusStation<T> {
 
     @Override
     public void run() {
-        for (IBus<T> task : buses) {
+        for (V task : buses) {
             Future<?> future = futures.get(task);
             if (future == null) {
                 Future<Boolean> newFuture = service.submit(task);

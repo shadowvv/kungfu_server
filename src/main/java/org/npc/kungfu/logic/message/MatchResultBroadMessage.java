@@ -1,9 +1,12 @@
 package org.npc.kungfu.logic.message;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 public class MatchResultBroadMessage extends BaseMessage {
 
+    @Expose
     List<RoleMessage> roles;
 
     public MatchResultBroadMessage() {

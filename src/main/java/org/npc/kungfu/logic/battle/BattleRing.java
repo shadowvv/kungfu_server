@@ -3,6 +3,8 @@ package org.npc.kungfu.logic.battle;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.OperationReqMessage;
+import org.npc.kungfu.logic.message.OperationRespMessage;
+import org.npc.kungfu.logic.message.RoleMessage;
 import org.npc.kungfu.platfame.bus.IRunnablePassenger;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
@@ -10,6 +12,7 @@ import org.npc.kungfu.platfame.math.Sector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.npc.kungfu.logic.constant.BattleConstants.BATTLE_RING_ROLE_NUM;
@@ -100,6 +103,26 @@ public class BattleRing implements IRunnablePassenger {
         if (gameState == GameStateEnum.WAIT_COMMAND && messageList.size() < roles.size()) {
             messageList.add(message);
         }
+        if (messageList.size() == roles.size()) {
+            broadCastOperation();
+        }
+    }
+
+    private void broadCastOperation() {
+        OperationRespMessage message = new OperationRespMessage();
+        List<RoleMessage> roleMessages = new LinkedList<>();
+        for (OperationReqMessage req : messageList) {
+            RoleMessage roleMessage = new RoleMessage();
+            roleMessage.setRoleId(req.getRoleId());
+            roleMessage.setX(req.getX());
+            roleMessage.setY(req.getY());
+            roleMessage.setFaceAngle(req.getFaceAngle());
+            roleMessages.add(roleMessage);
+        }
+        message.setRoleMessages(roleMessages);
+        for (Role role : roles.values()) {
+            role.sendMessage(message);
+        }
     }
 
     /**
@@ -150,8 +173,19 @@ public class BattleRing implements IRunnablePassenger {
      * 构建战斗结果
      */
     private void buildBattleResult() {
+        OperationRespMessage message = new OperationRespMessage();
+        List<RoleMessage> roleMessages = new LinkedList<>();
+        for (OperationReqMessage req : messageList) {
+            RoleMessage roleMessage = new RoleMessage();
+            roleMessage.setRoleId(req.getRoleId());
+            roleMessage.setX(req.getX());
+            roleMessage.setY(req.getY());
+            roleMessage.setFaceAngle(req.getFaceAngle());
+            roleMessages.add(roleMessage);
+        }
+        message.setRoleMessages(roleMessages);
         for (Role role : roles.values()) {
-
+            role.sendMessage(message);
         }
     }
 

@@ -5,6 +5,7 @@ import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.OperationReqMessage;
+import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.HashMap;
@@ -22,14 +23,24 @@ public class BattleService {
 
     }
 
-    private BusStation<BattleRing> taskStation;
+    private BusStation<BattleRing,Bus<BattleRing>> taskStation;
     /**
      * 战斗集合
      */
     private static HashMap<Integer, BattleRing> battleRingHashMap;
 
-    public void init(BusStation<BattleRing> battleStation) {
+    public void init(BusStation<BattleRing,Bus<BattleRing>> battleStation) {
         taskStation = battleStation;
+        battleRingHashMap = new HashMap<>();
+    }
+
+    public void startBattle(List<Role> roles) {
+        BattleRing battleRing = BattleRing.build(roles);
+        for (Role role : roles) {
+            role.bindBattleId(battleRing.getId());
+        }
+        battleRingHashMap.put(battleRing.getId(), battleRing);
+        taskStation.put(battleRing);
     }
 
     public void putMessage(BaseMessage msg, int playerId) {
@@ -43,14 +54,5 @@ public class BattleService {
             return;
         }
         ring.onReceiveMessage((OperationReqMessage) msg);
-    }
-
-    public void startBattle(List<Role> roles) {
-        BattleRing battleRing = BattleRing.build(roles);
-        for (Role role : roles) {
-            role.bindBattleId(battleRing.getId());
-        }
-        battleRingHashMap.put(battleRing.getId(), battleRing);
-        taskStation.put(battleRing);
     }
 }
