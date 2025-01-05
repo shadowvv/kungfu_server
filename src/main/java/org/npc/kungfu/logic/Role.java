@@ -111,7 +111,13 @@ public class Role implements IPassenger {
         this.attackSector = Sector.createIntegerSector(positionX, positionY, this.weaponType.getAttackInnerRadius(), this.weaponType.getAttackOuterRadius(), this.weaponType.getStartAngle(), this.weaponType.getEndAngle());
     }
 
+    public void resetPosition(int x, int y, int faceAngle) {
+        this.center = VectorTwo.createIntegerVector(x, y);
+        this.faceAngle = faceAngle;
+    }
+
     public void resetRole(int weaponType) {
+        this.weaponType = PlayerWeaponEnum.fromValue(weaponType);
     }
 
     /**
@@ -119,7 +125,6 @@ public class Role implements IPassenger {
      *
      * @param x 目标x坐标
      * @param y 目标y坐标
-     * @return 移动是否成功
      */
     public boolean onRoleMove(int x, int y) {
         if (!this.active) {
@@ -251,5 +256,21 @@ public class Role implements IPassenger {
     @Override
     public void doLogic() {
 
+    }
+
+    public String getUserName() {
+        Player player = PlayerService.getService().getPlayer(this.playerId);
+        if (player != null) {
+            return player.getUserName();
+        }
+        return "";
+    }
+
+    public VectorTwo<Integer> getCenter() {
+        return this.center;
+    }
+
+    public int getFaceAngle() {
+        return this.faceAngle;
     }
 }

@@ -4,7 +4,6 @@ import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
 import org.npc.kungfu.logic.message.RoleMessage;
-import org.npc.kungfu.logic.message.SSCreateBattleMessage;
 import org.npc.kungfu.platfame.bus.IBus;
 
 import java.util.ArrayList;
@@ -56,17 +55,22 @@ public class MatchPool implements IBus<Role> {
         }
         for (int i = 0; i < 10; i++) {
             List<Role> list = new ArrayList<>();
+
             Role role1 = roles.poll();
+            assert role1 != null;
+            role1.resetPosition(-200,0,0);
+
             Role role2 = roles.poll();
+            assert role2 != null;
+            role2.resetPosition(200,0,0);
+
             list.add(role1);
             list.add(role2);
             roleNum.decrementAndGet();
             roleNum.decrementAndGet();
 
             MatchResultBroadMessage matchResultBroadMessage = buildMatchResultBroadMessage(list);
-            assert role1 != null;
             role1.sendMessage(matchResultBroadMessage);
-            assert role2 != null;
             role2.sendMessage(matchResultBroadMessage);
             BattleService.getService().startBattle(list);
 
@@ -85,7 +89,11 @@ public class MatchPool implements IBus<Role> {
         for (Role role : list) {
             RoleMessage roleMessage = new RoleMessage();
             roleMessage.setRoleId(role.getRoleId());
+            roleMessage.setUserName(role.getUserName());
             roleMessage.setWeaponType(role.getWeaponType());
+            roleMessage.setX(role.getCenter().getX());
+            roleMessage.setY(role.getCenter().getY());
+            roleMessage.setFaceAngle(role.getFaceAngle());
             roleMessages.add(roleMessage);
         }
         matchResultBroadMessage.setRoles(roleMessages);

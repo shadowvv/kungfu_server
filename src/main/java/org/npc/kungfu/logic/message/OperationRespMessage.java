@@ -2,23 +2,21 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.List;
-
 public class OperationRespMessage extends BaseMessage {
 
     @Expose
-    List<RoleMessage> roleMessages;
+    private boolean success;
 
     public OperationRespMessage() {
         setId(3002);
     }
 
-    public List<RoleMessage> getRoleMessages() {
-        return roleMessages;
+    public boolean isSuccess() {
+        return success;
     }
 
-    public void setRoleMessages(List<RoleMessage> roleMessages) {
-        this.roleMessages = roleMessages;
+    public void setSuccess(boolean success) {
+        this.success = success;
     }
 
     @Override

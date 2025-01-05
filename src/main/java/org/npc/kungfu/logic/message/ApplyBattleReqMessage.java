@@ -10,8 +10,6 @@ public class ApplyBattleReqMessage extends BaseMessage {
     @Expose
     private int weaponType;
 
-    private int playerId;
-
     public ApplyBattleReqMessage() {
         setId(2001);
     }
@@ -24,13 +22,9 @@ public class ApplyBattleReqMessage extends BaseMessage {
         this.weaponType = weaponType;
     }
 
-    public void setPlayerId(int playerId) {
-        this.playerId = playerId;
-    }
-
     @Override
     public void doLogic() {
-        Player player = PlayerService.getService().getPlayer(playerId);
+        Player player = PlayerService.getService().getPlayer(getPlayerId());
         if (player == null) {
             return;
         }
@@ -41,8 +35,9 @@ public class ApplyBattleReqMessage extends BaseMessage {
             return;
         }
         player.onPlayerApplyBattle(weaponType);
-        MatchService.getService().enterMatch(player.getRole());
         player.sendApplyBattleSuccess();
+
+        MatchService.getService().enterMatch(player.getRole());
     }
 
     @Override

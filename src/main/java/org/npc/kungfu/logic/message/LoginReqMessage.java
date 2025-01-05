@@ -8,21 +8,10 @@ import org.npc.kungfu.logic.PlayerService;
 public class LoginReqMessage extends BaseMessage {
 
     @Expose
-    private int playerId;
-
-    @Expose
     private String userName;
 
     public LoginReqMessage() {
         setId(1001);
-    }
-
-    public int getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(int playerId) {
-        this.playerId = playerId;
     }
 
     public String getUserName() {
@@ -44,12 +33,7 @@ public class LoginReqMessage extends BaseMessage {
         if (mutex != null) {
             return;
         }
-        Player player = null;
-        if (playerId == 0) {
-            player = LoginService.getService().createPlayer(getSenderChannel(), userName);
-        } else {
-            player = LoginService.getService().LoadPlayer(playerId, getSenderChannel());
-        }
+        Player player = LoginService.getService().createPlayer(getSenderChannel(), userName);;
         if (player != null) {
             PlayerService.getService().onPlayerLoginOver(player);
             player.sendLoginSuccess();

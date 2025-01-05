@@ -30,10 +30,6 @@ public class Player {
         this.inMatch = true;
     }
 
-    public int getPlayerId() {
-        return playerId;
-    }
-
     public void sendLoginSuccess() {
         LoginRespMessage resp = new LoginRespMessage();
         resp.setPlayerId(playerId);
@@ -65,5 +61,13 @@ public class Player {
 
     public void sendMessage(BaseMessage message) {
         channel.writeAndFlush(message);
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public String getUserName() {
+        return username;
     }
 }

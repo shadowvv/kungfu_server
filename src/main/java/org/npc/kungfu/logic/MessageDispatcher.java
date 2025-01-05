@@ -19,7 +19,8 @@ public class MessageDispatcher implements IMessageDispatcher {
                     break;
                 case PLAYER_MESSAGE: {
                     int playerId = LoginService.getService().getPlayerId(senderChannel);
-                    PlayerService.getService().putMessage(msg, playerId);
+                    msg.setPlayerId(playerId);
+                    PlayerService.getService().putMessage(msg);
                     break;
                 }
                 case MATCH_MESSAGE: {
@@ -29,7 +30,8 @@ public class MessageDispatcher implements IMessageDispatcher {
                 }
                 case BATTLE_MESSAGE: {
                     int playerId = LoginService.getService().getPlayerId(senderChannel);
-                    BattleService.getService().putMessage(msg, playerId);
+                    msg.setPlayerId(playerId);
+                    BattleService.getService().putMessage(msg);
                     break;
                 }
                 default:

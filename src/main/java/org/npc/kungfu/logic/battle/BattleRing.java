@@ -1,11 +1,11 @@
 package org.npc.kungfu.logic.battle;
 
+import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
-import org.npc.kungfu.logic.message.OperationReqMessage;
-import org.npc.kungfu.logic.message.OperationRespMessage;
-import org.npc.kungfu.logic.message.RoleMessage;
-import org.npc.kungfu.platfame.bus.IRunnablePassenger;
+import org.npc.kungfu.logic.message.*;
+import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
@@ -15,35 +15,35 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.npc.kungfu.logic.constant.BattleConstants.BATTLE_RING_ROLE_NUM;
 import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 
 /**
  * 决斗场
  */
-public class BattleRing implements IRunnablePassenger {
+public class BattleRing implements IPassenger {
 
-    private int battleId;
+    /**
+     * 战斗id
+     */
+    private final int battleId;
     /**
      * 消息队列
      */
-    private ArrayList<OperationReqMessage> messageList;
+    private final ArrayList<OperationReqMessage> messageList;
     /**
      * 参加决斗的角色
      */
-    private HashMap<Integer, Role> roles;
+    private final HashMap<Integer, Role> roles;
     /**
      * 决斗阶段
      */
     private GameStateEnum gameState = GameStateEnum.PREPARE;
     /**
-     * 战斗结果
-     */
-    private BattleResult battleResult;
-    /**
      *
      */
     private long countDownTick = 0;
+
+    private long lastTick = 0;
 
     /**
      * 决斗工厂
@@ -51,47 +51,24 @@ public class BattleRing implements IRunnablePassenger {
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(List<Role> roles) {
-        return new BattleRing(roles);
+    public static BattleRing build(int battleId,List<Role> roles) {
+        return new BattleRing(battleId,roles);
     }
 
     /**
-     * @param roles 参与决斗的角色
+     * @param battleId 战斗id
+     * @param roles    参与决斗的角色
      */
-    private BattleRing(List<Role> roles) {
+    private BattleRing(int battleId, List<Role> roles) {
+        this.battleId = battleId;
         this.roles = new HashMap<>();
         for (Role role : roles) {
-            addRole(role);
+            this.roles.put(role.getRoleId(), role);
+            role.bindBattleId(battleId);
         }
         messageList = new ArrayList<>();
-        battleResult = new BattleResult();
-    }
-
-    /**
-     * 添加决斗角色
-     *
-     * @param role 战斗角色
-     * @return 是否加入成功
-     */
-    private boolean addRole(Role role) {
-        if (role == null) {
-            return false;
-        }
-
-        if (roles.size() >= BATTLE_RING_ROLE_NUM) {
-            return false;
-        }
-
-        if (roles.containsKey(role.getRoleId())) {
-            return false;
-        }
-
-        roles.put(role.getRoleId(), role);
-        if (roles.size() == BATTLE_RING_ROLE_NUM) {
-            gameState = GameStateEnum.WAIT_COMMAND;
-            countDownTick = WAIT_COMMAND_TICK;
-        }
-        return true;
+        gameState = GameStateEnum.WAIT_COMMAND;
+        countDownTick = WAIT_COMMAND_TICK;
     }
 
     /**
@@ -99,29 +76,27 @@ public class BattleRing implements IRunnablePassenger {
      *
      * @param message 玩家操作消息
      */
-    public void onReceiveMessage(OperationReqMessage message) {
-        if (gameState == GameStateEnum.WAIT_COMMAND && messageList.size() < roles.size()) {
-            messageList.add(message);
-        }
-        if (messageList.size() == roles.size()) {
-            broadCastOperation();
-        }
-    }
-
-    private void broadCastOperation() {
-        OperationRespMessage message = new OperationRespMessage();
-        List<RoleMessage> roleMessages = new LinkedList<>();
-        for (OperationReqMessage req : messageList) {
-            RoleMessage roleMessage = new RoleMessage();
-            roleMessage.setRoleId(req.getRoleId());
-            roleMessage.setX(req.getX());
-            roleMessage.setY(req.getY());
-            roleMessage.setFaceAngle(req.getFaceAngle());
-            roleMessages.add(roleMessage);
-        }
-        message.setRoleMessages(roleMessages);
-        for (Role role : roles.values()) {
-            role.sendMessage(message);
+    public void onReceiveMessage(BaseMessage message) {
+        if (message instanceof OperationReqMessage) {
+            OperationReqMessage operationReqMessage = (OperationReqMessage) message;
+            if (gameState == GameStateEnum.WAIT_COMMAND) {
+                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
+                if (player != null) {
+                    Role role = roles.get(player.getRole().getRoleId());
+                    if (role != null) {
+                        boolean operationSuccess = false;
+                        if(role.onRoleMove(operationReqMessage.getX(), operationReqMessage.getY())){
+                            if (role.onRoleHit(operationReqMessage.getFaceAngle())){
+                                operationSuccess = true;
+                            }
+                        }
+                        OperationRespMessage msg =  new OperationRespMessage();
+                        msg.setSuccess(operationSuccess);
+                        player.sendMessage(msg);
+                    }
+                }
+                messageList.add(operationReqMessage);
+            }
         }
     }
 
@@ -130,7 +105,7 @@ public class BattleRing implements IRunnablePassenger {
      *
      * @param deltaTime 更新时间间隔
      */
-    public BattleResult update(long deltaTime) {
+    public void update(long deltaTime) {
 
         //根据收到的玩家操作和倒计时切换战斗阶段
         if (gameState == GameStateEnum.WAIT_COMMAND) {
@@ -138,42 +113,40 @@ public class BattleRing implements IRunnablePassenger {
             if (messageList.size() == roles.size() || countDownTick <= 0) {
                 this.countDownTick = 0;
                 gameState = GameStateEnum.ACTION;
+                broadCastBattleResult();
             }
         }
 
-        if (gameState == GameStateEnum.ACTION) {
-            for (OperationReqMessage message : messageList) {
-                int roleId = message.getRoleId();
-                Role role = roles.get(roleId);
-                if (role != null) {
-                    message.doLogic(role);
-                }
-            }
-            messageList.clear();
-
-            checkHit();
-
-            for (Role role : roles.values()) {
-                if (role.getHpPoint() == 0) {
-                    gameState = GameStateEnum.END;
-                    break;
-                }
-            }
-            this.gameState = GameStateEnum.WAIT_COMMAND;
-            this.countDownTick = WAIT_COMMAND_TICK;
-        }
-
-        if (gameState == GameStateEnum.END) {
-            buildBattleResult();
-        }
-        return battleResult;
+//        if (gameState == GameStateEnum.ACTION) {
+//            for (OperationReqMessage message : messageList) {
+//                int roleId = message.getRoleId();
+//                Role role = roles.get(roleId);
+//                if (role != null) {
+//                    message.doLogic(role);
+//                }
+//            }
+//            messageList.clear();
+//
+//            checkHit();
+//
+//            for (Role role : roles.values()) {
+//                if (role.getHpPoint() == 0) {
+//                    gameState = GameStateEnum.END;
+//                    break;
+//                }
+//            }
+//            this.gameState = GameStateEnum.WAIT_COMMAND;
+//            this.countDownTick = WAIT_COMMAND_TICK;
+//            broadCastOperation();
+//        }
+//
+//        if (gameState == GameStateEnum.END) {
+//            broadBattleResult();
+//        }
     }
 
-    /**
-     * 构建战斗结果
-     */
-    private void buildBattleResult() {
-        OperationRespMessage message = new OperationRespMessage();
+    private void broadCastBattleResult() {
+        BattleResultBroadMessage message = new BattleResultBroadMessage();
         List<RoleMessage> roleMessages = new LinkedList<>();
         for (OperationReqMessage req : messageList) {
             RoleMessage roleMessage = new RoleMessage();
@@ -214,17 +187,17 @@ public class BattleRing implements IRunnablePassenger {
     }
 
     @Override
-    public void run() {
-        update(20);
-    }
-
-    @Override
     public int getId() {
         return battleId;
     }
 
     @Override
     public void doLogic() {
-        update(1);
+        long currentTick = System.currentTimeMillis();
+        if (this.lastTick == 0){
+            this.lastTick = currentTick;
+        }
+        update(currentTick-this.countDownTick);
+        this.lastTick = currentTick;
     }
 }

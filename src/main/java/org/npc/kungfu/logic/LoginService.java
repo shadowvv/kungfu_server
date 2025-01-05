@@ -55,7 +55,6 @@ public class LoginService {
     }
 
     public Player LoadPlayer(int playerId, Channel loginChannel) {
-        //TODO:
         return null;
     }
 

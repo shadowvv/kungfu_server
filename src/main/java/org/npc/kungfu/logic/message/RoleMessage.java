@@ -7,6 +7,8 @@ public class RoleMessage {
     @Expose
     private int roleId;
     @Expose
+    private String userName;
+    @Expose
     private int weaponType;
     @Expose
     private int x;
@@ -25,6 +27,14 @@ public class RoleMessage {
 
     public void setRoleId(int roleId) {
         this.roleId = roleId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public int getWeaponType() {

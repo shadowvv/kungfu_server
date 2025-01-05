@@ -26,10 +26,9 @@ public class PlayerService {
         taskStation = playerStation;
     }
 
-    public void putMessage(BaseMessage msg, int playerId) {
+    public void putMessage(BaseMessage msg) {
         if (msg instanceof ApplyBattleReqMessage) {
             ApplyBattleReqMessage req = (ApplyBattleReqMessage) msg;
-            req.setPlayerId(playerId);
             taskStation.put(req);
         }
     }
