@@ -1,5 +1,6 @@
 package org.npc.kungfu.logic;
 
+import io.netty.channel.Channel;
 import org.npc.kungfu.logic.message.ApplyBattleReqMessage;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.bus.Bus;
@@ -39,5 +40,8 @@ public class PlayerService {
 
     public Player getPlayer(int playerId) {
         return idPlayers.get(playerId);
+    }
+
+    public void onChannelInactive(Channel channel) {
     }
 }

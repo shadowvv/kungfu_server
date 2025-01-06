@@ -2,9 +2,7 @@ package org.npc.kungfu.net;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import io.netty.handler.codec.http.websocketx.*;
 
 import java.util.List;
 
@@ -29,10 +27,17 @@ public class CoderHandler extends MessageToMessageCodec<WebSocketFrame, LogicMes
             // 处理文本帧
             String request = ((TextWebSocketFrame) frame).text();
             out.add(coder.decode(request));
+        } else if (frame instanceof PingWebSocketFrame) {
+            // 收到 Ping，返回 Pong
+            System.out.println("收到 Ping，发送 Pong");
+            ctx.writeAndFlush(new PongWebSocketFrame(frame.content().retain()));
+        } else if (frame instanceof PongWebSocketFrame) {
+            // 收到 Pong，心跳正常
+            System.out.println("收到 Pong");
         } else if (frame instanceof CloseWebSocketFrame) {
-            // 处理关闭帧
-            System.out.println("Close frame received");
-            ctx.channel().close();
+            // 关闭连接
+            System.out.println("收到关闭帧，关闭连接");
+            ctx.close();
         }
     }
 }

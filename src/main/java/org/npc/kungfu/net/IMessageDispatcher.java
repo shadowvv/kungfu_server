@@ -6,4 +6,5 @@ public interface IMessageDispatcher {
 
     void dispatchMessage(Object message, Channel senderChannel);
 
+    void dispatchChannelInactiveMessage(Channel channel);
 }

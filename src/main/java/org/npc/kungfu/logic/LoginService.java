@@ -61,4 +61,7 @@ public class LoginService {
     public int getPlayerId(Channel senderChannel) {
         return channelPlayerIds.get(senderChannel);
     }
+
+    public void onChannelInactive(Channel channel) {
+    }
 }

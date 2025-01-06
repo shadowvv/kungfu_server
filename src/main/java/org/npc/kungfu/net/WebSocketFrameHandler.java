@@ -4,6 +4,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
 
@@ -11,6 +13,22 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
 
     WebSocketFrameHandler(IMessageDispatcher dispatcher) {
         this.dispatcher = dispatcher;
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        dispatcher.dispatchChannelInactiveMessage(ctx.channel());
+        super.channelInactive(ctx);
+    }
+
+    @Override
+    protected void channelRead0(ChannelHandlerContext ctx, Object frame) {
+        dispatcher.dispatchMessage(frame, ctx.channel());
     }
 
     @Override
@@ -25,14 +43,20 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
             System.out.println("WebSocket handshake complete:");
             System.out.println("Request URI: " + requestUri);
             // 可以根据具体需求执行其他逻辑，比如记录连接信息或通知业务系统
+        } else if (evt instanceof IdleStateEvent) {
+            IdleStateEvent event = (IdleStateEvent) evt;
+            if (event.state() == IdleState.READER_IDLE) {
+                System.out.println("读超时，关闭连接");
+                ctx.close();
+            } else if (event.state() == IdleState.WRITER_IDLE) {
+                // 如果需要，也可以在写超时时发送心跳
+                System.out.println("写超时");
+            } else if (event.state() == IdleState.ALL_IDLE) {
+                System.out.println("读写超时");
+            }
         } else {
-            super.userEventTriggered(ctx, evt); // 保留其他事件的处理
+            super.userEventTriggered(ctx, evt);
         }
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, Object frame) {
-        dispatcher.dispatchMessage(frame, ctx.channel());
     }
 
     @Override

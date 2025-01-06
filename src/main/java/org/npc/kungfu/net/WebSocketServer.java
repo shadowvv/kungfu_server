@@ -12,6 +12,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 
 public class WebSocketServer {
 
@@ -66,6 +67,8 @@ public class WebSocketServer {
             pipeline.addLast(new HttpObjectAggregator(8192));
             // WebSocket 协议处理器，自动完成握手
             pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
+            //
+            pipeline.addLast(new IdleStateHandler(30, 0, 0));
             //
             pipeline.addLast(new CoderHandler(coder));
             // 自定义业务逻辑处理器
