@@ -11,6 +11,16 @@ public class OperationRespMessage extends BaseMessage {
         setId(3002);
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public boolean isSuccess() {
         return success;
     }

@@ -3,7 +3,7 @@ package org.npc.kungfu.net;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.platfame.bus.IPassenger;
 
-public class LogicMessage implements IPassenger {
+public abstract class LogicMessage implements IPassenger {
 
     @Expose
     private int id;
@@ -20,7 +20,5 @@ public class LogicMessage implements IPassenger {
         return id;
     }
 
-    public void doLogic() {
-
-    }
+    public abstract void doLogic();
 }

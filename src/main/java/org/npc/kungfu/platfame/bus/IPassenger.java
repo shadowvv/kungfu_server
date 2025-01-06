@@ -5,4 +5,6 @@ public interface IPassenger {
     int getId();
 
     void doLogic();
+
+    String getDescription();
 }

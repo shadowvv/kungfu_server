@@ -14,6 +14,16 @@ public class LoginRespMessage extends BaseMessage {
         setId(1002);
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public int getPlayerId() {
         return playerId;
     }

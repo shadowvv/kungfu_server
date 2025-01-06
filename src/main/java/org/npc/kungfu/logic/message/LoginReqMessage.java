@@ -40,4 +40,9 @@ public class LoginReqMessage extends BaseMessage {
         }
         LoginService.getService().ExitMutex(userName);
     }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
 }

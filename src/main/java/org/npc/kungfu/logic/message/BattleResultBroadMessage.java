@@ -11,6 +11,16 @@ public class BattleResultBroadMessage extends BaseMessage {
 
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public List<RoleMessage> getRoleMessages() {
         return roleMessages;
     }

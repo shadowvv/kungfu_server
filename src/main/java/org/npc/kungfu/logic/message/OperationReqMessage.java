@@ -18,6 +18,16 @@ public class OperationReqMessage extends BaseMessage {
         setId(3001);
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public int getRoleId() {
         return roleId;
     }

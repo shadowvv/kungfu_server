@@ -258,6 +258,11 @@ public class Role implements IPassenger {
 
     }
 
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public String getUserName() {
         Player player = PlayerService.getService().getPlayer(this.playerId);
         if (player != null) {

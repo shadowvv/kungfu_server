@@ -13,6 +13,16 @@ public class MatchResultBroadMessage extends BaseMessage {
         setId(10001);
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public List<RoleMessage> getRoles() {
         return roles;
     }

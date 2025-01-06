@@ -41,6 +41,11 @@ public class ApplyBattleReqMessage extends BaseMessage {
     }
 
     @Override
+    public String getDescription() {
+        return "";
+    }
+
+    @Override
     public MessageType getMessageType() {
         return MessageType.PLAYER_MESSAGE;
     }

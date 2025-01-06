@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Bus<T extends IPassenger> implements IBus<T> {
 
+    private final int busCapacity;
     private final ConcurrentLinkedQueue<T> passengers;
     private final AtomicInteger passengerCount;
     private final String signature;
@@ -13,10 +14,15 @@ public class Bus<T extends IPassenger> implements IBus<T> {
         this.passengers = new ConcurrentLinkedQueue<>();
         this.passengerCount = new AtomicInteger(0);
         this.signature = signature;
+        this.busCapacity = 2000;
     }
 
     @Override
     public boolean put(T passenger) {
+        if (busCapacity <= passengerCount.get()) {
+            //TODO:越界处理
+            return false;
+        }
         this.passengers.add(passenger);
         this.passengerCount.incrementAndGet();
         return true;
@@ -37,7 +43,12 @@ public class Bus<T extends IPassenger> implements IBus<T> {
         while (!passengers.isEmpty()) {
             T passenger = passengers.poll();
             passengerCount.decrementAndGet();
-            passenger.doLogic();
+            try {
+                passenger.doLogic();
+            } catch (Exception e) {
+                System.out.println("do logic exception:" + e.getMessage() + " message:" + passenger.getDescription());
+                throw new RuntimeException(e);
+            }
         }
         return true;
     }

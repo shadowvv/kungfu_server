@@ -1,7 +1,6 @@
 package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Role;
-import org.npc.kungfu.logic.battle.BattleService;
 
 import java.util.List;
 
@@ -30,5 +29,10 @@ public class SSCreateBattleMessage extends BaseMessage {
     @Override
     public void doLogic() {
 
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
     }
 }

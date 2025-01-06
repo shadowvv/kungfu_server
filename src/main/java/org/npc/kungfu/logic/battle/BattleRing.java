@@ -200,4 +200,9 @@ public class BattleRing implements IPassenger {
         update(currentTick-this.countDownTick);
         this.lastTick = currentTick;
     }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
 }

@@ -13,6 +13,16 @@ public class ApplyBattleRespMessage extends BaseMessage {
         setId(2002);
     }
 
+    @Override
+    public void doLogic() {
+
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
+    }
+
     public int getRoleId() {
         return roleId;
     }
