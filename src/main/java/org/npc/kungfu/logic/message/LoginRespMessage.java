@@ -2,7 +2,7 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
-public class LoginRespMessage extends BaseMessage {
+public class LoginRespMessage extends BaseRespMessage {
 
     @Expose
     private int playerId;
@@ -12,16 +12,6 @@ public class LoginRespMessage extends BaseMessage {
 
     public LoginRespMessage() {
         setId(1002);
-    }
-
-    @Override
-    public void doLogic() {
-
-    }
-
-    @Override
-    public String getDescription() {
-        return "";
     }
 
     public int getPlayerId() {
@@ -38,6 +28,11 @@ public class LoginRespMessage extends BaseMessage {
 
     public void setSuccess(boolean success) {
         this.success = success;
+    }
+
+    @Override
+    public String getDescription() {
+        return "";
     }
 
     @Override

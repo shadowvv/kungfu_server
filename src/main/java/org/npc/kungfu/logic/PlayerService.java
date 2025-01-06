@@ -34,7 +34,7 @@ public class PlayerService {
         }
     }
 
-    public void onPlayerLoginOver(Player player) {
+    public void onPlayerLoginSuccess(Player player) {
         idPlayers.putIfAbsent(player.getPlayerId(), player);
     }
 

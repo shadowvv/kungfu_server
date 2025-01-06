@@ -3,7 +3,6 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.LoginService;
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.PlayerService;
 
 public class LoginReqMessage extends BaseMessage {
 
@@ -29,20 +28,36 @@ public class LoginReqMessage extends BaseMessage {
 
     @Override
     public void doLogic() {
-        Boolean mutex = LoginService.getService().enterMutex(userName);
-        if (mutex != null) {
+        if (!getSenderChannel().isActive()) {
             return;
         }
-        Player player = LoginService.getService().createPlayer(getSenderChannel(), userName);;
-        if (player != null) {
-            PlayerService.getService().onPlayerLoginOver(player);
-            player.sendLoginSuccess();
+        Boolean mutex = LoginService.getService().enterMutex(userName);
+        if (mutex != null) {
+            getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.LOGIN_IS_LOGGING.getCode()));
+            getSenderChannel().close();
+            return;
         }
+        if (!LoginService.getService().checkUserName(userName)) {
+            getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.LOGIN_SAME_USERNAME.getCode()));
+            LoginService.getService().enterMutex(userName);
+            getSenderChannel().close();
+            return;
+        }
+        Player player = LoginService.getService().createPlayer(getSenderChannel(), userName);
+        if (player == null) {
+            getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.SYSTEM_ERROR.getCode()));
+            LoginService.getService().enterMutex(userName);
+            getSenderChannel().close();
+            return;
+        }
+        LoginService.getService().onPlayerLoginSuccess(player);
+        player.sendLoginSuccess();
+
         LoginService.getService().ExitMutex(userName);
     }
 
     @Override
     public String getDescription() {
-        return "";
+        return "login request message userName:" + userName;
     }
 }

@@ -16,6 +16,8 @@ public enum MessageEnum {
     OPERATION_REQ(3001, OperationReqMessage.class),
     OPERATION_RESP(3002, OperationRespMessage.class),
 
+    ERROR_MESSAGE(9999, ErrorMessage.class),
+
     MATCH_RESULT_BROAD(10001, MatchResultBroadMessage.class),
     BATTLE_RESULT_BROAD(10002, BattleResultBroadMessage.class),
 

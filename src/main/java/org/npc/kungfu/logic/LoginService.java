@@ -23,12 +23,14 @@ public class LoginService {
     private BusStation<BaseMessage, Bus<BaseMessage>> taskStation;
     private AtomicInteger playerIdCreator;
     private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
+    private ConcurrentHashMap<String, Integer> userNamePlayerIds;
     private ConcurrentHashMap<String, Boolean> userNameMutex;
 
     public void init(BusStation<BaseMessage,Bus<BaseMessage>> station) {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
         channelPlayerIds = new ConcurrentHashMap<>();
+        userNamePlayerIds = new ConcurrentHashMap<>();
         userNameMutex = new ConcurrentHashMap<>();
     }
 
@@ -44,24 +46,36 @@ public class LoginService {
         userNameMutex.remove(userName);
     }
 
+    public boolean checkUserName(String userName) {
+        return !userNamePlayerIds.containsKey(userName);
+    }
+
     public Player createPlayer(Channel loginChannel, String userName) {
-        int id = playerIdCreator.incrementAndGet();
         if (channelPlayerIds.containsKey(loginChannel)) {
             return null;
         }
+        int id = playerIdCreator.incrementAndGet();
         Player player = new Player(id, userName, loginChannel);
         channelPlayerIds.putIfAbsent(loginChannel, player.getPlayerId());
+        userNamePlayerIds.putIfAbsent(userName, player.getPlayerId());
         return player;
     }
 
+    //TODO:
+    public void onPlayerLoginSuccess(Player player) {
+        PlayerService.getService().onPlayerLoginSuccess(player);
+    }
+
+    //TODO:
     public Player LoadPlayer(int playerId, Channel loginChannel) {
         return null;
     }
 
-    public int getPlayerId(Channel senderChannel) {
-        return channelPlayerIds.get(senderChannel);
+    //TODO:
+    public void onChannelInactive(Channel channel) {
     }
 
-    public void onChannelInactive(Channel channel) {
+    public int getPlayerId(Channel senderChannel) {
+        return channelPlayerIds.get(senderChannel);
     }
 }
