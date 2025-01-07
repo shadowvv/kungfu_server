@@ -8,10 +8,7 @@ import org.npc.kungfu.logic.match.MatchPoolSelector;
 import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.net.WebSocketServer;
-import org.npc.kungfu.platfame.bus.Bus;
-import org.npc.kungfu.platfame.bus.BusSequentialSelector;
-import org.npc.kungfu.platfame.bus.BusStation;
-import org.npc.kungfu.platfame.bus.StationDriver;
+import org.npc.kungfu.platfame.bus.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,11 +29,11 @@ public class Booster {
         LoginService.getService().init(loginStation);
 
         //初始化玩家服务
-        List<Bus<BaseMessage>> buses2 = new ArrayList<>();
+        List<FixedPassengerBus<Player, BaseMessage>> buses2 = new ArrayList<>();
         for (int i = 0; i < threadNum; i++) {
-            buses2.add(new Bus<>("player"));
+            buses2.add(new FixedPassengerBus<>("player"));
         }
-        BusStation<BaseMessage,Bus<BaseMessage>> playerStation = new BusStation<>(threadNum, "player", buses2,new BusSequentialSelector<>());
+        FixedBusStation<Player, FixedPassengerBus<Player, BaseMessage>, BaseMessage> playerStation = new FixedBusStation<>(threadNum, "player", buses2, new FixedPassengerBusHashSelector<>());
         StationDriver playerDriver = new StationDriver(playerStation, 100, 30);
         playerDriver.runStation();
         PlayerService.getService().init(playerStation);
@@ -52,7 +49,7 @@ public class Booster {
         for (int i = 0; i < threadNum; i++) {
             battleBuses.add(new Bus<>("battle"));
         }
-        BusStation<BattleRing,Bus<BattleRing>> battleStation = new BusStation<>(threadNum, "battle", battleBuses,new BusSequentialSelector<>());
+        BusStation<BattleRing, Bus<BattleRing>> battleStation = new BusStation<>(threadNum, "battle", battleBuses, new BusHashSelector<>());
         StationDriver battleDriver = new StationDriver(battleStation, 100, 30);
         battleDriver.runStation();
         BattleService.getService().init(battleStation);

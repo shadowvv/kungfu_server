@@ -23,7 +23,7 @@ public class Bus<T extends IPassenger> implements IBus<T> {
             //TODO:越界处理
             return false;
         }
-        this.passengers.add(passenger);
+        this.passengers.offer(passenger);
         this.passengerCount.incrementAndGet();
         return true;
     }

@@ -32,7 +32,7 @@ public class LoginRespMessage extends BaseRespMessage {
 
     @Override
     public String getDescription() {
-        return "";
+        return "login successful playerId: " + playerId;
     }
 
     @Override

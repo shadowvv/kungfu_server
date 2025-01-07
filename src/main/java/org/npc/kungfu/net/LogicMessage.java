@@ -1,9 +1,10 @@
 package org.npc.kungfu.net;
 
 import com.google.gson.annotations.Expose;
+import org.npc.kungfu.platfame.bus.ILuggage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 
-public abstract class LogicMessage implements IPassenger {
+public abstract class LogicMessage implements IPassenger, ILuggage {
 
     @Expose
     private int id;

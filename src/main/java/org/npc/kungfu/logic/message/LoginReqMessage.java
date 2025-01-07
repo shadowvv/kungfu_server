@@ -40,7 +40,6 @@ public class LoginReqMessage extends BaseMessage {
         if (!LoginService.getService().checkUserName(userName)) {
             getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.LOGIN_SAME_USERNAME.getCode()));
             LoginService.getService().enterMutex(userName);
-            getSenderChannel().close();
             return;
         }
         Player player = LoginService.getService().createPlayer(getSenderChannel(), userName);
