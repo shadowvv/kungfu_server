@@ -62,7 +62,15 @@ public class FixedBusStation<T extends IFixedPassenger<Z>, V extends IFixedPasse
                 continue;
             }
 
-            System.out.println("task is busy: " + task.getSignature());
+//            System.out.println("task is busy: " + task.getSignature());
         }
+    }
+
+    public void remove(T passenger) {
+        IFixedPassengerBus<T, Z> bus = this.selector.selectBus(passenger);
+        if (bus == null) {
+            return;
+        }
+        bus.remove(passenger);
     }
 }

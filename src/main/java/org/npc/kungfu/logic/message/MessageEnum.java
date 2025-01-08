@@ -21,7 +21,9 @@ public enum MessageEnum {
     MATCH_RESULT_BROAD(10001, MatchResultBroadMessage.class),
     BATTLE_RESULT_BROAD(10002, BattleResultBroadMessage.class),
 
-    SS_CREATE_BATTLE(20002, SSCreateBattleMessage.class),
+    SS_PLAYER_CHANNEL_INACTIVE(20001, SSPlayerChannelInactive.class),
+    SS_PLAYER_CHANNEL_RECONNECT(20002, SSPlayerChannelReconnect.class),
+    SS_CREATE_BATTLE(20012, SSCreateBattleMessage.class),
     ;
 
     private static final Map<Integer, MessageEnum> map = new HashMap<>();

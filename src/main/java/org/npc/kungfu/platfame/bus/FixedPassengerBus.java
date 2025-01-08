@@ -24,6 +24,11 @@ public class FixedPassengerBus<T extends IFixedPassenger<V>, V extends ILuggage>
     }
 
     @Override
+    public void remove(T passenger) {
+        passengers.remove(passenger.getId());
+    }
+
+    @Override
     public boolean put(T passenger) {
         if (busCapacity <= passengers.size()) {
             //TODO:越界处理

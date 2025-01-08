@@ -13,7 +13,8 @@ public class Player implements IFixedPassenger<BaseMessage> {
 
     private final int playerId;
     private final String username;
-    private final Channel channel;
+    private Channel channel;
+    private long channelInactiveTime;
 
     private Role role;
     private boolean inMatch;
@@ -77,6 +78,10 @@ public class Player implements IFixedPassenger<BaseMessage> {
         return username;
     }
 
+    public Channel getChannel() {
+        return this.channel;
+    }
+
     @Override
     public boolean putLuggage(BaseMessage luggage) {
         this.luggageQueue.add(luggage);
@@ -85,7 +90,7 @@ public class Player implements IFixedPassenger<BaseMessage> {
 
     @Override
     public int getId() {
-        return 0;
+        return playerId;
     }
 
     @Override
@@ -94,10 +99,38 @@ public class Player implements IFixedPassenger<BaseMessage> {
             BaseMessage message = luggageQueue.poll();
             message.doLogic();
         }
+        heartBeat();
+    }
+
+    private void heartBeat() {
+        if (channelInactiveTime == 0) {
+            return;
+        }
+        if (System.currentTimeMillis() - channelInactiveTime > 1000 * 20) {
+            if (!luggageQueue.isEmpty()) {
+                return;
+            }
+            PlayerService.getService().removePlayer(this);
+        }
     }
 
     @Override
     public String getDescription() {
         return "";
+    }
+
+    public void onPlayerDisconnect() {
+        if (channel.isActive()) {
+            return;
+        }
+        this.channelInactiveTime = System.currentTimeMillis();
+    }
+
+    public void onPlayerReconnect(Channel channel) {
+        if (!channel.isActive()) {
+            return;
+        }
+        this.channelInactiveTime = 0;
+        this.channel = channel;
     }
 }

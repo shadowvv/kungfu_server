@@ -22,14 +22,14 @@ public class LoginService {
 
     private BusStation<BaseMessage, Bus<BaseMessage>> taskStation;
     private AtomicInteger playerIdCreator;
-    private ConcurrentHashMap<Channel, Integer> channelPlayerIds;
     private ConcurrentHashMap<String, Integer> userNamePlayerIds;
     private ConcurrentHashMap<String, Boolean> userNameMutex;
+    private ConcurrentHashMap<Channel, Boolean> channelMutex;
 
     public void init(BusStation<BaseMessage,Bus<BaseMessage>> station) {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
-        channelPlayerIds = new ConcurrentHashMap<>();
+        channelMutex = new ConcurrentHashMap<>();
         userNamePlayerIds = new ConcurrentHashMap<>();
         userNameMutex = new ConcurrentHashMap<>();
     }
@@ -38,7 +38,7 @@ public class LoginService {
         taskStation.put(msg);
     }
 
-    public Boolean enterMutex(String userName) {
+    public Boolean enterUserNameMutex(String userName) {
         return userNameMutex.putIfAbsent(userName, true);
     }
 
@@ -46,17 +46,21 @@ public class LoginService {
         userNameMutex.remove(userName);
     }
 
+    public Boolean enterChannelMutex(Channel senderChannel) {
+        return channelMutex.putIfAbsent(senderChannel, true);
+    }
+
+    public void ExitMutex(Channel senderChannel) {
+        channelMutex.remove(senderChannel);
+    }
+
     public boolean checkUserName(String userName) {
         return !userNamePlayerIds.containsKey(userName);
     }
 
     public Player createPlayer(Channel loginChannel, String userName) {
-        if (channelPlayerIds.containsKey(loginChannel)) {
-            return null;
-        }
         int id = playerIdCreator.incrementAndGet();
         Player player = new Player(id, userName, loginChannel);
-        channelPlayerIds.putIfAbsent(loginChannel, player.getPlayerId());
         userNamePlayerIds.putIfAbsent(userName, player.getPlayerId());
         return player;
     }
@@ -73,9 +77,5 @@ public class LoginService {
 
     //TODO:
     public void onChannelInactive(Channel channel) {
-    }
-
-    public int getPlayerId(Channel senderChannel) {
-        return channelPlayerIds.get(senderChannel);
     }
 }
