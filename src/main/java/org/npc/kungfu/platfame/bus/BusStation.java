@@ -1,24 +1,28 @@
 package org.npc.kungfu.platfame.bus;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BusStation<T extends IPassenger,V extends IBus<T>> implements IBusStation<T> {
+public class BusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> implements IBusStation<T, V, Z> {
 
     private final ExecutorService service;
-    private final List<V> buses;
-    private final ConcurrentHashMap<V, Future<?>> futures;
-    private final IBusSelector<T,V> selector;
+    private final List<T> buses;
+    private final ConcurrentHashMap<Long, T> passengerIdBusMap;
+    private final ConcurrentHashMap<T, CompletableFuture<Boolean>> futures;
+    private final IBusSelector<T, V, Z> selector;
 
-    public BusStation(final int busCount, final String busName, List<V> buses, IBusSelector<T,V> selector) {
-        this.buses = buses;
+    public BusStation(final int threadNum, final String busName, IBusSelector<T, V, Z> selector) {
         this.selector = selector;
+        this.buses = new ArrayList<>();
         this.selector.init(this.buses);
+
+        this.passengerIdBusMap = new ConcurrentHashMap<>();
         this.futures = new ConcurrentHashMap<>();
 
         AtomicInteger threadIndex = new AtomicInteger(0);
-        service = Executors.newFixedThreadPool(busCount, new ThreadFactory() {
+        service = Executors.newFixedThreadPool(threadNum, new ThreadFactory() {
             public Thread newThread(Runnable r) {
                 Thread t = new Thread(r);
                 t.setName(busName + "_" + threadIndex.getAndIncrement());
@@ -29,30 +33,51 @@ public class BusStation<T extends IPassenger,V extends IBus<T>> implements IBusS
     }
 
     @Override
-    public void put(T passenger) {
-        IBus<T> bus = selector.selectBus(passenger);
-        if (bus != null) {
-            bus.put(passenger);
+    public boolean put(T bus) {
+        buses.add(bus);
+        return true;
+    }
+
+    @Override
+    public boolean put(V passenger) {
+        T bus = selector.selectBus(passenger);
+        if (bus == null) {
+            return false;
         }
+        bus.put(passenger);
+        passengerIdBusMap.put(passenger.getId(), bus);
+        return true;
+    }
+
+    @Override
+    public boolean put(long passengerId, Z task) {
+        IBus<V, Z> bus = passengerIdBusMap.get(passengerId);
+        if (bus == null) {
+            return false;
+        }
+        return bus.putTask(passengerId, task);
+    }
+
+    @Override
+    public void remove(V passenger) {
+
     }
 
     @Override
     public void run() {
-        for (V task : buses) {
-            Future<?> future = futures.get(task);
-            if (future == null) {
-                Future<Boolean> newFuture = service.submit(task);
-                futures.put(task, newFuture);
-                continue;
+        for (T bus : buses) {
+            CompletableFuture<Boolean> future = futures.get(bus);
+            if (future == null || future.isDone()) {
+                CompletableFuture<Boolean> newFuture = CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return bus.arrived();
+                    } catch (Exception e) {
+                        System.out.println("Task execution exception: " + e.getMessage());
+                        return false;
+                    }
+                }, service);
+                futures.put(bus, newFuture);
             }
-
-            if (future.isDone()) {
-                Future<Boolean> newFuture = service.submit(task);
-                futures.put(task, newFuture);
-                continue;
-            }
-
-//            System.out.println("task is busy: " + task.getSignature());
         }
     }
 }

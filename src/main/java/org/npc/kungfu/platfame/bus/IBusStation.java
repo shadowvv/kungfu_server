@@ -1,7 +1,12 @@
 package org.npc.kungfu.platfame.bus;
 
-public interface IBusStation<T extends IPassenger> extends Runnable {
+public interface IBusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> extends Runnable {
 
-    void put(T passenger);
+    boolean put(T bus);
 
+    boolean put(V passenger);
+
+    boolean put(long passengerId, Z task);
+
+    void remove(V passenger);
 }

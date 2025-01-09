@@ -6,7 +6,7 @@ import org.npc.kungfu.net.LogicMessage;
 public abstract class BaseMessage extends LogicMessage {
 
     private Channel senderChannel;
-    private int playerId;
+    private long playerId;
 
     public void setSenderChannel(Channel senderChannel) {
         this.senderChannel = senderChannel;
@@ -16,11 +16,11 @@ public abstract class BaseMessage extends LogicMessage {
         return senderChannel;
     }
 
-    public void setPlayerId(int playerId) {
+    public void setPlayerId(long playerId) {
         this.playerId = playerId;
     }
 
-    public int getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 

@@ -1,12 +1,19 @@
 package org.npc.kungfu.platfame.bus;
 
-import java.util.concurrent.Callable;
+public interface IBus<T extends IPassenger<V>, V extends ITask> {
 
-public interface IBus<T extends IPassenger> extends Callable<Boolean> {
+    long getId();
 
     boolean put(T passenger);
 
-    String getSignature();
+    boolean putTask(long passengerId, V Task);
+
+    Boolean arrived();
+
+    void remove(long passengerId);
 
     int getPassengerCount();
+
+    String description();
+
 }

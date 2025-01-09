@@ -2,7 +2,7 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
-public class OperationRespMessage extends BaseMessage {
+public class OperationRespMessage extends BaseRespMessage {
 
     @Expose
     private boolean success;
@@ -12,12 +12,7 @@ public class OperationRespMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
-
-    }
-
-    @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 

@@ -2,7 +2,7 @@ package org.npc.kungfu.logic.message;
 
 import java.util.List;
 
-public class BattleResultBroadMessage extends BaseMessage {
+public class BattleResultBroadMessage extends BaseRespMessage {
 
     private List<RoleMessage> roleMessages;
     private int winRoleId;
@@ -12,12 +12,7 @@ public class BattleResultBroadMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
-
-    }
-
-    @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 

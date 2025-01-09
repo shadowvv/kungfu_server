@@ -14,7 +14,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_WIDTH;
 /**
  * 玩家操作的角色
  */
-public class Role implements IPassenger {
+public class Role implements IPassenger<BaseMessage> {
 
     /**
      * 角色id
@@ -249,17 +249,22 @@ public class Role implements IPassenger {
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return 0;
     }
 
     @Override
-    public void doLogic() {
-
+    public boolean addTask(BaseMessage task) {
+        return false;
     }
 
     @Override
-    public String getDescription() {
+    public Boolean doActions() {
+        return true;
+    }
+
+    @Override
+    public String description() {
         return "";
     }
 

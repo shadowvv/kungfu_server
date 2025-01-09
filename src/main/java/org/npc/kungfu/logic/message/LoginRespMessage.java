@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose;
 public class LoginRespMessage extends BaseRespMessage {
 
     @Expose
-    private int playerId;
+    private long playerId;
 
     @Expose
     private boolean success;
@@ -14,11 +14,11 @@ public class LoginRespMessage extends BaseRespMessage {
         setId(1002);
     }
 
-    public int getPlayerId() {
+    public long getPlayerId() {
         return playerId;
     }
 
-    public void setPlayerId(int playerId) {
+    public void setPlayerId(long playerId) {
         this.playerId = playerId;
     }
 
@@ -31,7 +31,7 @@ public class LoginRespMessage extends BaseRespMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "login successful playerId: " + playerId;
     }
 

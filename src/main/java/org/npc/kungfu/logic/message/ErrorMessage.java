@@ -5,7 +5,7 @@ import com.google.gson.annotations.Expose;
 public class ErrorMessage extends BaseRespMessage {
 
     @Expose
-    private int reqId;
+    private long reqId;
 
     @Expose
     private int errorCode;
@@ -20,7 +20,7 @@ public class ErrorMessage extends BaseRespMessage {
         this.errorCode = errorCode;
     }
 
-    public int getReqId() {
+    public long getReqId() {
         return reqId;
     }
 
@@ -42,7 +42,7 @@ public class ErrorMessage extends BaseRespMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "request:" + reqId + " error:" + errorCode;
     }
 }

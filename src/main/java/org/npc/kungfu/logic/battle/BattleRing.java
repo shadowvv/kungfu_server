@@ -5,7 +5,7 @@ import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.*;
-import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.platfame.bus.IBus;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
@@ -20,7 +20,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 /**
  * 决斗场
  */
-public class BattleRing implements IPassenger {
+public class BattleRing implements IBus<Role, BaseMessage> {
 
     /**
      * 战斗id
@@ -187,22 +187,43 @@ public class BattleRing implements IPassenger {
     }
 
     @Override
-    public int getId() {
+    public long getId() {
         return battleId;
     }
 
     @Override
-    public void doLogic() {
+    public boolean put(Role passenger) {
+        return false;
+    }
+
+    @Override
+    public boolean putTask(long passengerId, BaseMessage Task) {
+        return false;
+    }
+
+    @Override
+    public Boolean arrived() {
         long currentTick = System.currentTimeMillis();
         if (this.lastTick == 0){
             this.lastTick = currentTick;
         }
         update(currentTick-this.countDownTick);
         this.lastTick = currentTick;
+        return true;
     }
 
     @Override
-    public String getDescription() {
+    public void remove(long passengerId) {
+
+    }
+
+    @Override
+    public int getPassengerCount() {
+        return 0;
+    }
+
+    @Override
+    public String description() {
         return "";
     }
 }

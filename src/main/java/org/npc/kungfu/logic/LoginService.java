@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
+import org.npc.kungfu.platfame.bus.SoloPassenger;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,22 +21,24 @@ public class LoginService {
         return service;
     }
 
-    private BusStation<BaseMessage, Bus<BaseMessage>> taskStation;
+    private BusStation<Bus<SoloPassenger<BaseMessage>, BaseMessage>, SoloPassenger<BaseMessage>, BaseMessage> taskStation;
     private AtomicInteger playerIdCreator;
-    private ConcurrentHashMap<String, Integer> userNamePlayerIds;
+    private ConcurrentHashMap<String, Long> userNamePlayerIds;
     private ConcurrentHashMap<String, Boolean> userNameMutex;
     private ConcurrentHashMap<Channel, Boolean> channelMutex;
 
-    public void init(BusStation<BaseMessage,Bus<BaseMessage>> station) {
+    public void init(BusStation<Bus<SoloPassenger<BaseMessage>, BaseMessage>, SoloPassenger<BaseMessage>, BaseMessage> station) {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
         channelMutex = new ConcurrentHashMap<>();
         userNamePlayerIds = new ConcurrentHashMap<>();
         userNameMutex = new ConcurrentHashMap<>();
+
+        taskStation.put(new SoloPassenger<>());
     }
 
     public void putMessage(BaseMessage msg) {
-        taskStation.put(msg);
+        taskStation.put(0, msg);
     }
 
     public Boolean enterUserNameMutex(String userName) {
@@ -61,7 +64,7 @@ public class LoginService {
     public Player createPlayer(Channel loginChannel, String userName) {
         int id = playerIdCreator.incrementAndGet();
         Player player = new Player(id, userName, loginChannel);
-        userNamePlayerIds.putIfAbsent(userName, player.getPlayerId());
+        userNamePlayerIds.putIfAbsent(userName, player.getId());
         return player;
     }
 

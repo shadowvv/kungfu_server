@@ -5,11 +5,11 @@ import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
-import org.npc.kungfu.platfame.bus.IFixedPassenger;
+import org.npc.kungfu.platfame.bus.IPassenger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Player implements IFixedPassenger<BaseMessage> {
+public class Player implements IPassenger<BaseMessage> {
 
     private final int playerId;
     private final String username;
@@ -20,13 +20,13 @@ public class Player implements IFixedPassenger<BaseMessage> {
     private boolean inMatch;
     private boolean inBattle;
 
-    private final ConcurrentLinkedQueue<BaseMessage> luggageQueue;
+    private final ConcurrentLinkedQueue<BaseMessage> messages;
 
     Player(int playerId, String userName, Channel channel) {
         this.playerId = playerId;
         this.username = userName;
         this.channel = channel;
-        this.luggageQueue = new ConcurrentLinkedQueue<>();
+        this.messages = new ConcurrentLinkedQueue<>();
     }
 
     public void sendLoginSuccess() {
@@ -54,52 +54,20 @@ public class Player implements IFixedPassenger<BaseMessage> {
         channel.writeAndFlush(resp);
     }
 
-    public boolean isInBattle() {
-        return inBattle;
-    }
-
-    public boolean isInMatch() {
-        return inMatch;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void sendMessage(BaseMessage message) {
-        channel.writeAndFlush(message);
-    }
-
-    public int getPlayerId() {
-        return playerId;
-    }
-
-    public String getUserName() {
-        return username;
-    }
-
-    public Channel getChannel() {
-        return this.channel;
-    }
-
     @Override
-    public boolean putLuggage(BaseMessage luggage) {
-        this.luggageQueue.add(luggage);
+    public boolean addTask(BaseMessage task) {
+        this.messages.add(task);
         return true;
     }
 
     @Override
-    public int getId() {
-        return playerId;
-    }
-
-    @Override
-    public void doLogic() {
-        if (!luggageQueue.isEmpty()) {
-            BaseMessage message = luggageQueue.poll();
-            message.doLogic();
+    public Boolean doActions() {
+        if (!messages.isEmpty()) {
+            BaseMessage message = messages.poll();
+            message.doAction();
         }
         heartBeat();
+        return true;
     }
 
     private void heartBeat() {
@@ -107,16 +75,11 @@ public class Player implements IFixedPassenger<BaseMessage> {
             return;
         }
         if (System.currentTimeMillis() - channelInactiveTime > 1000 * 20) {
-            if (!luggageQueue.isEmpty()) {
+            if (!messages.isEmpty()) {
                 return;
             }
             PlayerService.getService().removePlayer(this);
         }
-    }
-
-    @Override
-    public String getDescription() {
-        return "";
     }
 
     public void onPlayerDisconnect() {
@@ -132,5 +95,39 @@ public class Player implements IFixedPassenger<BaseMessage> {
         }
         this.channelInactiveTime = 0;
         this.channel = channel;
+    }
+
+    public void sendMessage(BaseMessage message) {
+        channel.writeAndFlush(message);
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public String getUserName() {
+        return username;
+    }
+
+    public Channel getChannel() {
+        return this.channel;
+    }
+
+    public boolean isInBattle() {
+        return inBattle;
+    }
+
+    public boolean isInMatch() {
+        return inMatch;
+    }
+
+    @Override
+    public long getId() {
+        return playerId;
+    }
+
+    @Override
+    public String description() {
+        return "";
     }
 }

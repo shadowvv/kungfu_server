@@ -1,55 +1,63 @@
 package org.npc.kungfu.platfame.bus;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class Bus<T extends IPassenger> implements IBus<T> {
+public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V> {
 
+    private final long id;
     private final int busCapacity;
-    private final ConcurrentLinkedQueue<T> passengers;
-    private final AtomicInteger passengerCount;
+    private final ConcurrentHashMap<Long, T> passengers;
     private final String signature;
 
-    public Bus(String signature) {
-        this.passengers = new ConcurrentLinkedQueue<>();
-        this.passengerCount = new AtomicInteger(0);
-        this.signature = signature;
+    public Bus(long id, String signature) {
         this.busCapacity = 2000;
+        this.id = id;
+        this.signature = signature;
+        this.passengers = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean put(T passenger) {
-        if (busCapacity <= passengerCount.get()) {
+        if (busCapacity <= passengers.size()) {
             //TODO:越界处理
             return false;
         }
-        this.passengers.offer(passenger);
-        this.passengerCount.incrementAndGet();
+        this.passengers.put(passenger.getId(), passenger);
         return true;
     }
 
     @Override
-    public String getSignature() {
-        return this.signature;
+    public boolean putTask(long passengerId, V Task) {
+        T passenger = passengers.get(passengerId);
+        if (passenger == null) {
+            return false;
+        }
+        return passenger.addTask(Task);
+    }
+
+    @Override
+    public Boolean arrived() {
+        passengers.forEach((k, v) -> v.doActions());
+        return true;
+    }
+
+    @Override
+    public void remove(long passengerId) {
+        this.passengers.remove(passengerId);
     }
 
     @Override
     public int getPassengerCount() {
-        return passengerCount.get();
+        return passengers.size();
     }
 
     @Override
-    public Boolean call() throws Exception {
-        while (!passengers.isEmpty()) {
-            T passenger = passengers.poll();
-            passengerCount.decrementAndGet();
-            try {
-                passenger.doLogic();
-            } catch (Exception e) {
-                System.out.println("do logic exception:" + e.getMessage() + " message:" + passenger.getDescription());
-                throw new RuntimeException(e);
-            }
-        }
-        return true;
+    public String description() {
+        return this.signature;
+    }
+
+    @Override
+    public long getId() {
+        return this.id;
     }
 }
