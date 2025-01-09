@@ -2,6 +2,7 @@ package org.npc.kungfu.logic.match;
 
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleService;
+import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
 import org.npc.kungfu.logic.message.RoleMessage;
 import org.npc.kungfu.platfame.bus.IBus;
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MatchPool implements IBus<Role> {
+public class MatchPool implements IBus<Role, BaseMessage> {
 
     private final ConcurrentLinkedQueue<Role> roles;
     private final AtomicInteger roleNum;
@@ -24,6 +25,11 @@ public class MatchPool implements IBus<Role> {
     }
 
     @Override
+    public long getId() {
+        return 0;
+    }
+
+    @Override
     public boolean put(Role passenger) {
         roles.add(passenger);
         roleNum.incrementAndGet();
@@ -31,19 +37,29 @@ public class MatchPool implements IBus<Role> {
     }
 
     @Override
-    public String getSignature() {
+    public boolean putTask(long passengerId, BaseMessage Task) {
+        return false;
+    }
+
+    @Override
+    public Boolean arrived() {
+        matchUp();
+        return true;
+    }
+
+    @Override
+    public void remove(long passengerId) {
+
+    }
+
+    @Override
+    public String description() {
         return this.signature;
     }
 
     @Override
     public int getPassengerCount() {
         return roleNum.get();
-    }
-
-    @Override
-    public Boolean call() throws Exception {
-        matchUp();
-        return true;
     }
 
     private void matchUp() {

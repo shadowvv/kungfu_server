@@ -1,10 +1,12 @@
 package org.npc.kungfu.platfame.bus;
 
-public interface IPassenger {
+public interface IPassenger<T extends ITask> {
 
-    int getId();
+    boolean addTask(T task);
 
-    void doLogic();
+    Boolean doActions();
 
-    String getDescription();
+    long getId();
+
+    String description();
 }

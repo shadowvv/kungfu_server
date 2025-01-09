@@ -23,7 +23,7 @@ public class SSPlayerChannelReconnect extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
+    public void doAction() {
         Player player = PlayerService.getService().getPlayer(getPlayerId());
         if (player != null) {
             player.onPlayerReconnect(channel);
@@ -31,7 +31,7 @@ public class SSPlayerChannelReconnect extends BaseMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "SSPlayerChannelReconnect player: " + getPlayerId();
     }
 }

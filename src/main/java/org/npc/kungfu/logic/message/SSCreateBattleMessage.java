@@ -27,12 +27,12 @@ public class SSCreateBattleMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
+    public void doAction() {
 
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 }

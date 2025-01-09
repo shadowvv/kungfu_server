@@ -1,11 +1,12 @@
 package org.npc.kungfu.logic.match;
 
 import org.npc.kungfu.logic.Role;
+import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.bus.IBusSelector;
 
 import java.util.List;
 
-public class MatchPoolSelector implements IBusSelector<Role,MatchPool> {
+public class MatchPoolSelector implements IBusSelector<MatchPool, Role, BaseMessage> {
 
     private List<MatchPool> pools;
 
@@ -16,6 +17,7 @@ public class MatchPoolSelector implements IBusSelector<Role,MatchPool> {
 
     @Override
     public MatchPool selectBus(Role passenger) {
+        //TODO:
         return this.pools.get(0);
     }
 }

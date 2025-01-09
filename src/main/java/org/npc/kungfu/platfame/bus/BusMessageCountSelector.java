@@ -2,23 +2,23 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.List;
 
-public class BusMessageCountSelector<T extends IPassenger,V extends IBus<T>> implements IBusSelector<T,V> {
+public class BusMessageCountSelector<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> implements IBusSelector<T, V, Z> {
 
-    private List<V> busList;
+    private List<T> busList;
 
     public BusMessageCountSelector() {
     }
 
     @Override
-    public void init(List<V> iBuses) {
+    public void init(List<T> iBuses) {
         this.busList = iBuses;
     }
 
     @Override
-    public V selectBus(T passenger) {
-        V bus = busList.get(0);
+    public T selectBus(V passenger) {
+        T bus = busList.get(0);
         int count = Integer.MAX_VALUE;
-        for (V tempBus : busList) {
+        for (T tempBus : busList) {
             if (tempBus.getPassengerCount() < count) {
                 count = tempBus.getPassengerCount();
                 bus = tempBus;

@@ -28,7 +28,7 @@ public class LoginReqMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
+    public void doAction() {
         if (!getSenderChannel().isActive()) {
             return;
         }
@@ -89,7 +89,7 @@ public class LoginReqMessage extends BaseMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "login request message userName:" + userName;
     }
 }

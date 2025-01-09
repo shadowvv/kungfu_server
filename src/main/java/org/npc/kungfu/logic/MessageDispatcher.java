@@ -17,18 +17,18 @@ public class MessageDispatcher implements IMessageDispatcher {
                     LoginService.getService().putMessage(msg);
                     break;
                 case PLAYER_MESSAGE: {
-                    int playerId = PlayerService.getService().getPlayerId(senderChannel);
+                    long playerId = PlayerService.getService().getPlayerId(senderChannel);
                     msg.setPlayerId(playerId);
                     PlayerService.getService().putMessage(msg);
                     break;
                 }
                 case MATCH_MESSAGE: {
-                    int playerId = PlayerService.getService().getPlayerId(senderChannel);
+                    long playerId = PlayerService.getService().getPlayerId(senderChannel);
 //                    MatchService.getService().putMessage(msg, playerId);
                     break;
                 }
                 case BATTLE_MESSAGE: {
-                    int playerId = PlayerService.getService().getPlayerId(senderChannel);
+                    long playerId = PlayerService.getService().getPlayerId(senderChannel);
                     msg.setPlayerId(playerId);
                     BattleService.getService().putMessage(msg);
                     break;

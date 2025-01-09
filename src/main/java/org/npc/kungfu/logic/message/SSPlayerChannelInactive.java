@@ -11,7 +11,7 @@ public class SSPlayerChannelInactive extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
+    public void doAction() {
         Player player = PlayerService.getService().getPlayer(getPlayerId());
         if (player != null) {
             player.onPlayerDisconnect();
@@ -19,7 +19,7 @@ public class SSPlayerChannelInactive extends BaseMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "SSPlayerChannelInactive playerId" + getPlayerId();
     }
 }

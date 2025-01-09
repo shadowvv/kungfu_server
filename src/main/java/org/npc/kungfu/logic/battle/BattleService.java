@@ -4,7 +4,6 @@ import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.message.BaseMessage;
-import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.HashMap;
@@ -23,11 +22,11 @@ public class BattleService {
 
     }
 
-    private BusStation<BattleRing,Bus<BattleRing>> taskStation;
-    private static HashMap<Integer, BattleRing> battleRingHashMap;
+    private BusStation<BattleRing, Role, BaseMessage> taskStation;
+    private static HashMap<Long, BattleRing> battleRingHashMap;
     private AtomicInteger battleIdCounter;
 
-    public void init(BusStation<BattleRing,Bus<BattleRing>> battleStation) {
+    public void init(BusStation<BattleRing, Role, BaseMessage> battleStation) {
         taskStation = battleStation;
         battleRingHashMap = new HashMap<>();
         battleIdCounter = new AtomicInteger(0);

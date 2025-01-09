@@ -1,10 +1,9 @@
 package org.npc.kungfu.net;
 
 import com.google.gson.annotations.Expose;
-import org.npc.kungfu.platfame.bus.ILuggage;
-import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.platfame.bus.ITask;
 
-public abstract class LogicMessage implements IPassenger, ILuggage {
+public abstract class LogicMessage implements ITask {
 
     @Expose
     private int id;
@@ -20,6 +19,4 @@ public abstract class LogicMessage implements IPassenger, ILuggage {
     public int getId() {
         return id;
     }
-
-    public abstract void doLogic();
 }

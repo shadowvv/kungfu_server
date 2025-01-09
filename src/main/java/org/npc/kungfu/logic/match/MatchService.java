@@ -15,9 +15,9 @@ public class MatchService {
         return service;
     }
 
-    private MatchBusStation taskStation;
+    private BusStation<MatchPool, Role, BaseMessage> taskStation;
 
-    public void init(MatchBusStation matchStation) {
+    public void init(BusStation<MatchPool, Role, BaseMessage> matchStation) {
         this.taskStation = matchStation;
     }
 

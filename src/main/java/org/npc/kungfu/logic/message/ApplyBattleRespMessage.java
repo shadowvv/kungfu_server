@@ -2,7 +2,7 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
-public class ApplyBattleRespMessage extends BaseMessage {
+public class ApplyBattleRespMessage extends BaseRespMessage {
 
     @Expose
     private int roleId;
@@ -14,12 +14,7 @@ public class ApplyBattleRespMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
-
-    }
-
-    @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 

@@ -23,7 +23,7 @@ public class ApplyBattleReqMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
+    public void doAction() {
         Player player = PlayerService.getService().getPlayer(getPlayerId());
         if (player == null) {
             return;
@@ -41,7 +41,7 @@ public class ApplyBattleReqMessage extends BaseMessage {
     }
 
     @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 

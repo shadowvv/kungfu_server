@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.List;
 
-public class MatchResultBroadMessage extends BaseMessage {
+public class MatchResultBroadMessage extends BaseRespMessage {
 
     @Expose
     List<RoleMessage> roles;
@@ -14,12 +14,7 @@ public class MatchResultBroadMessage extends BaseMessage {
     }
 
     @Override
-    public void doLogic() {
-
-    }
-
-    @Override
-    public String getDescription() {
+    public String description() {
         return "";
     }
 

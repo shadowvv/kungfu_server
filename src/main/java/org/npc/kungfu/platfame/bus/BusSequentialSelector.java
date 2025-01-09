@@ -3,9 +3,9 @@ package org.npc.kungfu.platfame.bus;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class BusSequentialSelector<T extends IPassenger,V extends IBus<T>> implements IBusSelector<T,V> {
+public class BusSequentialSelector<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> implements IBusSelector<T, V, Z> {
 
-    private List<V> busList;
+    private List<T> busList;
     private AtomicInteger index;
 
     public BusSequentialSelector() {
@@ -13,14 +13,14 @@ public class BusSequentialSelector<T extends IPassenger,V extends IBus<T>> imple
     }
 
     @Override
-    public void init(List<V> buses) {
+    public void init(List<T> buses) {
         this.busList = buses;
         index = new AtomicInteger(0);
     }
 
     @Override
-    public V selectBus(T passenger) {
-        V bus = busList.get(index.intValue());
+    public T selectBus(V passenger) {
+        T bus = busList.get(index.intValue());
         int currentIndex = index.incrementAndGet();
         if (currentIndex >= busList.size()) {
             index.set(0);
