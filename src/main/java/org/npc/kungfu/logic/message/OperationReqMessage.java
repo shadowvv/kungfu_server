@@ -2,6 +2,8 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.Role;
+import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.platfame.bus.ITask;
 
 public class OperationReqMessage extends BaseMessage {
 
@@ -18,8 +20,9 @@ public class OperationReqMessage extends BaseMessage {
         setId(3001);
     }
 
+
     @Override
-    public void doAction() {
+    public void doAction(IPassenger<? extends ITask> passenger) {
 
     }
 

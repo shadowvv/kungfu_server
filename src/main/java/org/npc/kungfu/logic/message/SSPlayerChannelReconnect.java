@@ -2,10 +2,9 @@ package org.npc.kungfu.logic.message;
 
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.PlayerService;
 
 
-public class SSPlayerChannelReconnect extends BaseMessage {
+public class SSPlayerChannelReconnect extends BasePlayerMessage {
 
     private Channel channel;
 
@@ -23,11 +22,8 @@ public class SSPlayerChannelReconnect extends BaseMessage {
     }
 
     @Override
-    public void doAction() {
-        Player player = PlayerService.getService().getPlayer(getPlayerId());
-        if (player != null) {
-            player.onPlayerReconnect(channel);
-        }
+    public void doAction(Player player) {
+        player.onPlayerReconnect(channel);
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.npc.kungfu.logic.match;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.platfame.bus.BusStation;
+import org.npc.kungfu.platfame.bus.SoloPassengerBus;
 
 public class MatchService {
 
@@ -15,13 +16,22 @@ public class MatchService {
         return service;
     }
 
-    private BusStation<MatchPool, Role, BaseMessage> taskStation;
+    private BusStation<SoloPassengerBus<MatchPool, BaseMessage>, MatchPool, BaseMessage> taskStation;
 
-    public void init(BusStation<MatchPool, Role, BaseMessage> matchStation) {
+    public void init(BusStation<SoloPassengerBus<MatchPool, BaseMessage>, MatchPool, BaseMessage> matchStation) {
         this.taskStation = matchStation;
     }
 
     public void enterMatch(Role role) {
-        this.taskStation.put(role);
+//        this.taskStation.put(0,role);
+    }
+
+    public boolean cancelMatch(Role role) {
+//        return this.taskStation.remove(role);
+        return false;
+    }
+
+    public void putMessage(BaseMessage msg) {
+        taskStation.put(0, msg);
     }
 }

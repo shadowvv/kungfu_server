@@ -17,7 +17,10 @@ public class Player implements IPassenger<BaseMessage> {
     private long channelInactiveTime;
 
     private Role role;
+
     private boolean inMatch;
+    private long enterMatchTime;
+
     private boolean inBattle;
 
     private final ConcurrentLinkedQueue<BaseMessage> messages;
@@ -46,8 +49,7 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public void sendApplyBattleSuccess() {
-        this.inMatch = true;
-
+        this.enterMatchTime = System.currentTimeMillis();
         ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
         resp.setRoleId(role.getRoleId());
         resp.setWeaponType(this.role.getWeaponType());
@@ -64,7 +66,7 @@ public class Player implements IPassenger<BaseMessage> {
     public Boolean doActions() {
         if (!messages.isEmpty()) {
             BaseMessage message = messages.poll();
-            message.doAction();
+            message.doAction(this);
         }
         heartBeat();
         return true;
@@ -129,5 +131,10 @@ public class Player implements IPassenger<BaseMessage> {
     @Override
     public String description() {
         return "";
+    }
+
+    public void exitMatch() {
+        this.inMatch = false;
+        this.channelInactiveTime = 0;
     }
 }

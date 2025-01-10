@@ -35,6 +35,12 @@ public class BusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends
     @Override
     public boolean put(T bus) {
         buses.add(bus);
+        if (bus.getPassengerCount() > 0) {
+            List<V> passengers = bus.getPassengers();
+            for (V passenger : passengers) {
+                bind(bus, passenger);
+            }
+        }
         return true;
     }
 
@@ -45,7 +51,7 @@ public class BusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends
             return false;
         }
         bus.put(passenger);
-        passengerIdBusMap.put(passenger.getId(), bus);
+        bind(bus, passenger);
         return true;
     }
 
@@ -58,9 +64,17 @@ public class BusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends
         return bus.putTask(passengerId, task);
     }
 
-    @Override
-    public void remove(V passenger) {
+    private void bind(T bus, V passenger) {
+        passengerIdBusMap.put(passenger.getId(), bus);
+    }
 
+    @Override
+    public boolean remove(V passenger) {
+        T bus = passengerIdBusMap.get(passenger.getId());
+        if (bus == null) {
+            return false;
+        }
+        return bus.remove(passenger.getId());
     }
 
     @Override

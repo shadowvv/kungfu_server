@@ -213,8 +213,8 @@ public class BattleRing implements IBus<Role, BaseMessage> {
     }
 
     @Override
-    public void remove(long passengerId) {
-
+    public boolean remove(long passengerId) {
+        return false;
     }
 
     @Override
@@ -225,5 +225,10 @@ public class BattleRing implements IBus<Role, BaseMessage> {
     @Override
     public String description() {
         return "";
+    }
+
+    @Override
+    public List<Role> getPassengers() {
+        return List.of();
     }
 }

@@ -1,11 +1,10 @@
 package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
+import org.npc.kungfu.logic.MessageDispatcher;
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.match.MatchService;
 
-public class ApplyBattleReqMessage extends BaseMessage {
+public class ApplyBattleReqMessage extends BasePlayerMessage {
 
     @Expose
     private int weaponType;
@@ -23,26 +22,23 @@ public class ApplyBattleReqMessage extends BaseMessage {
     }
 
     @Override
-    public void doAction() {
-        Player player = PlayerService.getService().getPlayer(getPlayerId());
-        if (player == null) {
-            return;
-        }
+    public void doAction(Player player) {
         if (player.isInBattle()) {
+            getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_IN_BATTLE.getCode()));
             return;
         }
         if (player.isInMatch()) {
+            getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_IN_MATCH.getCode()));
             return;
         }
         player.onPlayerApplyBattle(weaponType);
-        player.sendApplyBattleSuccess();
 
-        MatchService.getService().enterMatch(player.getRole());
+        MessageDispatcher.getInstance().dispatchMessage(new SSEnterMatch(player.getRole()), null);
     }
 
     @Override
     public String description() {
-        return "";
+        return "ApplyBattleReqMessage playerId: " + getPlayerId() + " weaponType:" + weaponType;
     }
 
     @Override

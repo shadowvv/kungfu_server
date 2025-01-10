@@ -1,6 +1,8 @@
 package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Role;
+import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.platfame.bus.ITask;
 
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class SSCreateBattleMessage extends BaseMessage {
     }
 
     @Override
-    public void doAction() {
+    public void doAction(IPassenger<? extends ITask> passenger) {
 
     }
 

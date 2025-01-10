@@ -1,9 +1,8 @@
 package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.PlayerService;
 
-public class SSPlayerChannelInactive extends BaseMessage {
+public class SSPlayerChannelInactive extends BasePlayerMessage {
 
     @Override
     public MessageType getMessageType() {
@@ -11,11 +10,8 @@ public class SSPlayerChannelInactive extends BaseMessage {
     }
 
     @Override
-    public void doAction() {
-        Player player = PlayerService.getService().getPlayer(getPlayerId());
-        if (player != null) {
-            player.onPlayerDisconnect();
-        }
+    public void doAction(Player player) {
+        player.onPlayerDisconnect();
     }
 
     @Override

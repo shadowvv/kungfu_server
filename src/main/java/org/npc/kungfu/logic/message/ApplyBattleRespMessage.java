@@ -13,11 +13,6 @@ public class ApplyBattleRespMessage extends BaseRespMessage {
         setId(2002);
     }
 
-    @Override
-    public String description() {
-        return "";
-    }
-
     public int getRoleId() {
         return roleId;
     }
@@ -37,5 +32,10 @@ public class ApplyBattleRespMessage extends BaseRespMessage {
     @Override
     public MessageType getMessageType() {
         return MessageType.PLAYER_MESSAGE;
+    }
+
+    @Override
+    public String description() {
+        return "ApplyBattleRespMessage playerId:" + getPlayerId() + " roleId:" + roleId + " weaponType:" + weaponType;
     }
 }

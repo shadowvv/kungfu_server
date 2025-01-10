@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.LoginService;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
+import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.platfame.bus.ITask;
 
 public class LoginReqMessage extends BaseMessage {
 
@@ -28,7 +30,7 @@ public class LoginReqMessage extends BaseMessage {
     }
 
     @Override
-    public void doAction() {
+    public void doAction(IPassenger<? extends ITask> passenger) {
         if (!getSenderChannel().isActive()) {
             return;
         }
