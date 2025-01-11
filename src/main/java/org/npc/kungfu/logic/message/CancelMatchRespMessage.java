@@ -1,5 +1,7 @@
 package org.npc.kungfu.logic.message;
 
+import org.npc.kungfu.logic.message.base.BaseRespMessage;
+
 public class CancelMatchRespMessage extends BaseRespMessage {
 
     public CancelMatchRespMessage() {

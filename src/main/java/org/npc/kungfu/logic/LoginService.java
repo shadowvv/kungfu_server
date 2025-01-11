@@ -1,7 +1,7 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.BusStation;
 import org.npc.kungfu.platfame.bus.SoloPassenger;
 import org.npc.kungfu.platfame.bus.SoloPassengerBus;

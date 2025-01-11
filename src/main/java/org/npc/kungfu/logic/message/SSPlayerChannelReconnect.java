@@ -2,6 +2,7 @@ package org.npc.kungfu.logic.message;
 
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.message.base.BasePlayerMessage;
 
 
 public class SSPlayerChannelReconnect extends BasePlayerMessage {

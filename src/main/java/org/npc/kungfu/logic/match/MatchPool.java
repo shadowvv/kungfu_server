@@ -2,27 +2,39 @@ package org.npc.kungfu.logic.match;
 
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleService;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.ErrorCode;
+import org.npc.kungfu.logic.message.ErrorMessage;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
 import org.npc.kungfu.logic.message.RoleMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.SoloPassenger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class MatchPool extends SoloPassenger<BaseMessage> {
 
-    private final ConcurrentLinkedQueue<Role> roles;
+    private final ConcurrentLinkedDeque<Role> roles;
     private final AtomicInteger roleNum;
     private final String signature;
 
     public MatchPool(long id, String signature) {
         super(id);
-        roles = new ConcurrentLinkedQueue<>();
+        roles = new ConcurrentLinkedDeque<>();
         roleNum = new AtomicInteger(0);
         this.signature = signature;
+    }
+
+    public void enterMatch(Role role) {
+        roles.add(role);
+        roleNum.incrementAndGet();
+    }
+
+    @Override
+    public void heartbeat() {
+        matchUp();
     }
 
     private void matchUp() {
@@ -37,11 +49,21 @@ public class MatchPool extends SoloPassenger<BaseMessage> {
 
             Role role1 = roles.poll();
             assert role1 != null;
+            if (System.currentTimeMillis() - role1.getEnterMatchTime() > 60 * 1000) {
+                role1.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
+                continue;
+            }
             role1.resetPosition(-200,0,0);
 
             Role role2 = roles.poll();
             assert role2 != null;
             role2.resetPosition(200,0,0);
+            if (System.currentTimeMillis() - role2.getEnterMatchTime() > 60 * 1000) {
+                //TODO:推送超时协议，将role1重新放入列表
+                role2.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
+                roles.addFirst(role1);
+                continue;
+            }
 
             list.add(role1);
             list.add(role2);
@@ -82,5 +104,9 @@ public class MatchPool extends SoloPassenger<BaseMessage> {
     @Override
     public String description() {
         return this.signature;
+    }
+
+    public boolean cancelMatch(Role role) {
+        return roles.remove(role);
     }
 }

@@ -1,6 +1,7 @@
 package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
+import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
 public class LoginRespMessage extends BaseRespMessage {
 

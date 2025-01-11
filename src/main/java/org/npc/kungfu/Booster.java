@@ -6,7 +6,7 @@ import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.match.MatchPool;
 import org.npc.kungfu.logic.match.MatchPoolSelector;
 import org.npc.kungfu.logic.match.MatchService;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.net.WebSocketServer;
 import org.npc.kungfu.platfame.bus.*;
 

@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.LoginService;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;
 

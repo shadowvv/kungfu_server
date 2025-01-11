@@ -4,7 +4,9 @@ public interface IPassenger<T extends ITask> {
 
     boolean addTask(T task);
 
-    Boolean doActions();
+    boolean doActions();
+
+    void heartbeat();
 
     long getId();
 

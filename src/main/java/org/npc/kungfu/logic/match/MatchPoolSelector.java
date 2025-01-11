@@ -1,6 +1,6 @@
 package org.npc.kungfu.logic.match;
 
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IBusSelector;
 import org.npc.kungfu.platfame.bus.SoloPassengerBus;
 

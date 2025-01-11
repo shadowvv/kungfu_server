@@ -1,4 +1,4 @@
-package org.npc.kungfu.logic.message;
+package org.npc.kungfu.logic.message.base;
 
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;

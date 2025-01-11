@@ -4,9 +4,7 @@ import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.match.MatchPool;
-import org.npc.kungfu.logic.match.MatchService;
-import org.npc.kungfu.platfame.bus.IPassenger;
-import org.npc.kungfu.platfame.bus.ITask;
+import org.npc.kungfu.logic.message.base.BaseMatchMessage;
 
 public class SSEnterMatch extends BaseMatchMessage {
 
@@ -26,7 +24,7 @@ public class SSEnterMatch extends BaseMatchMessage {
 
     @Override
     public void doAction(MatchPool matchPool) {
-        Player player = PlayerService.getService().getPlayer(getPlayerId());
+        Player player = PlayerService.getService().getPlayer(role.getPlayerId());
         if (player == null) {
             return;
         }
@@ -39,15 +37,7 @@ public class SSEnterMatch extends BaseMatchMessage {
             return;
         }
         player.sendApplyBattleSuccess();
-        MatchService.getService().enterMatch(role);
-    }
-
-    @Override
-    public void doAction(IPassenger<? extends ITask> passenger) {
-        if (passenger instanceof MatchPool) {
-            MatchPool pool = (MatchPool) passenger;
-
-        }
+        matchPool.enterMatch(role);
     }
 
     @Override

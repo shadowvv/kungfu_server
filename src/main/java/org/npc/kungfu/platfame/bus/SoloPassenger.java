@@ -19,14 +19,20 @@ public class SoloPassenger<T extends ITask> implements IPassenger<T> {
     }
 
     @Override
-    public Boolean doActions() {
+    public boolean doActions() {
         while (!queue.isEmpty()) {
             T task = queue.poll();
             if (task != null) {
                 task.doAction(this);
             }
         }
+        heartbeat();
         return Boolean.TRUE;
+    }
+
+    @Override
+    public void heartbeat() {
+
     }
 
     @Override

@@ -9,6 +9,7 @@ public enum ErrorCode {
     PLAYER_IN_BATTLE(1004),
     PLAYER_IN_MATCH(1005),
     PLAYER_NOT_IN_MATCH(1006),
+    MATCH_TIMEOUT(1007),
 
     SYSTEM_ERROR(9999),
 

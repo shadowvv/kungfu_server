@@ -3,7 +3,7 @@ package org.npc.kungfu.logic;
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.match.MatchService;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.net.IMessageDispatcher;
 
 public class MessageDispatcher implements IMessageDispatcher {

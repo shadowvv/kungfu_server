@@ -1,6 +1,7 @@
 package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.message.base.BasePlayerMessage;
 
 public class SSPlayerChannelInactive extends BasePlayerMessage {
 

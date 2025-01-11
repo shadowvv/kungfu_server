@@ -3,6 +3,7 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.MessageDispatcher;
 import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.message.base.BasePlayerMessage;
 
 public class ApplyBattleReqMessage extends BasePlayerMessage {
 
