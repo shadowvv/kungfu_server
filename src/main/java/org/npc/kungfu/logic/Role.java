@@ -2,7 +2,7 @@ package org.npc.kungfu.logic;
 
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
@@ -70,6 +70,8 @@ public class Role implements IPassenger<BaseMessage> {
      * 角色朝向
      */
     private int faceAngle;
+
+    private long enterMatchTime;
 
     /**
      * 角色工厂
@@ -259,8 +261,13 @@ public class Role implements IPassenger<BaseMessage> {
     }
 
     @Override
-    public Boolean doActions() {
+    public boolean doActions() {
         return true;
+    }
+
+    @Override
+    public void heartbeat() {
+
     }
 
     @Override
@@ -282,5 +289,17 @@ public class Role implements IPassenger<BaseMessage> {
 
     public int getFaceAngle() {
         return this.faceAngle;
+    }
+
+    public int getPlayerId() {
+        return playerId;
+    }
+
+    public void enterMatch() {
+        this.enterMatchTime = System.currentTimeMillis();
+    }
+
+    public long getEnterMatchTime() {
+        return enterMatchTime;
     }
 }

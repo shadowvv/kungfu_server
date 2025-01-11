@@ -6,7 +6,7 @@ import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.match.MatchPool;
 import org.npc.kungfu.logic.match.MatchPoolSelector;
 import org.npc.kungfu.logic.match.MatchService;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.net.WebSocketServer;
 import org.npc.kungfu.platfame.bus.*;
 
@@ -15,11 +15,9 @@ public class Booster {
     public static void main(String[] args) throws InterruptedException {
 
         int threadNum = Runtime.getRuntime().availableProcessors() * 2;
+
         //初始化登录服务
-        BusStation<Bus<SoloPassenger<BaseMessage>, BaseMessage>, SoloPassenger<BaseMessage>, BaseMessage> loginStation = new BusStation<>(threadNum, "login", new BusSequentialSelector<>());
-        for (int i = 0; i < threadNum; i++) {
-            loginStation.put(new Bus<>(i, "login"));
-        }
+        SimpleBusStation<BaseMessage> loginStation = new SimpleBusStation<>(threadNum, "login");
         StationDriver loginDriver = new StationDriver(loginStation, 100, 30);
         loginDriver.runStation();
         LoginService.getService().init(loginStation);
@@ -34,8 +32,11 @@ public class Booster {
         PlayerService.getService().init(playerStation);
 
         //初始化匹配服务
-        BusStation<MatchPool, Role, BaseMessage> matchStation = new BusStation<>(1, "match", new MatchPoolSelector());
-        matchStation.put(new MatchPool("match"));
+        BusStation<SoloPassengerBus<MatchPool, BaseMessage>, MatchPool, BaseMessage> matchStation = new BusStation<>(1, "match", new MatchPoolSelector());
+        for (int i = 0; i < 1; i++) {
+            MatchPool matchPool = new MatchPool(i, "match");
+            matchStation.put(new SoloPassengerBus<>(i, "match", matchPool));
+        }
         StationDriver matchDriver = new StationDriver(matchStation, 100, 30);
         matchDriver.runStation();
         MatchService.getService().init(matchStation);
@@ -47,7 +48,7 @@ public class Booster {
         BattleService.getService().init(battleStation);
 
         //初始化网络服务
-        WebSocketServer net = new WebSocketServer(8080, threadNum, new MessageDispatcher(), new MessageCoder());
+        WebSocketServer net = new WebSocketServer(8080, threadNum, MessageDispatcher.getInstance(), new MessageCoder());
         net.start();
     }
 

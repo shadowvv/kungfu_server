@@ -8,5 +8,5 @@ public interface IBusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z ex
 
     boolean put(long passengerId, Z task);
 
-    void remove(V passenger);
+    boolean remove(V passenger);
 }

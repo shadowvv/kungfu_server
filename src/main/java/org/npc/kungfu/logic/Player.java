@@ -3,8 +3,8 @@ package org.npc.kungfu.logic;
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
-import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -17,7 +17,9 @@ public class Player implements IPassenger<BaseMessage> {
     private long channelInactiveTime;
 
     private Role role;
+
     private boolean inMatch;
+
     private boolean inBattle;
 
     private final ConcurrentLinkedQueue<BaseMessage> messages;
@@ -46,8 +48,7 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public void sendApplyBattleSuccess() {
-        this.inMatch = true;
-
+        this.role.enterMatch();
         ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
         resp.setRoleId(role.getRoleId());
         resp.setWeaponType(this.role.getWeaponType());
@@ -61,13 +62,18 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     @Override
-    public Boolean doActions() {
+    public boolean doActions() {
         if (!messages.isEmpty()) {
             BaseMessage message = messages.poll();
-            message.doAction();
+            message.doAction(this);
         }
         heartBeat();
         return true;
+    }
+
+    @Override
+    public void heartbeat() {
+
     }
 
     private void heartBeat() {
@@ -129,5 +135,10 @@ public class Player implements IPassenger<BaseMessage> {
     @Override
     public String description() {
         return "";
+    }
+
+    public void exitMatch() {
+        this.inMatch = false;
+        this.channelInactiveTime = 0;
     }
 }

@@ -1,5 +1,7 @@
 package org.npc.kungfu.logic.message;
 
+import org.npc.kungfu.logic.message.base.BaseRespMessage;
+
 import java.util.List;
 
 public class BattleResultBroadMessage extends BaseRespMessage {

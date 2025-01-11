@@ -1,6 +1,7 @@
-package org.npc.kungfu.logic.message;
+package org.npc.kungfu.logic.message.base;
 
 import io.netty.channel.Channel;
+import org.npc.kungfu.logic.message.MessageType;
 import org.npc.kungfu.net.LogicMessage;
 
 public abstract class BaseMessage extends LogicMessage {

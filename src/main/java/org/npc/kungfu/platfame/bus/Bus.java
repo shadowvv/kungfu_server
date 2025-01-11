@@ -1,5 +1,7 @@
 package org.npc.kungfu.platfame.bus;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V> {
@@ -42,8 +44,14 @@ public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V>
     }
 
     @Override
-    public void remove(long passengerId) {
+    public boolean remove(long passengerId) {
         this.passengers.remove(passengerId);
+        return true;
+    }
+
+    @Override
+    public List<T> getPassengers() {
+        return new LinkedList<>(passengers.values());
     }
 
     @Override

@@ -4,9 +4,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class SoloPassenger<T extends ITask> implements IPassenger<T> {
 
+    private final long id;
     private final ConcurrentLinkedQueue<T> queue;
 
-    public SoloPassenger() {
+    public SoloPassenger(long id) {
+        this.id = id;
         queue = new ConcurrentLinkedQueue<>();
     }
 
@@ -17,19 +19,25 @@ public class SoloPassenger<T extends ITask> implements IPassenger<T> {
     }
 
     @Override
-    public Boolean doActions() {
+    public boolean doActions() {
         while (!queue.isEmpty()) {
             T task = queue.poll();
             if (task != null) {
-                task.doAction();
+                task.doAction(this);
             }
         }
+        heartbeat();
         return Boolean.TRUE;
     }
 
     @Override
+    public void heartbeat() {
+
+    }
+
+    @Override
     public long getId() {
-        return 0;
+        return this.id;
     }
 
     @Override

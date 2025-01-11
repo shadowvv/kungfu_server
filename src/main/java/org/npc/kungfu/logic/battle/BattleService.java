@@ -3,7 +3,7 @@ package org.npc.kungfu.logic.battle;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
-import org.npc.kungfu.logic.message.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.BusStation;
 
 import java.util.HashMap;

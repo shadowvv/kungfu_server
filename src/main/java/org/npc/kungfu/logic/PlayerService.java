@@ -1,8 +1,8 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
-import org.npc.kungfu.logic.message.BaseMessage;
 import org.npc.kungfu.logic.message.SSPlayerChannelInactive;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
@@ -74,5 +74,6 @@ public class PlayerService {
         channelPlayerIds.remove(player.getChannel());
         usernamePlayers.remove(player.getUserName());
         taskStation.remove(player);
+        //TODO:战斗中，匹配中处理
     }
 }

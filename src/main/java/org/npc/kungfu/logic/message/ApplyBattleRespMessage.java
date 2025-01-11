@@ -1,6 +1,7 @@
 package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
+import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
 public class ApplyBattleRespMessage extends BaseRespMessage {
 
@@ -11,11 +12,6 @@ public class ApplyBattleRespMessage extends BaseRespMessage {
 
     public ApplyBattleRespMessage() {
         setId(2002);
-    }
-
-    @Override
-    public String description() {
-        return "";
     }
 
     public int getRoleId() {
@@ -37,5 +33,10 @@ public class ApplyBattleRespMessage extends BaseRespMessage {
     @Override
     public MessageType getMessageType() {
         return MessageType.PLAYER_MESSAGE;
+    }
+
+    @Override
+    public String description() {
+        return "ApplyBattleRespMessage playerId:" + getPlayerId() + " roleId:" + roleId + " weaponType:" + weaponType;
     }
 }

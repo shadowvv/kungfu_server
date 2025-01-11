@@ -13,8 +13,11 @@ public enum MessageEnum {
     APPLY_BATTLE_REQ(2001, ApplyBattleReqMessage.class),
     APPLY_BATTLE_RESP(2002, ApplyBattleRespMessage.class),
 
-    OPERATION_REQ(3001, OperationReqMessage.class),
-    OPERATION_RESP(3002, OperationRespMessage.class),
+    CANCEL_MATCH_REQ(3001, CancelMatchReqMessage.class),
+    CANCEL_MATCH_RESP(3002, CancelMatchRespMessage.class),
+
+    OPERATION_REQ(4001, OperationReqMessage.class),
+    OPERATION_RESP(4002, OperationRespMessage.class),
 
     ERROR_MESSAGE(9999, ErrorMessage.class),
 
@@ -23,6 +26,8 @@ public enum MessageEnum {
 
     SS_PLAYER_CHANNEL_INACTIVE(20001, SSPlayerChannelInactive.class),
     SS_PLAYER_CHANNEL_RECONNECT(20002, SSPlayerChannelReconnect.class),
+    SS_ENTER_MATCH(20003, SSEnterMatch.class),
+
     SS_CREATE_BATTLE(20012, SSCreateBattleMessage.class),
     ;
 

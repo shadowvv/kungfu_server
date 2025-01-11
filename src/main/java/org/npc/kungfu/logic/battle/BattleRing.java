@@ -4,7 +4,11 @@ import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
-import org.npc.kungfu.logic.message.*;
+import org.npc.kungfu.logic.message.BattleResultBroadMessage;
+import org.npc.kungfu.logic.message.OperationReqMessage;
+import org.npc.kungfu.logic.message.OperationRespMessage;
+import org.npc.kungfu.logic.message.RoleMessage;
+import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IBus;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
@@ -213,8 +217,8 @@ public class BattleRing implements IBus<Role, BaseMessage> {
     }
 
     @Override
-    public void remove(long passengerId) {
-
+    public boolean remove(long passengerId) {
+        return false;
     }
 
     @Override
@@ -225,5 +229,10 @@ public class BattleRing implements IBus<Role, BaseMessage> {
     @Override
     public String description() {
         return "";
+    }
+
+    @Override
+    public List<Role> getPassengers() {
+        return List.of();
     }
 }
