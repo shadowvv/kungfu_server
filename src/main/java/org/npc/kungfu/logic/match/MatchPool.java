@@ -73,6 +73,7 @@ public class MatchPool extends SoloPassenger<BaseMessage> {
             MatchResultBroadMessage matchResultBroadMessage = buildMatchResultBroadMessage(list);
             role1.sendMessage(matchResultBroadMessage);
             role2.sendMessage(matchResultBroadMessage);
+
             BattleService.getService().startBattle(list);
 
             if (roles.isEmpty()) {

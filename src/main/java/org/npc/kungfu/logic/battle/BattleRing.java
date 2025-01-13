@@ -4,12 +4,9 @@ import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
-import org.npc.kungfu.logic.message.BattleResultBroadMessage;
-import org.npc.kungfu.logic.message.OperationReqMessage;
-import org.npc.kungfu.logic.message.OperationRespMessage;
-import org.npc.kungfu.logic.message.RoleMessage;
+import org.npc.kungfu.logic.message.*;
 import org.npc.kungfu.logic.message.base.BaseMessage;
-import org.npc.kungfu.platfame.bus.IBus;
+import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.math.GeometricAlgorithms;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
@@ -24,7 +21,7 @@ import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 /**
  * 决斗场
  */
-public class BattleRing implements IBus<Role, BaseMessage> {
+public class BattleRing implements IPassenger<BaseMessage> {
 
     /**
      * 战斗id
@@ -71,37 +68,19 @@ public class BattleRing implements IBus<Role, BaseMessage> {
             role.bindBattleId(battleId);
         }
         messageList = new ArrayList<>();
+    }
+
+    public void start() {
+        for (Role role : roles.values()) {
+            role.sendMessage(new BattleStartPushMessage());
+        }
         gameState = GameStateEnum.WAIT_COMMAND;
         countDownTick = WAIT_COMMAND_TICK;
     }
 
-    /**
-     * 接收消息
-     *
-     * @param message 玩家操作消息
-     */
-    public void onReceiveMessage(BaseMessage message) {
-        if (message instanceof OperationReqMessage) {
-            OperationReqMessage operationReqMessage = (OperationReqMessage) message;
-            if (gameState == GameStateEnum.WAIT_COMMAND) {
-                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
-                if (player != null) {
-                    Role role = roles.get(player.getRole().getRoleId());
-                    if (role != null) {
-                        boolean operationSuccess = false;
-                        if(role.onRoleMove(operationReqMessage.getX(), operationReqMessage.getY())){
-                            if (role.onRoleHit(operationReqMessage.getFaceAngle())){
-                                operationSuccess = true;
-                            }
-                        }
-                        OperationRespMessage msg =  new OperationRespMessage();
-                        msg.setSuccess(operationSuccess);
-                        player.sendMessage(msg);
-                    }
-                }
-                messageList.add(operationReqMessage);
-            }
-        }
+    public void onRoleLogout(Role role) {
+        //TODO:结算战斗
+        BattleService.getService().endBattle(this);
     }
 
     /**
@@ -191,48 +170,48 @@ public class BattleRing implements IBus<Role, BaseMessage> {
     }
 
     @Override
+    public boolean addTask(BaseMessage task) {
+        if (task instanceof OperationReqMessage) {
+            OperationReqMessage operationReqMessage = (OperationReqMessage) task;
+            if (gameState == GameStateEnum.WAIT_COMMAND) {
+                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
+                if (player != null) {
+                    Role role = roles.get(player.getRole().getRoleId());
+                    if (role != null) {
+                        boolean operationSuccess = false;
+                        if (role.onRoleMove(operationReqMessage.getX(), operationReqMessage.getY())) {
+                            if (role.onRoleHit(operationReqMessage.getFaceAngle())) {
+                                operationSuccess = true;
+                            }
+                        }
+                        OperationRespMessage msg = new OperationRespMessage();
+                        msg.setSuccess(operationSuccess);
+                        player.sendMessage(msg);
+                    }
+                }
+                messageList.add(operationReqMessage);
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean doActions() {
+        return false;
+    }
+
+    @Override
+    public void heartbeat() {
+
+    }
+
+    @Override
     public long getId() {
         return battleId;
     }
 
     @Override
-    public boolean put(Role passenger) {
-        return false;
-    }
-
-    @Override
-    public boolean putTask(long passengerId, BaseMessage Task) {
-        return false;
-    }
-
-    @Override
-    public Boolean arrived() {
-        long currentTick = System.currentTimeMillis();
-        if (this.lastTick == 0){
-            this.lastTick = currentTick;
-        }
-        update(currentTick-this.countDownTick);
-        this.lastTick = currentTick;
-        return true;
-    }
-
-    @Override
-    public boolean remove(long passengerId) {
-        return false;
-    }
-
-    @Override
-    public int getPassengerCount() {
-        return 0;
-    }
-
-    @Override
     public String description() {
         return "";
-    }
-
-    @Override
-    public List<Role> getPassengers() {
-        return List.of();
     }
 }
