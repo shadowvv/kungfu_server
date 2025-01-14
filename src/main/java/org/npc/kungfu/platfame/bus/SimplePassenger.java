@@ -2,24 +2,38 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class SoloPassenger<T extends ITask> implements IPassenger<T> {
+/**
+ * 简单业务处理器
+ *
+ * @param <T> 具体业务
+ */
+public class SimplePassenger<T extends ITask> implements IPassenger<T> {
 
+    /**
+     * 处理器id
+     */
     private final long id;
+    /**
+     * 业务链表
+     */
     private final ConcurrentLinkedQueue<T> queue;
 
-    public SoloPassenger(long id) {
+    /**
+     * @param id 业务id
+     */
+    public SimplePassenger(long id) {
         this.id = id;
         queue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
-    public boolean addTask(T task) {
+    public boolean put(T task) {
         queue.add(task);
         return true;
     }
 
     @Override
-    public boolean doActions() {
+    public void doActions() {
         while (!queue.isEmpty()) {
             T task = queue.poll();
             if (task != null) {
@@ -27,7 +41,6 @@ public class SoloPassenger<T extends ITask> implements IPassenger<T> {
             }
         }
         heartbeat();
-        return Boolean.TRUE;
     }
 
     @Override
@@ -42,6 +55,6 @@ public class SoloPassenger<T extends ITask> implements IPassenger<T> {
 
     @Override
     public String description() {
-        return "";
+        return "SimplePassenger id: " + this.id;
     }
 }

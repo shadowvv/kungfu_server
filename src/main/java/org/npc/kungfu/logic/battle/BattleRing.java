@@ -52,8 +52,8 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(int battleId,List<Role> roles) {
-        return new BattleRing(battleId,roles);
+    public static BattleRing build(int battleId, List<Role> roles) {
+        return new BattleRing(battleId, roles);
     }
 
     /**
@@ -170,7 +170,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
     }
 
     @Override
-    public boolean addTask(BaseMessage task) {
+    public boolean put(BaseMessage task) {
         if (task instanceof OperationReqMessage) {
             OperationReqMessage operationReqMessage = (OperationReqMessage) task;
             if (gameState == GameStateEnum.WAIT_COMMAND) {
@@ -196,8 +196,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
     }
 
     @Override
-    public boolean doActions() {
-        return false;
+    public void doActions() {
     }
 
     @Override

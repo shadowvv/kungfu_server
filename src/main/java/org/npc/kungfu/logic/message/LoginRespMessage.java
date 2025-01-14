@@ -12,7 +12,7 @@ public class LoginRespMessage extends BaseRespMessage {
     private boolean success;
 
     public LoginRespMessage() {
-        setId(1002);
+        super(1002);
     }
 
     public long getPlayerId() {

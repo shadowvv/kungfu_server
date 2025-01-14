@@ -22,6 +22,6 @@ public class MatchService {
     }
 
     public void putMessage(BaseMessage msg) {
-        taskStation.put(0, msg);
+        taskStation.put(0L, msg);
     }
 }

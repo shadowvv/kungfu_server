@@ -7,14 +7,14 @@ import org.npc.kungfu.logic.message.ErrorMessage;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
 import org.npc.kungfu.logic.message.RoleMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
-import org.npc.kungfu.platfame.bus.SoloPassenger;
+import org.npc.kungfu.platfame.bus.SimplePassenger;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MatchPool extends SoloPassenger<BaseMessage> {
+public class MatchPool extends SimplePassenger<BaseMessage> {
 
     private final ConcurrentLinkedDeque<Role> roles;
     private final AtomicInteger roleNum;
@@ -53,11 +53,11 @@ public class MatchPool extends SoloPassenger<BaseMessage> {
                 role1.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
                 continue;
             }
-            role1.resetPosition(-200,0,0);
+            role1.resetPosition(-200, 0, 0);
 
             Role role2 = roles.poll();
             assert role2 != null;
-            role2.resetPosition(200,0,0);
+            role2.resetPosition(200, 0, 0);
             if (System.currentTimeMillis() - role2.getEnterMatchTime() > 60 * 1000) {
                 //TODO:推送超时协议，将role1重新放入列表
                 role2.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
@@ -92,7 +92,7 @@ public class MatchPool extends SoloPassenger<BaseMessage> {
             RoleMessage roleMessage = new RoleMessage();
             roleMessage.setRoleId(role.getRoleId());
             roleMessage.setUserName(role.getUserName());
-            roleMessage.setWeaponType(role.getWeaponType());
+            roleMessage.setWeaponType(role.getWeaponType().getTypeId());
             roleMessage.setX(role.getCenter().getX());
             roleMessage.setY(role.getCenter().getY());
             roleMessage.setFaceAngle(role.getFaceAngle());

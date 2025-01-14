@@ -12,6 +12,9 @@ import org.npc.kungfu.net.LogicMessage;
  */
 public class MessageCoder implements IMessageCoder<String> {
 
+    /**
+     * 使用Gson编解码json数据
+     */
     private final Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
     public MessageCoder() {
@@ -25,7 +28,7 @@ public class MessageCoder implements IMessageCoder<String> {
 
     @Override
     public LogicMessage decode(String data) {
-        LogicMessageInner msg = gson.fromJson(data, LogicMessageInner.class);
+        LogicMessageHead msg = gson.fromJson(data, LogicMessageHead.class);
         MessageEnum messageEnum = MessageEnum.fromValue(msg.getId());
         if (messageEnum == null) {
             throw new RuntimeException("messageEnum is null");
@@ -34,18 +37,31 @@ public class MessageCoder implements IMessageCoder<String> {
         return gson.fromJson(data, messageEnum.getClazz());
     }
 
-    static class LogicMessageInner {
+    /**
+     * 消息头
+     */
+    static class LogicMessageHead {
+
+        /**
+         * 消息id
+         */
         @Expose
         private int id;
 
-        public LogicMessageInner() {
+        public LogicMessageHead() {
 
         }
 
+        /**
+         * @param id 消息id
+         */
         public void setId(int id) {
             this.id = id;
         }
 
+        /**
+         * @return 消息id
+         */
         public int getId() {
             return id;
         }

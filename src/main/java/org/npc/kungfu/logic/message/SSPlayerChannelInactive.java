@@ -1,13 +1,15 @@
 package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.message.base.BasePlayerMessage;
+import org.npc.kungfu.logic.message.base.BaseServerPlayerMessage;
 
-public class SSPlayerChannelInactive extends BasePlayerMessage {
+public class SSPlayerChannelInactive extends BaseServerPlayerMessage {
 
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.PLAYER_MESSAGE;
+    private final long playerId;
+
+    public SSPlayerChannelInactive(long playerId) {
+        super(20001);
+        this.playerId = playerId;
     }
 
     @Override
@@ -17,6 +19,6 @@ public class SSPlayerChannelInactive extends BasePlayerMessage {
 
     @Override
     public String description() {
-        return "SSPlayerChannelInactive playerId" + getPlayerId();
+        return "SSPlayerChannelInactive playerId" + playerId;
     }
 }

@@ -1,9 +1,11 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
+import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseServerMessage;
 import org.npc.kungfu.platfame.bus.BusStation;
-import org.npc.kungfu.platfame.bus.SoloPassenger;
+import org.npc.kungfu.platfame.bus.SimplePassenger;
 import org.npc.kungfu.platfame.bus.SoloPassengerBus;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,13 +23,13 @@ public class LoginService {
         return service;
     }
 
-    private BusStation<SoloPassengerBus<SoloPassenger<BaseMessage>, BaseMessage>, SoloPassenger<BaseMessage>, BaseMessage> taskStation;
+    private BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> taskStation;
     private AtomicInteger playerIdCreator;
     private ConcurrentHashMap<String, Long> userNamePlayerIds;
     private ConcurrentHashMap<String, Boolean> userNameMutex;
     private ConcurrentHashMap<Channel, Boolean> channelMutex;
 
-    public void init(BusStation<SoloPassengerBus<SoloPassenger<BaseMessage>, BaseMessage>, SoloPassenger<BaseMessage>, BaseMessage> station) {
+    public void init(BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> station) {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
         channelMutex = new ConcurrentHashMap<>();
@@ -35,7 +37,7 @@ public class LoginService {
         userNameMutex = new ConcurrentHashMap<>();
     }
 
-    public void putMessage(BaseMessage msg) {
+    public void putMessage(BaseClientMessage msg) {
         taskStation.put(0, msg);
     }
 
@@ -78,5 +80,9 @@ public class LoginService {
 
     //TODO:
     public void onChannelInactive(Channel channel) {
+    }
+
+    public void putMessage(BaseServerMessage serverMessage) {
+
     }
 }

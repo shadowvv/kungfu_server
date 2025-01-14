@@ -4,6 +4,8 @@ import io.netty.channel.Channel;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
+import org.npc.kungfu.logic.message.SSPlayerLogoutToMatch;
+import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 
@@ -38,11 +40,11 @@ public class Player implements IPassenger<BaseMessage> {
         sendMessage(resp);
     }
 
-    public void onPlayerApplyBattle(int weaponType) {
+    public void onPlayerApplyBattle(PlayerWeaponEnum weaponType) {
         if (role != null) {
             role.resetRole(weaponType);
         } else {
-            role = Role.build(playerId, playerId, PlayerWeaponEnum.fromValue(weaponType), true, 1, 1, 10);
+            role = Role.build(playerId, playerId, weaponType, true, 1, 1, 10);
         }
         this.inMatch = true;
     }
@@ -51,24 +53,23 @@ public class Player implements IPassenger<BaseMessage> {
         this.role.enterMatch();
         ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
         resp.setRoleId(role.getRoleId());
-        resp.setWeaponType(this.role.getWeaponType());
+        resp.setWeaponType(this.role.getWeaponType().getTypeId());
         channel.writeAndFlush(resp);
     }
 
     @Override
-    public boolean addTask(BaseMessage task) {
+    public boolean put(BaseMessage task) {
         this.messages.add(task);
         return true;
     }
 
     @Override
-    public boolean doActions() {
+    public void doActions() {
         if (!messages.isEmpty()) {
             BaseMessage message = messages.poll();
             message.doAction(this);
         }
         heartBeat();
-        return true;
     }
 
     @Override
@@ -83,6 +84,12 @@ public class Player implements IPassenger<BaseMessage> {
         if (System.currentTimeMillis() - channelInactiveTime > 1000 * 20) {
             if (!messages.isEmpty()) {
                 return;
+            }
+            if (!inBattle) {
+                return;
+            }
+            if (inMatch) {
+                MessageDispatcher.getInstance().dispatchMessage(new SSPlayerLogoutToMatch(playerId, role.getRoleId()), null);
             }
             PlayerService.getService().removePlayer(this);
         }
@@ -103,7 +110,7 @@ public class Player implements IPassenger<BaseMessage> {
         this.channel = channel;
     }
 
-    public void sendMessage(BaseMessage message) {
+    public void sendMessage(BaseClientMessage message) {
         channel.writeAndFlush(message);
     }
 

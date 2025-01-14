@@ -5,7 +5,7 @@ import org.npc.kungfu.logic.message.base.BaseRespMessage;
 public class CancelMatchRespMessage extends BaseRespMessage {
 
     public CancelMatchRespMessage() {
-        setId(3002);
+        super(3002);
     }
 
     @Override

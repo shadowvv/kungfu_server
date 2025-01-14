@@ -4,17 +4,17 @@ import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.LoginService;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.message.base.BaseMessage;
+import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;
 
-public class LoginReqMessage extends BaseMessage {
+public class LoginReqMessage extends BaseClientMessage {
 
     @Expose
     private String userName;
 
     public LoginReqMessage() {
-        setId(1001);
+        super(1001);
     }
 
     public String getUserName() {
@@ -65,9 +65,7 @@ public class LoginReqMessage extends BaseMessage {
             if (player.getChannel().isActive()) {
                 //TODO:顶号
             } else {
-                SSPlayerChannelReconnect ssPlayerChannelReconnect = new SSPlayerChannelReconnect();
-                ssPlayerChannelReconnect.setPlayerId(player.getId());
-                ssPlayerChannelReconnect.setChannel(getSenderChannel());
+                SSPlayerChannelReconnect ssPlayerChannelReconnect = new SSPlayerChannelReconnect(player.getId(), getSenderChannel());
                 PlayerService.getService().putMessage(ssPlayerChannelReconnect);
             }
             LoginService.getService().ExitMutex(userName);

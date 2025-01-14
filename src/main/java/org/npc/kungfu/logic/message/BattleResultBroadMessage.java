@@ -10,7 +10,7 @@ public class BattleResultBroadMessage extends BaseRespMessage {
     private int winRoleId;
 
     public BattleResultBroadMessage() {
-
+        super(10003);
     }
 
     @Override

@@ -12,11 +12,11 @@ public class ErrorMessage extends BaseRespMessage {
     private int errorCode;
 
     public ErrorMessage() {
-        setId(9999);
+        super(9999);
     }
 
     public ErrorMessage(int reqId, int errorCode) {
-        setId(9999);
+        super(9999);
         this.reqId = reqId;
         this.errorCode = errorCode;
     }

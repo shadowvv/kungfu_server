@@ -7,10 +7,19 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 
+/**
+ * 通信handle
+ */
 public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
 
+    /**
+     * 消息分发器
+     */
     private final IMessageDispatcher dispatcher;
 
+    /**
+     * @param dispatcher 消息分发器
+     */
     WebSocketFrameHandler(IMessageDispatcher dispatcher) {
         this.dispatcher = dispatcher;
     }
@@ -47,7 +56,6 @@ public class WebSocketFrameHandler extends SimpleChannelInboundHandler<Object> {
             IdleStateEvent event = (IdleStateEvent) evt;
             if (event.state() == IdleState.READER_IDLE) {
                 System.out.println("读超时，关闭连接");
-//                ctx.close();
             } else if (event.state() == IdleState.WRITER_IDLE) {
                 // 如果需要，也可以在写超时时发送心跳
                 System.out.println("写超时");

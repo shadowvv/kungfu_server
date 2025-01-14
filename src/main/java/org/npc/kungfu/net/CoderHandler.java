@@ -6,10 +6,19 @@ import io.netty.handler.codec.http.websocketx.*;
 
 import java.util.List;
 
+/**
+ * 编解码handle
+ */
 public class CoderHandler extends MessageToMessageCodec<WebSocketFrame, LogicMessage> {
 
+    /**
+     * string编解码器
+     */
     private final IMessageCoder<String> coder;
 
+    /**
+     * @param coder string编解码器
+     */
     public CoderHandler(IMessageCoder<String> coder) {
         this.coder = coder;
     }

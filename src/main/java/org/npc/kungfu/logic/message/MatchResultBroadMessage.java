@@ -11,7 +11,7 @@ public class MatchResultBroadMessage extends BaseRespMessage {
     List<RoleMessage> roles;
 
     public MatchResultBroadMessage() {
-        setId(10001);
+        super(10001);
     }
 
     @Override

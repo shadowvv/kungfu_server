@@ -2,11 +2,20 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.List;
 
-public class BusMessageCountSelector<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> implements IBusSelector<T, V, Z> {
+/**
+ * 通过组内业务处理器数量分配处理器
+ *
+ * @param <T> 业务组
+ * @param <V> 业务组处理器
+ */
+public class BusPassengerCountSelector<T extends IBus<V, ?>, V extends IPassenger<?>> implements IBusSelector<T, V> {
 
+    /**
+     * 业务组
+     */
     private List<T> busList;
 
-    public BusMessageCountSelector() {
+    public BusPassengerCountSelector() {
     }
 
     @Override

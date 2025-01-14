@@ -2,8 +2,17 @@ package org.npc.kungfu.platfame.bus;
 
 import java.util.List;
 
-public class BusHashSelector<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends ITask> implements IBusSelector<T, V, Z> {
+/**
+ * 通过处理器id的hash分配业务组
+ *
+ * @param <T> 业务组
+ * @param <V> 业务处理器
+ */
+public class BusHashSelector<T extends IBus<V, ?>, V extends IPassenger<?>> implements IBusSelector<T, V> {
 
+    /**
+     * 业务组
+     */
     private List<T> busList;
 
     public BusHashSelector() {
