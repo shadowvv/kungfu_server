@@ -14,22 +14,52 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * 匹配池
+ */
 public class MatchPool extends SimplePassenger<BaseMessage> {
 
+    /**
+     * 角色列表
+     */
     private final ConcurrentLinkedDeque<Role> roles;
+    /**
+     * 匹配池玩家数量
+     */
     private final AtomicInteger roleNum;
-    private final String signature;
+    /**
+     * 匹配池描述
+     */
+    private final String description;
 
-    public MatchPool(long id, String signature) {
+    /**
+     * @param id          匹配池id
+     * @param description 描述
+     */
+    public MatchPool(long id, String description) {
         super(id);
         roles = new ConcurrentLinkedDeque<>();
         roleNum = new AtomicInteger(0);
-        this.signature = signature;
+        this.description = description;
     }
 
+    /**
+     * 进入匹配
+     * @param role 角色
+     */
     public void enterMatch(Role role) {
         roles.add(role);
         roleNum.incrementAndGet();
+    }
+
+    /**
+     * 取消匹配
+     *
+     * @param role 角色
+     * @return 是否成功
+     */
+    public boolean cancelMatch(Role role) {
+        return roles.remove(role);
     }
 
     @Override
@@ -37,6 +67,9 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
         matchUp();
     }
 
+    /**
+     * 匹配算法
+     */
     private void matchUp() {
         if (roles.isEmpty()) {
             return;
@@ -85,6 +118,11 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
         }
     }
 
+    /**
+     * 发送匹配结果
+     * @param list 匹配战斗的玩家
+     * @return 匹配结果消息
+     */
     private MatchResultBroadMessage buildMatchResultBroadMessage(List<Role> list) {
         MatchResultBroadMessage matchResultBroadMessage = new MatchResultBroadMessage();
         List<RoleMessage> roleMessages = new ArrayList<>();
@@ -104,10 +142,6 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
 
     @Override
     public String description() {
-        return this.signature;
-    }
-
-    public boolean cancelMatch(Role role) {
-        return roles.remove(role);
+        return this.description;
     }
 }

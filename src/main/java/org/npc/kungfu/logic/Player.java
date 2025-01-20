@@ -11,21 +11,50 @@ import org.npc.kungfu.platfame.bus.IPassenger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * 玩家实体
+ */
 public class Player implements IPassenger<BaseMessage> {
 
+    /**
+     * 玩家id
+     */
     private final int playerId;
+    /**
+     * 玩家昵称
+     */
     private final String username;
+    /**
+     * 网络通道
+     */
     private Channel channel;
+    /**
+     * 断线时间
+     */
     private long channelInactiveTime;
 
+    /**
+     * 玩家对应的游玩角色
+     */
     private Role role;
-
+    /**
+     * 玩家是否在匹配
+     */
     private boolean inMatch;
-
+    /**
+     * 玩家是否在战斗
+     */
     private boolean inBattle;
-
+    /**
+     * 玩家接收的协议
+     */
     private final ConcurrentLinkedQueue<BaseMessage> messages;
 
+    /**
+     * @param playerId 玩家id
+     * @param userName 玩家昵称
+     * @param channel  网络通道
+     */
     Player(int playerId, String userName, Channel channel) {
         this.playerId = playerId;
         this.username = userName;
@@ -33,13 +62,10 @@ public class Player implements IPassenger<BaseMessage> {
         this.messages = new ConcurrentLinkedQueue<>();
     }
 
-    public void sendLoginSuccess() {
-        LoginRespMessage resp = new LoginRespMessage();
-        resp.setPlayerId(playerId);
-        resp.setSuccess(Boolean.TRUE);
-        sendMessage(resp);
-    }
-
+    /**
+     * 玩家选择武器，进入匹配
+     * @param weaponType 武器
+     */
     public void onPlayerApplyBattle(PlayerWeaponEnum weaponType) {
         if (role != null) {
             role.resetRole(weaponType);
@@ -49,12 +75,65 @@ public class Player implements IPassenger<BaseMessage> {
         this.inMatch = true;
     }
 
+    /**
+     * 发送登录成功
+     */
+    public void sendLoginSuccess() {
+        LoginRespMessage resp = new LoginRespMessage();
+        resp.setPlayerId(playerId);
+        resp.setSuccess(Boolean.TRUE);
+        sendMessage(resp);
+    }
+
+    /**
+     * 发送进去匹配成功
+     */
     public void sendApplyBattleSuccess() {
         this.role.enterMatch();
         ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
         resp.setRoleId(role.getRoleId());
         resp.setWeaponType(this.role.getWeaponType().getTypeId());
-        channel.writeAndFlush(resp);
+        sendMessage(resp);
+    }
+
+    /**
+     * 玩家掉线
+     */
+    public void onPlayerDisconnect() {
+        if (channel.isActive()) {
+            return;
+        }
+        this.channelInactiveTime = System.currentTimeMillis();
+    }
+
+    /**
+     * 玩家重连
+     *
+     * @param channel 重连的网络通道
+     */
+    public void onPlayerReconnect(Channel channel) {
+        if (!channel.isActive()) {
+            return;
+        }
+        this.channelInactiveTime = 0;
+        this.channel = channel;
+    }
+
+    /**
+     * 退出匹配
+     */
+    public void exitMatch() {
+        this.inMatch = false;
+        this.channelInactiveTime = 0;
+    }
+
+    /**
+     * 发送协议给玩家对应的客户端
+     *
+     * @param message 协议
+     */
+    public void sendMessage(BaseClientMessage message) {
+        channel.writeAndFlush(message);
     }
 
     @Override
@@ -69,15 +148,11 @@ public class Player implements IPassenger<BaseMessage> {
             BaseMessage message = messages.poll();
             message.doAction(this);
         }
-        heartBeat();
+        heartbeat();
     }
 
     @Override
     public void heartbeat() {
-
-    }
-
-    private void heartBeat() {
         if (channelInactiveTime == 0) {
             return;
         }
@@ -93,25 +168,6 @@ public class Player implements IPassenger<BaseMessage> {
             }
             PlayerService.getService().removePlayer(this);
         }
-    }
-
-    public void onPlayerDisconnect() {
-        if (channel.isActive()) {
-            return;
-        }
-        this.channelInactiveTime = System.currentTimeMillis();
-    }
-
-    public void onPlayerReconnect(Channel channel) {
-        if (!channel.isActive()) {
-            return;
-        }
-        this.channelInactiveTime = 0;
-        this.channel = channel;
-    }
-
-    public void sendMessage(BaseClientMessage message) {
-        channel.writeAndFlush(message);
     }
 
     public Role getRole() {
@@ -141,11 +197,6 @@ public class Player implements IPassenger<BaseMessage> {
 
     @Override
     public String description() {
-        return "";
-    }
-
-    public void exitMatch() {
-        this.inMatch = false;
-        this.channelInactiveTime = 0;
+        return "playerId:" + playerId + " username:" + username + " inMatch:" + inMatch + " inBattle:" + inBattle;
     }
 }

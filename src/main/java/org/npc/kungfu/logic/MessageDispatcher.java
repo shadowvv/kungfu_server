@@ -40,6 +40,12 @@ public class MessageDispatcher implements IMessageDispatcher {
         }
     }
 
+    /**
+     * 分发客户端消息
+     *
+     * @param clientMessage 客户端消息
+     * @param senderChannel 发送的通道
+     */
     private void putMessage(BaseClientMessage clientMessage, Channel senderChannel) {
         switch (clientMessage.getMessageType()) {
             case LOGIN_MESSAGE: {
@@ -68,6 +74,10 @@ public class MessageDispatcher implements IMessageDispatcher {
         }
     }
 
+    /**
+     * 分发服务器之间的消息
+     * @param serverMessage 服务器之间的消息
+     */
     private void putMessage(BaseServerMessage serverMessage) {
         switch (serverMessage.getMessageType()) {
             case LOGIN_MESSAGE: {
