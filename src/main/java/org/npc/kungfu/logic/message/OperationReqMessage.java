@@ -2,11 +2,12 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.Role;
-import org.npc.kungfu.logic.message.base.BaseMessage;
+import org.npc.kungfu.logic.battle.BattleRing;
+import org.npc.kungfu.logic.message.base.BaseClientBattleMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;
 
-public class OperationReqMessage extends BaseMessage {
+public class OperationReqMessage extends BaseClientBattleMessage {
 
     @Expose
     private int roleId;
@@ -18,12 +19,17 @@ public class OperationReqMessage extends BaseMessage {
     private int faceAngle;
 
     public OperationReqMessage() {
-        setId(3001);
+        super(3001);
     }
 
 
     @Override
     public void doAction(IPassenger<? extends ITask> passenger) {
+
+    }
+
+    @Override
+    public void doAction(BattleRing battleRing) {
 
     }
 
@@ -72,8 +78,4 @@ public class OperationReqMessage extends BaseMessage {
         role.onRoleHit(faceAngle);
     }
 
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.BATTLE_MESSAGE;
-    }
 }

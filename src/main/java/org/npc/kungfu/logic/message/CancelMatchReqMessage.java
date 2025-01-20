@@ -3,17 +3,12 @@ package org.npc.kungfu.logic.message;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.match.MatchPool;
-import org.npc.kungfu.logic.message.base.BaseMatchMessage;
+import org.npc.kungfu.logic.message.base.BaseClientMatchMessage;
 
-public class CancelMatchReqMessage extends BaseMatchMessage {
+public class CancelMatchReqMessage extends BaseClientMatchMessage {
 
     public CancelMatchReqMessage() {
-        setId(3001);
-    }
-
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.MATCH_MESSAGE;
+        super(3001);
     }
 
     @Override

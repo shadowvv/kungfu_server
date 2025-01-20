@@ -3,15 +3,16 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.MessageDispatcher;
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.message.base.BasePlayerMessage;
+import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
+import org.npc.kungfu.logic.message.base.BaseClientPlayerMessage;
 
-public class ApplyBattleReqMessage extends BasePlayerMessage {
+public class ApplyBattleReqMessage extends BaseClientPlayerMessage {
 
     @Expose
     private int weaponType;
 
     public ApplyBattleReqMessage() {
-        setId(2001);
+        super(2001);
     }
 
     public int getWeaponType() {
@@ -32,7 +33,7 @@ public class ApplyBattleReqMessage extends BasePlayerMessage {
             getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_IN_MATCH.getCode()));
             return;
         }
-        player.onPlayerApplyBattle(weaponType);
+        player.onPlayerApplyBattle(PlayerWeaponEnum.fromValue(weaponType));
 
         MessageDispatcher.getInstance().dispatchMessage(new SSEnterMatch(player.getRole()), null);
     }
@@ -42,8 +43,4 @@ public class ApplyBattleReqMessage extends BasePlayerMessage {
         return "ApplyBattleReqMessage playerId: " + getPlayerId() + " weaponType:" + weaponType;
     }
 
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.PLAYER_MESSAGE;
-    }
 }

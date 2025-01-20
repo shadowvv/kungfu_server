@@ -1,27 +1,49 @@
 package org.npc.kungfu.platfame.bus;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 业务分组
+ *
+ * @param <T> 业务处理器
+ * @param <V> 具体业务
+ */
 public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V> {
 
+    /**
+     * 业务分组id
+     */
     private final long id;
-    private final int busCapacity;
+    /**
+     * 分组最大容量
+     */
+    private final int capacity;
+    /**
+     * 业务处理器
+     */
     private final ConcurrentHashMap<Long, T> passengers;
-    private final String signature;
+    /**
+     * 描述
+     */
+    private final String description;
 
-    public Bus(long id, String signature) {
-        this.busCapacity = 2000;
+    /**
+     * @param id      业务组id
+     * @param busName 业务组名字
+     */
+    public Bus(long id, String busName) {
+        this.capacity = 2000;
         this.id = id;
-        this.signature = signature;
+        this.description = busName;
         this.passengers = new ConcurrentHashMap<>();
     }
 
     @Override
     public boolean put(T passenger) {
-        if (busCapacity <= passengers.size()) {
-            //TODO:越界处理
+        if (capacity <= passengers.size()) {
+            System.out.println(description + " bus is full");
             return false;
         }
         this.passengers.put(passenger.getId(), passenger);
@@ -29,16 +51,16 @@ public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V>
     }
 
     @Override
-    public boolean putTask(long passengerId, V Task) {
+    public boolean put(long passengerId, V Task) {
         T passenger = passengers.get(passengerId);
         if (passenger == null) {
             return false;
         }
-        return passenger.addTask(Task);
+        return passenger.put(Task);
     }
 
     @Override
-    public Boolean arrived() {
+    public boolean arrived() {
         passengers.forEach((k, v) -> v.doActions());
         return true;
     }
@@ -51,7 +73,7 @@ public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V>
 
     @Override
     public List<T> getPassengers() {
-        return new LinkedList<>(passengers.values());
+        return new ArrayList<>(passengers.values());
     }
 
     @Override
@@ -61,7 +83,7 @@ public class Bus<T extends IPassenger<V>, V extends ITask> implements IBus<T, V>
 
     @Override
     public String description() {
-        return this.signature;
+        return this.description;
     }
 
     @Override

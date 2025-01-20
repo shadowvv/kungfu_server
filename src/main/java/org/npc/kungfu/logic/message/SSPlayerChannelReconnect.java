@@ -2,24 +2,18 @@ package org.npc.kungfu.logic.message;
 
 import io.netty.channel.Channel;
 import org.npc.kungfu.logic.Player;
-import org.npc.kungfu.logic.message.base.BasePlayerMessage;
+import org.npc.kungfu.logic.message.base.BaseServerPlayerMessage;
 
 
-public class SSPlayerChannelReconnect extends BasePlayerMessage {
+public class SSPlayerChannelReconnect extends BaseServerPlayerMessage {
 
-    private Channel channel;
+    private final long playerId;
+    private final Channel channel;
 
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
+    public SSPlayerChannelReconnect(long playerId, Channel channel) {
+        super(20002);
+        this.playerId = playerId;
         this.channel = channel;
-    }
-
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.PLAYER_MESSAGE;
     }
 
     @Override
@@ -29,6 +23,6 @@ public class SSPlayerChannelReconnect extends BasePlayerMessage {
 
     @Override
     public String description() {
-        return "SSPlayerChannelReconnect player: " + getPlayerId();
+        return "SSPlayerChannelReconnect player: " + playerId;
     }
 }

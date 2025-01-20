@@ -1,10 +1,15 @@
 package org.npc.kungfu.logic.message.base;
 
 import org.npc.kungfu.logic.match.MatchPool;
+import org.npc.kungfu.logic.message.MessageType;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;
 
-public abstract class BaseMatchMessage extends BaseMessage {
+public abstract class BaseServerMatchMessage extends BaseServerMessage {
+
+    public BaseServerMatchMessage(int id) {
+        super(id);
+    }
 
     @Override
     public void doAction(IPassenger<? extends ITask> passenger) {
@@ -14,5 +19,11 @@ public abstract class BaseMatchMessage extends BaseMessage {
         }
     }
 
+    @Override
+    public MessageType getMessageType() {
+        return MessageType.MATCH_MESSAGE;
+    }
+
     public abstract void doAction(MatchPool pool);
+
 }

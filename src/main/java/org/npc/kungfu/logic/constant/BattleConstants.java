@@ -1,5 +1,8 @@
 package org.npc.kungfu.logic.constant;
 
+/**
+ * 游戏常量
+ */
 public class BattleConstants {
 
     public static final int WAIT_COMMAND_TICK = 10;

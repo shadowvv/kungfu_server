@@ -7,7 +7,7 @@ import org.npc.kungfu.logic.match.MatchPool;
 import org.npc.kungfu.logic.match.MatchPoolSelector;
 import org.npc.kungfu.logic.match.MatchService;
 import org.npc.kungfu.logic.message.base.BaseMessage;
-import org.npc.kungfu.net.WebSocketServer;
+import org.npc.kungfu.net.WebSocketService;
 import org.npc.kungfu.platfame.bus.*;
 
 public class Booster {
@@ -48,7 +48,7 @@ public class Booster {
         BattleService.getService().init(battleStation);
 
         //初始化网络服务
-        WebSocketServer net = new WebSocketServer(8080, threadNum, MessageDispatcher.getInstance(), new MessageCoder());
+        WebSocketService net = new WebSocketService(8080, threadNum, MessageDispatcher.getInstance(), new MessageCoder());
         net.start();
     }
 

@@ -14,20 +14,46 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import io.netty.handler.timeout.IdleStateHandler;
 
-public class WebSocketServer {
+/**
+ * websocket 通信服务
+ */
+public class WebSocketService {
 
+    /**
+     * 通信端口
+     */
     private final int port;
+    /**
+     * io通信线程数量
+     */
     private final int threadNum;
+    /**
+     * 消息分发器
+     */
     private final IMessageDispatcher dispatcher;
+    /**
+     * 消息编码器
+     */
     private final IMessageCoder<String> coder;
 
-    public WebSocketServer(int port, int threadNum, IMessageDispatcher dispatcher, IMessageCoder<String> coder) {
+    /**
+     * @param port       通信端口
+     * @param threadNum  io通信线程数量
+     * @param dispatcher 消息分发器
+     * @param coder      消息编码器
+     */
+    public WebSocketService(int port, int threadNum, IMessageDispatcher dispatcher, IMessageCoder<String> coder) {
         this.port = port;
         this.threadNum = threadNum;
         this.dispatcher = dispatcher;
         this.coder = coder;
     }
 
+    /**
+     * 启动服务
+     *
+     * @throws InterruptedException 抛出的异常
+     */
     public void start() throws InterruptedException {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup(this.threadNum);
@@ -46,10 +72,24 @@ public class WebSocketServer {
         }
     }
 
+    /**
+     * 通道初始化实现
+     */
     static class ChannelInitializerImpl extends ChannelInitializer<SocketChannel> {
+
+        /**
+         * 消息分发器
+         */
         private final IMessageDispatcher dispatcher;
+        /**
+         * 消息编码器
+         */
         private final IMessageCoder<String> coder;
 
+        /**
+         * @param dispatcher 消息分发器
+         * @param coder      消息编码器
+         */
         ChannelInitializerImpl(IMessageDispatcher dispatcher, IMessageCoder<String> coder) {
             this.dispatcher = dispatcher;
             this.coder = coder;

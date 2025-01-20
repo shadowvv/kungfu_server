@@ -6,8 +6,14 @@ import org.npc.kungfu.platfame.bus.SoloPassengerBus;
 
 import java.util.List;
 
-public class MatchPoolSelector implements IBusSelector<SoloPassengerBus<MatchPool, BaseMessage>, MatchPool, BaseMessage> {
+/**
+ * 匹配池选择器
+ */
+public class MatchPoolSelector implements IBusSelector<SoloPassengerBus<MatchPool, BaseMessage>, MatchPool> {
 
+    /**
+     * 匹配池列表
+     */
     List<SoloPassengerBus<MatchPool, BaseMessage>> pools;
 
     @Override

@@ -4,13 +4,14 @@ import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.match.MatchPool;
-import org.npc.kungfu.logic.message.base.BaseMatchMessage;
+import org.npc.kungfu.logic.message.base.BaseServerMatchMessage;
 
-public class SSEnterMatch extends BaseMatchMessage {
+public class SSEnterMatch extends BaseServerMatchMessage {
 
     private Role role;
 
     public SSEnterMatch(Role role) {
+        super(20003);
         this.role = role;
     }
 
@@ -43,10 +44,5 @@ public class SSEnterMatch extends BaseMatchMessage {
     @Override
     public String description() {
         return "SSEnterMatch roleId:" + role.getRoleId();
-    }
-
-    @Override
-    public MessageType getMessageType() {
-        return MessageType.MATCH_MESSAGE;
     }
 }

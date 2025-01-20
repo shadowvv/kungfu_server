@@ -28,6 +28,7 @@ public enum MessageEnum {
     SS_PLAYER_CHANNEL_INACTIVE(20001, SSPlayerChannelInactive.class),
     SS_PLAYER_CHANNEL_RECONNECT(20002, SSPlayerChannelReconnect.class),
     SS_ENTER_MATCH(20003, SSEnterMatch.class),
+    SS_LOGOUT_TO_MATCH(20004, SSPlayerLogoutToMatch.class),
     ;
 
     private static final Map<Integer, MessageEnum> map = new HashMap<>();

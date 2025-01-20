@@ -2,8 +2,7 @@ package org.npc.kungfu.logic;
 
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
-import org.npc.kungfu.logic.message.base.BaseMessage;
-import org.npc.kungfu.platfame.bus.IPassenger;
+import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.platfame.math.HitBox;
 import org.npc.kungfu.platfame.math.Sector;
 import org.npc.kungfu.platfame.math.VectorTwo;
@@ -14,7 +13,8 @@ import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_WIDTH;
 /**
  * 玩家操作的角色
  */
-public class Role implements IPassenger<BaseMessage> {
+//TODO:将匹配拆成匹配角色
+public class Role {
 
     /**
      * 角色id
@@ -61,16 +61,19 @@ public class Role implements IPassenger<BaseMessage> {
     /**
      * 角色受击盒
      */
-    private HitBox<Integer> hitBox;
+    private final HitBox<Integer> hitBox;
     /**
      * 角色攻击范围
      */
-    private Sector<Integer> attackSector;
+    private final Sector<Integer> attackSector;
     /**
      * 角色朝向
      */
     private int faceAngle;
 
+    /**
+     * 进去匹配的时间
+     */
     private long enterMatchTime;
 
     /**
@@ -113,13 +116,25 @@ public class Role implements IPassenger<BaseMessage> {
         this.attackSector = Sector.createIntegerSector(positionX, positionY, this.weaponType.getAttackInnerRadius(), this.weaponType.getAttackOuterRadius(), this.weaponType.getStartAngle(), this.weaponType.getEndAngle());
     }
 
+    /**
+     * 重置位置
+     *
+     * @param x         位置x坐标
+     * @param y         位置y坐标
+     * @param faceAngle 朝向
+     */
     public void resetPosition(int x, int y, int faceAngle) {
         this.center = VectorTwo.createIntegerVector(x, y);
         this.faceAngle = faceAngle;
     }
 
-    public void resetRole(int weaponType) {
-        this.weaponType = PlayerWeaponEnum.fromValue(weaponType);
+    /**
+     * 重置角色武器
+     *
+     * @param weaponType 角色武器
+     */
+    public void resetRole(PlayerWeaponEnum weaponType) {
+        this.weaponType = weaponType;
     }
 
     /**
@@ -179,6 +194,13 @@ public class Role implements IPassenger<BaseMessage> {
     }
 
     /**
+     * 进入匹配
+     */
+    public void enterMatch() {
+        this.enterMatchTime = System.currentTimeMillis();
+    }
+
+    /**
      * 设置玩家是否激活
      *
      * @param active 激活
@@ -223,58 +245,50 @@ public class Role implements IPassenger<BaseMessage> {
     }
 
     /**
-     * s
-     *
      * @return 角色id
      */
     public int getRoleId() {
         return roleId;
     }
 
+    /**
+     * 绑定战斗id
+     *
+     * @param battleId 战斗id
+     */
     public void bindBattleId(int battleId) {
         this.battleId = battleId;
     }
 
-    public int getWeaponType() {
-        return this.weaponType.getTypeId();
-    }
-
-    public void sendMessage(BaseMessage message) {
+    /**
+     * 发送消息
+     *
+     * @param message 消息
+     */
+    public void sendMessage(BaseClientMessage message) {
         Player player = PlayerService.getService().getPlayer(this.playerId);
         if (player != null) {
             player.sendMessage(message);
         }
     }
 
+    /**
+     * @return 角色绑定的战斗id
+     */
     public int getBattleId() {
         return battleId;
     }
 
-    @Override
-    public long getId() {
-        return 0;
+    /**
+     * @return 角色使用的武器
+     */
+    public PlayerWeaponEnum getWeaponType() {
+        return this.weaponType;
     }
 
-    @Override
-    public boolean addTask(BaseMessage task) {
-        return false;
-    }
-
-    @Override
-    public boolean doActions() {
-        return true;
-    }
-
-    @Override
-    public void heartbeat() {
-
-    }
-
-    @Override
-    public String description() {
-        return "";
-    }
-
+    /**
+     * @return 用户名
+     */
     public String getUserName() {
         Player player = PlayerService.getService().getPlayer(this.playerId);
         if (player != null) {
@@ -283,22 +297,30 @@ public class Role implements IPassenger<BaseMessage> {
         return "";
     }
 
+    /**
+     * @return 角色中心点
+     */
     public VectorTwo<Integer> getCenter() {
         return this.center;
     }
 
+    /**
+     * @return 角色朝向
+     */
     public int getFaceAngle() {
         return this.faceAngle;
     }
 
+    /**
+     * @return 玩家id
+     */
     public int getPlayerId() {
         return playerId;
     }
 
-    public void enterMatch() {
-        this.enterMatchTime = System.currentTimeMillis();
-    }
-
+    /**
+     * @return 进入匹配的时间
+     */
     public long getEnterMatchTime() {
         return enterMatchTime;
     }
