@@ -59,7 +59,11 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
      * @return 是否成功
      */
     public boolean cancelMatch(Role role) {
-        return roles.remove(role);
+        boolean result = roles.remove(role);
+        if (result) {
+            roleNum.decrementAndGet();
+        }
+        return result;
     }
 
     @Override
@@ -86,11 +90,11 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
                 role1.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
                 continue;
             }
-            role1.resetPosition(-200, 0, 0);
+            role1.resetPosition(550, 360, 0);
 
             Role role2 = roles.poll();
             assert role2 != null;
-            role2.resetPosition(200, 0, 0);
+            role2.resetPosition(650, 360, 0);
             if (System.currentTimeMillis() - role2.getEnterMatchTime() > 60 * 1000) {
                 //TODO:推送超时协议，将role1重新放入列表
                 role2.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
@@ -131,8 +135,8 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
             roleMessage.setRoleId(role.getRoleId());
             roleMessage.setUserName(role.getUserName());
             roleMessage.setWeaponType(role.getWeaponType().getTypeId());
-            roleMessage.setX(role.getCenter().getX());
-            roleMessage.setY(role.getCenter().getY());
+            roleMessage.setX((int) role.getCenter().getX());
+            roleMessage.setY((int) role.getCenter().getY());
             roleMessage.setFaceAngle(role.getFaceAngle());
             roleMessages.add(roleMessage);
         }

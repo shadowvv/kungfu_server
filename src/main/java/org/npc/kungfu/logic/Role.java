@@ -3,9 +3,9 @@ package org.npc.kungfu.logic;
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
-import org.npc.kungfu.platfame.math.HitBox;
-import org.npc.kungfu.platfame.math.Sector;
-import org.npc.kungfu.platfame.math.VectorTwo;
+import org.npc.kungfu.platfame.math2.HitBox;
+import org.npc.kungfu.platfame.math2.Sector;
+import org.npc.kungfu.platfame.math2.Vec2;
 
 import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_HEIGHT;
 import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_WIDTH;
@@ -44,28 +44,28 @@ public class Role {
     /**
      * 角色攻击力
      */
-    private final int attackPoint;
+    private final float attackPoint;
     /**
      * 角色移动范围
      */
-    private final int moveRange;
+    private final float moveRange;
     /**
      * 角色生命值
      */
-    private int hpPoint;
+    private float hpPoint;
 
     /**
      * 角色中心点
      */
-    private VectorTwo<Integer> center;
+    private Vec2 center;
     /**
      * 角色受击盒
      */
-    private final HitBox<Integer> hitBox;
+    private final HitBox hitBox;
     /**
      * 角色攻击范围
      */
-    private final Sector<Integer> attackSector;
+    private final Sector attackSector;
     /**
      * 角色朝向
      */
@@ -107,13 +107,14 @@ public class Role {
         this.weaponType = weaponType;
         this.active = active;
         this.actionType = PlayerActionTypeEnum.MOVE;
-        this.center = VectorTwo.createIntegerVector(positionX, positionY);
+        this.center = new Vec2(positionX, positionY);
         this.faceAngle = faceAngle;
+        this.hpPoint = 5;
 
         this.attackPoint = this.weaponType.getAttack();
         this.moveRange = this.weaponType.getMoveRange();
-        this.hitBox = HitBox.createIntegerHitBox(positionX, positionY, HIT_BOX_WIDTH, HIT_BOX_HEIGHT);
-        this.attackSector = Sector.createIntegerSector(positionX, positionY, this.weaponType.getAttackInnerRadius(), this.weaponType.getAttackOuterRadius(), this.weaponType.getStartAngle(), this.weaponType.getEndAngle());
+        this.hitBox = new HitBox(new Vec2(positionX - HIT_BOX_WIDTH / 2.0f, positionY - HIT_BOX_HEIGHT / 2.0f), HIT_BOX_WIDTH, HIT_BOX_HEIGHT);
+        this.attackSector = new Sector(new Vec2(positionX, positionY), this.weaponType.getAttackInnerRadius(), this.weaponType.getAttackOuterRadius(), this.weaponType.getStartAngle(), this.weaponType.getEndAngle());
     }
 
     /**
@@ -124,7 +125,9 @@ public class Role {
      * @param faceAngle 朝向
      */
     public void resetPosition(int x, int y, int faceAngle) {
-        this.center = VectorTwo.createIntegerVector(x, y);
+        this.center = new Vec2(x, y);
+        this.attackSector.setCenter(this.center);
+        this.hitBox.setLeftTop(x - HIT_BOX_WIDTH / 2.0, y - HIT_BOX_HEIGHT / 2.0);
         this.faceAngle = faceAngle;
     }
 
@@ -156,7 +159,10 @@ public class Role {
             return false;
         }
 
-        this.center.moveTo(x, y);
+        this.center = new Vec2(x, y);
+        this.attackSector.setCenter(this.center);
+        this.hitBox.setLeftTop(this.center.getX() - HIT_BOX_WIDTH / 2.0, this.center.getY() - HIT_BOX_HEIGHT / 2.0);
+
         this.actionType = PlayerActionTypeEnum.ATTACK;
         return true;
     }
@@ -168,13 +174,14 @@ public class Role {
      * @return 转向是否成功
      */
     public boolean onRoleHit(int faceAngle) {
-        if (!this.active) {
-            return false;
-        }
-        if (this.actionType != PlayerActionTypeEnum.ATTACK) {
-            return false;
-        }
+//        if (!this.active) {
+//            return false;
+//        }
+//        if (this.actionType != PlayerActionTypeEnum.ATTACK) {
+//            return false;
+//        }
         this.faceAngle = faceAngle;
+        this.attackSector.updateAngle(this.faceAngle);
         this.actionType = PlayerActionTypeEnum.MOVE;
         return true;
     }
@@ -185,7 +192,7 @@ public class Role {
      * @param attackPoint 攻击力
      * @return 剩余血量
      */
-    public int onRoleBeHit(int attackPoint) {
+    public float onRoleBeHit(float attackPoint) {
         this.hpPoint = this.hpPoint - attackPoint;
         if (this.hpPoint < 0) {
             this.hpPoint = 0;
@@ -219,28 +226,28 @@ public class Role {
     /**
      * @return 攻击力
      */
-    public int getAttackPoint() {
+    public float getAttackPoint() {
         return this.attackPoint;
     }
 
     /**
      * @return 生命值
      */
-    public int getHpPoint() {
+    public float getHpPoint() {
         return hpPoint;
     }
 
     /**
      * @return 角色受击盒
      */
-    public HitBox<Integer> getHitBox() {
+    public HitBox getHitBox() {
         return hitBox;
     }
 
     /**
      * @return 攻击范围
      */
-    public Sector<Integer> getAttackSector() {
+    public Sector getAttackSector() {
         return attackSector;
     }
 
@@ -269,6 +276,7 @@ public class Role {
         Player player = PlayerService.getService().getPlayer(this.playerId);
         if (player != null) {
             player.sendMessage(message);
+            System.out.println("send message playerId: " + this.playerId + " " + message.description());
         }
     }
 
@@ -300,7 +308,7 @@ public class Role {
     /**
      * @return 角色中心点
      */
-    public VectorTwo<Integer> getCenter() {
+    public Vec2 getCenter() {
         return this.center;
     }
 

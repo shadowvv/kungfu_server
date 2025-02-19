@@ -157,12 +157,12 @@ public class BusStation<T extends IBus<V, Z>, V extends IPassenger<Z>, Z extends
             CompletableFuture<Boolean> future = futures.get(bus);
             if (future == null || future.isDone()) {
                 CompletableFuture<Boolean> newFuture = CompletableFuture.supplyAsync(() -> {
-                    try {
                         return bus.arrived();
-                    } catch (Exception e) {
-                        System.out.println("Task execution exception: " + e.getMessage());
-                        return false;
-                    }
+//                    try {
+//                    } catch (Exception e) {
+//                        System.out.println("Task execution exception: " + e.getMessage());
+//                        return false;
+//                    }
                 }, service);
                 futures.put(bus, newFuture);
             }

@@ -24,6 +24,7 @@ public enum MessageEnum {
     MATCH_RESULT_BROAD(10001, MatchResultBroadMessage.class),
     BATTLE_START_PUSH(10002, BattleStartPushMessage.class),
     BATTLE_RESULT_BROAD(10003, BattleResultBroadMessage.class),
+    BATTLE_STATE_BROAD(10004, BattleStateBroadMessage.class),
 
     SS_PLAYER_CHANNEL_INACTIVE(20001, SSPlayerChannelInactive.class),
     SS_PLAYER_CHANNEL_RECONNECT(20002, SSPlayerChannelReconnect.class),

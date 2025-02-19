@@ -46,26 +46,26 @@ public class RoleMessage {
     }
 
     public int getX() {
-        return x;
+        return x / 1000;
     }
 
     public void setX(int x) {
-        this.x = x;
+        this.x = x * 1000;
     }
 
     public int getY() {
-        return y;
+        return y / 1000;
     }
 
     public void setY(int y) {
-        this.y = y;
+        this.y = y * 1000;
     }
 
     public int getFaceAngle() {
-        return faceAngle;
+        return faceAngle / 1000;
     }
 
     public void setFaceAngle(int faceAngle) {
-        this.faceAngle = faceAngle;
+        this.faceAngle = faceAngle * 1000;
     }
 }

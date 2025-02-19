@@ -17,5 +17,8 @@ public enum PlayerActionTypeEnum {
      * 等待
      */
     WAIT,
-
+    /**
+     * 行动
+     */
+    ACTION,
 }

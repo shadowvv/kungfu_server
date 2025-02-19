@@ -4,8 +4,6 @@ import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleRing;
 import org.npc.kungfu.logic.message.base.BaseClientBattleMessage;
-import org.npc.kungfu.platfame.bus.IPassenger;
-import org.npc.kungfu.platfame.bus.ITask;
 
 public class OperationReqMessage extends BaseClientBattleMessage {
 
@@ -18,24 +16,33 @@ public class OperationReqMessage extends BaseClientBattleMessage {
     @Expose
     private int faceAngle;
 
+    private Role role;
+
     public OperationReqMessage() {
         super(3001);
-    }
-
-
-    @Override
-    public void doAction(IPassenger<? extends ITask> passenger) {
-
     }
 
     @Override
     public void doAction(BattleRing battleRing) {
 
+        x = x / 1000;
+        y = y / 1000;
+        faceAngle = faceAngle / 1000;
+
+        boolean operationSuccess = false;
+        if (role.onRoleMove(x, y)) {
+            if (role.onRoleHit(faceAngle)) {
+                operationSuccess = true;
+            }
+        }
+        OperationRespMessage msg = new OperationRespMessage();
+        msg.setSuccess(operationSuccess);
+        role.sendMessage(msg);
     }
 
     @Override
     public String description() {
-        return "";
+        return "OperationReqMessage roleId: " + roleId + ", x: " + x + ", y: " + y + ", faceAngle: " + faceAngle;
     }
 
     public int getRoleId() {
@@ -70,12 +77,7 @@ public class OperationReqMessage extends BaseClientBattleMessage {
         this.faceAngle = faceAngle;
     }
 
-    public void doLogic(Role role) {
-        if (role == null) {
-            return;
-        }
-        role.onRoleMove(x, y);
-        role.onRoleHit(faceAngle);
+    public void setRole(Role role) {
+        this.role = role;
     }
-
 }

@@ -12,6 +12,10 @@ public class SSPlayerChannelInactive extends BaseServerPlayerMessage {
         this.playerId = playerId;
     }
 
+    public long getPlayerId() {
+        return playerId;
+    }
+
     @Override
     public void doAction(Player player) {
         player.onPlayerDisconnect();

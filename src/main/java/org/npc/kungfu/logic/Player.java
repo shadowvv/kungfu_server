@@ -134,6 +134,7 @@ public class Player implements IPassenger<BaseMessage> {
      */
     public void sendMessage(BaseClientMessage message) {
         channel.writeAndFlush(message);
+        System.out.println("send message playerId: " + this.playerId + " " + message.description());
     }
 
     @Override
@@ -160,7 +161,7 @@ public class Player implements IPassenger<BaseMessage> {
             if (!messages.isEmpty()) {
                 return;
             }
-            if (!inBattle) {
+            if (inBattle) {
                 return;
             }
             if (inMatch) {

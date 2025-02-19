@@ -9,7 +9,7 @@ public class OperationRespMessage extends BaseRespMessage {
     private boolean success;
 
     public OperationRespMessage() {
-        super(3002);
+        super(4002);
     }
 
     @Override

@@ -1,12 +1,15 @@
 package org.npc.kungfu.logic.message;
 
+import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
 import java.util.List;
 
 public class BattleResultBroadMessage extends BaseRespMessage {
 
-    private List<RoleMessage> roleMessages;
+    @Expose
+    private List<RoleMessage> roles;
+    @Expose
     private int winRoleId;
 
     public BattleResultBroadMessage() {
@@ -19,11 +22,11 @@ public class BattleResultBroadMessage extends BaseRespMessage {
     }
 
     public List<RoleMessage> getRoleMessages() {
-        return roleMessages;
+        return roles;
     }
 
     public void setRoleMessages(List<RoleMessage> roleMessages) {
-        this.roleMessages = roleMessages;
+        this.roles = roleMessages;
     }
 
     public int getWinRoleId() {
