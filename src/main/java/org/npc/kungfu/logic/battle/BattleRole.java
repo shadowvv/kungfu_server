@@ -1,8 +1,10 @@
-package org.npc.kungfu.logic;
+package org.npc.kungfu.logic.battle;
 
+import org.npc.kungfu.logic.BaseRole;
+import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.constant.PlayerActionTypeEnum;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
-import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.platfame.math2.HitBox;
 import org.npc.kungfu.platfame.math2.Sector;
 import org.npc.kungfu.platfame.math2.Vec2;
@@ -14,16 +16,8 @@ import static org.npc.kungfu.logic.constant.BattleConstants.HIT_BOX_WIDTH;
  * 玩家操作的角色
  */
 //TODO:将匹配拆成匹配角色
-public class Role {
+public class BattleRole extends BaseRole {
 
-    /**
-     * 角色id
-     */
-    private final int roleId;
-    /**
-     * 玩家id
-     */
-    private final int playerId;
     /**
      * 角色所在战斗id
      */
@@ -32,7 +26,6 @@ public class Role {
      * 角色是否为激活状态
      */
     private boolean active;
-
     /**
      * 角色使用的武器
      */
@@ -69,12 +62,9 @@ public class Role {
     /**
      * 角色朝向
      */
-    private int faceAngle;
+    private double faceAngle;
 
-    /**
-     * 进去匹配的时间
-     */
-    private long enterMatchTime;
+
 
     /**
      * 角色工厂
@@ -82,34 +72,32 @@ public class Role {
      * @param roleId     角色id
      * @param playerId   玩家id
      * @param weaponType 武器
-     * @param active     是否已激活
      * @param positionX  位置x坐标
      * @param positionY  位置y坐标
      * @param faceAngle  朝向
      * @return 战斗角色
      */
-    public static Role build(int roleId, int playerId, PlayerWeaponEnum weaponType, boolean active, int positionX, int positionY, int faceAngle) {
-        return new Role(roleId, playerId, weaponType, active, positionX, positionY, faceAngle);
+    public static BattleRole build(int roleId, int playerId, PlayerWeaponEnum weaponType, double positionX, double positionY, double faceAngle) {
+        return new BattleRole(roleId, playerId, weaponType, positionX, positionY, faceAngle);
     }
 
     /**
      * @param roleId     角色id
      * @param playerId   玩家id
      * @param weaponType 武器
-     * @param active     是否已激活
      * @param positionX  位置x坐标
      * @param positionY  位置y坐标
      * @param faceAngle  朝向
      */
-    private Role(int roleId, int playerId, PlayerWeaponEnum weaponType, boolean active, int positionX, int positionY, int faceAngle) {
-        this.roleId = roleId;
-        this.playerId = playerId;
+    private BattleRole(int roleId, int playerId, PlayerWeaponEnum weaponType, double positionX, double positionY, double faceAngle) {
+        super(roleId, playerId);
         this.weaponType = weaponType;
-        this.active = active;
         this.actionType = PlayerActionTypeEnum.MOVE;
         this.center = new Vec2(positionX, positionY);
         this.faceAngle = faceAngle;
+
         this.hpPoint = 5;
+        this.active = true;
 
         this.attackPoint = this.weaponType.getAttack();
         this.moveRange = this.weaponType.getMoveRange();
@@ -146,7 +134,7 @@ public class Role {
      * @param x 目标x坐标
      * @param y 目标y坐标
      */
-    public boolean onRoleMove(int x, int y) {
+    public boolean onRoleMove(double x, double y) {
         if (!this.active) {
             return false;
         }
@@ -155,7 +143,7 @@ public class Role {
             return false;
         }
 
-        if (this.center.inCirCle(x, y, moveRange)) {
+        if (!this.center.inCirCle(x, y, moveRange)) {
             return false;
         }
 
@@ -173,13 +161,13 @@ public class Role {
      * @param faceAngle 角色朝向
      * @return 转向是否成功
      */
-    public boolean onRoleHit(int faceAngle) {
-//        if (!this.active) {
-//            return false;
-//        }
-//        if (this.actionType != PlayerActionTypeEnum.ATTACK) {
-//            return false;
-//        }
+    public boolean onRoleHit(double faceAngle) {
+        if (!this.active) {
+            return false;
+        }
+        if (this.actionType != PlayerActionTypeEnum.ATTACK) {
+            return false;
+        }
         this.faceAngle = faceAngle;
         this.attackSector.updateAngle(this.faceAngle);
         this.actionType = PlayerActionTypeEnum.MOVE;
@@ -198,13 +186,6 @@ public class Role {
             this.hpPoint = 0;
         }
         return this.hpPoint;
-    }
-
-    /**
-     * 进入匹配
-     */
-    public void enterMatch() {
-        this.enterMatchTime = System.currentTimeMillis();
     }
 
     /**
@@ -252,32 +233,12 @@ public class Role {
     }
 
     /**
-     * @return 角色id
-     */
-    public int getRoleId() {
-        return roleId;
-    }
-
-    /**
      * 绑定战斗id
      *
      * @param battleId 战斗id
      */
     public void bindBattleId(int battleId) {
         this.battleId = battleId;
-    }
-
-    /**
-     * 发送消息
-     *
-     * @param message 消息
-     */
-    public void sendMessage(BaseClientMessage message) {
-        Player player = PlayerService.getService().getPlayer(this.playerId);
-        if (player != null) {
-            player.sendMessage(message);
-            System.out.println("send message playerId: " + this.playerId + " " + message.description());
-        }
     }
 
     /**
@@ -298,7 +259,7 @@ public class Role {
      * @return 用户名
      */
     public String getUserName() {
-        Player player = PlayerService.getService().getPlayer(this.playerId);
+        Player player = PlayerService.getService().getPlayer(this.getPlayerId());
         if (player != null) {
             return player.getUserName();
         }
@@ -315,21 +276,7 @@ public class Role {
     /**
      * @return 角色朝向
      */
-    public int getFaceAngle() {
+    public double getFaceAngle() {
         return this.faceAngle;
-    }
-
-    /**
-     * @return 玩家id
-     */
-    public int getPlayerId() {
-        return playerId;
-    }
-
-    /**
-     * @return 进入匹配的时间
-     */
-    public long getEnterMatchTime() {
-        return enterMatchTime;
     }
 }

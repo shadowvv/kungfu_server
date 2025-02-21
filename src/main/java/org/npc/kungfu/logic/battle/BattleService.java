@@ -2,13 +2,14 @@ package org.npc.kungfu.logic.battle;
 
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.Role;
+import org.npc.kungfu.logic.match.MatchRole;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.logic.message.base.BaseServerMessage;
 import org.npc.kungfu.platfame.bus.Bus;
 import org.npc.kungfu.platfame.bus.BusStation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,8 +59,13 @@ public class BattleService {
      * 开始战斗
      * @param roles 战斗角色
      */
-    public void startBattle(List<Role> roles) {
-        BattleRing battleRing = BattleRing.build(battleIdCounter.incrementAndGet(), roles);
+    public void startBattle(List<MatchRole> roles) {
+        List<BattleRole> battleRoles = new ArrayList<>();
+        for (MatchRole role : roles) {
+            BattleRole battleRole = BattleRole.build(role.getRoleId(), role.getPlayerId(), role.getWeaponType(), role.getCenter().getX(), role.getCenter().getY(), role.getFaceAngle());
+            battleRoles.add(battleRole);
+        }
+        BattleRing battleRing = BattleRing.build(battleIdCounter.incrementAndGet(), battleRoles);
         battleRingHashMap.put(battleRing.getId(), battleRing);
         taskStation.put(battleRing);
         battleRing.start();
@@ -90,7 +96,7 @@ public class BattleService {
         if (player == null) {
             return;
         }
-        int battleId = player.getRole().getBattleId();
+        int battleId = player.getBattleId();
         taskStation.put(battleId, msg);
     }
 

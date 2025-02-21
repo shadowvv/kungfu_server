@@ -1,8 +1,8 @@
 package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
-import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleRing;
+import org.npc.kungfu.logic.battle.BattleRole;
 import org.npc.kungfu.logic.message.base.BaseClientBattleMessage;
 
 public class OperationReqMessage extends BaseClientBattleMessage {
@@ -16,7 +16,7 @@ public class OperationReqMessage extends BaseClientBattleMessage {
     @Expose
     private int faceAngle;
 
-    private Role role;
+    private BattleRole role;
 
     public OperationReqMessage() {
         super(3001);
@@ -25,13 +25,13 @@ public class OperationReqMessage extends BaseClientBattleMessage {
     @Override
     public void doAction(BattleRing battleRing) {
 
-        x = x / 1000;
-        y = y / 1000;
-        faceAngle = faceAngle / 1000;
+        double tempX = x / (1000 * 1000);
+        double tempY = y / (1000 * 1000);
+        double tempAngle = faceAngle / (1000 * 1000);
 
         boolean operationSuccess = false;
-        if (role.onRoleMove(x, y)) {
-            if (role.onRoleHit(faceAngle)) {
+        if (role.onRoleMove(tempX, tempY)) {
+            if (role.onRoleHit(tempAngle)) {
                 operationSuccess = true;
             }
         }
@@ -77,7 +77,7 @@ public class OperationReqMessage extends BaseClientBattleMessage {
         this.faceAngle = faceAngle;
     }
 
-    public void setRole(Role role) {
+    public void setRole(BattleRole role) {
         this.role = role;
     }
 }

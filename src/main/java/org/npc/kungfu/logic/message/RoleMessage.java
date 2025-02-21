@@ -16,6 +16,8 @@ public class RoleMessage {
     private int y;
     @Expose
     private int faceAngle;
+    @Expose
+    private int hp;
 
     public RoleMessage() {
 
@@ -46,26 +48,34 @@ public class RoleMessage {
     }
 
     public int getX() {
-        return x / 1000;
+        return x / (1000 * 1000);
     }
 
-    public void setX(int x) {
-        this.x = x * 1000;
+    public void setX(double x) {
+        this.x = (int) (x * 1000 * 1000);
     }
 
     public int getY() {
-        return y / 1000;
+        return y / (1000 * 1000);
     }
 
-    public void setY(int y) {
-        this.y = y * 1000;
+    public void setY(double y) {
+        this.y = (int) (y * 1000 * 1000);
     }
 
     public int getFaceAngle() {
-        return faceAngle / 1000;
+        return faceAngle / (1000 * 1000);
     }
 
-    public void setFaceAngle(int faceAngle) {
-        this.faceAngle = faceAngle * 1000;
+    public void setFaceAngle(double faceAngle) {
+        this.faceAngle = (int) (faceAngle * 1000 * 1000);
+    }
+
+    public int getHp() {
+        return hp / (1000 * 1000);
+    }
+
+    public void setHp(double hp) {
+        this.hp = (int) (hp * 1000 * 1000);
     }
 }

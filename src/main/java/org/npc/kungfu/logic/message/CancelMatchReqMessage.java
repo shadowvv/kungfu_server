@@ -27,7 +27,7 @@ public class CancelMatchReqMessage extends BaseClientMatchMessage {
             getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_NOT_IN_MATCH.getCode()));
             return;
         }
-        if (matchPool.cancelMatch(player.getRole())) {
+        if (matchPool.cancelMatch(player.getRoleId())) {
             player.exitMatch();
             player.sendMessage(new CancelMatchRespMessage());
         }

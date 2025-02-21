@@ -2,7 +2,6 @@ package org.npc.kungfu.logic.battle;
 
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.*;
 import org.npc.kungfu.logic.message.base.BaseMessage;
@@ -34,7 +33,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
     /**
      * 参加决斗的角色
      */
-    private final HashMap<Integer, Role> roles;
+    private final HashMap<Integer, BattleRole> roles;
     /**
      * 决斗阶段
      */
@@ -54,7 +53,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(int battleId, List<Role> roles) {
+    public static BattleRing build(int battleId, List<BattleRole> roles) {
         return new BattleRing(battleId, roles);
     }
 
@@ -62,10 +61,10 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param battleId 战斗id
      * @param roles    参与决斗的角色
      */
-    private BattleRing(int battleId, List<Role> roles) {
+    private BattleRing(int battleId, List<BattleRole> roles) {
         this.battleId = battleId;
         this.roles = new HashMap<>();
-        for (Role role : roles) {
+        for (BattleRole role : roles) {
             this.roles.put(role.getRoleId(), role);
             role.bindBattleId(battleId);
         }
@@ -75,7 +74,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
     public void start() {
         gameState = GameStateEnum.WAIT_COMMAND;
         countDownTick = WAIT_COMMAND_TICK;
-        for (Role role : roles.values()) {
+        for (BattleRole role : roles.values()) {
             role.sendMessage(new BattleStartPushMessage(gameState.getCode()));
         }
     }
@@ -87,7 +86,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
             if (gameState == GameStateEnum.WAIT_COMMAND) {
                 Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
                 if (player != null) {
-                    Role role = roles.get(player.getRole().getRoleId());
+                    BattleRole role = roles.get(player.getRoleId());
                     if (role != null && !messageHashMap.containsKey(role.getRoleId())) {
                         operationReqMessage.setRole(role);
                         messageHashMap.put(role.getRoleId(), operationReqMessage);
@@ -98,7 +97,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
         return true;
     }
 
-    public void onRoleLogout(Role role) {
+    public void onRoleLogout(BattleRole role) {
         //TODO:结算战斗
         BattleService.getService().endBattle(this);
     }
@@ -131,7 +130,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
             if (messageHashMap.size() == roles.size() || this.countDownTick <= 0) {
                 gameState = GameStateEnum.WAIT_ACTION;
                 this.countDownTick = WAIT_ACTION_TICK;
-                for (Role role : roles.values()) {
+                for (BattleRole role : roles.values()) {
                     role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
                 }
 
@@ -148,7 +147,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
             this.countDownTick = this.countDownTick - deltaTime;
             if (countDownTick <= 0) {
                 gameState = GameStateEnum.ACTION;
-                for (Role role : roles.values()) {
+                for (BattleRole role : roles.values()) {
                     role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
                 }
             }
@@ -160,20 +159,21 @@ public class BattleRing implements IPassenger<BaseMessage> {
 
             this.gameState = GameStateEnum.WAIT_COMMAND;
             this.countDownTick = WAIT_COMMAND_TICK;
-            for (Role role : roles.values()) {
+            for (BattleRole role : roles.values()) {
                 role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
             }
-            for (Role role : roles.values()) {
+            for (BattleRole role : roles.values()) {
                 if (role.getHpPoint() == 0) {
-//                    gameState = GameStateEnum.END;
+                    gameState = GameStateEnum.END;
                     break;
                 }
             }
+            broadCastBattleResult();
             return;
         }
 
         if (gameState == GameStateEnum.END) {
-            for (Role role : roles.values()) {
+            for (BattleRole role : roles.values()) {
                 role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
             }
             broadCastBattleResult();
@@ -184,16 +184,17 @@ public class BattleRing implements IPassenger<BaseMessage> {
     private void broadCastBattleResult() {
         BattleResultBroadMessage message = new BattleResultBroadMessage();
         List<RoleMessage> roleMessages = new LinkedList<>();
-        for (Role role : roles.values()) {
+        for (BattleRole role : roles.values()) {
             RoleMessage roleMessage = new RoleMessage();
             roleMessage.setRoleId(role.getRoleId());
             roleMessage.setX((int) role.getCenter().getX());
             roleMessage.setY((int) role.getCenter().getY());
             roleMessage.setFaceAngle(role.getFaceAngle());
+            roleMessage.setHp(role.getHpPoint());
             roleMessages.add(roleMessage);
         }
         message.setRoleMessages(roleMessages);
-        for (Role role : roles.values()) {
+        for (BattleRole role : roles.values()) {
             role.sendMessage(message);
         }
     }
@@ -202,8 +203,8 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * 检测角色之间是否击中
      */
     private void checkHit() {
-        for (Role role : roles.values()) {
-            for (Role otherRole : roles.values()) {
+        for (BattleRole role : roles.values()) {
+            for (BattleRole otherRole : roles.values()) {
                 if (role.getRoleId() != otherRole.getRoleId() && checkHit(role.getAttackSector(), otherRole.getHitBox())) {
                     otherRole.onRoleBeHit(role.getAttackPoint());
                 }

@@ -34,9 +34,17 @@ public class Player implements IPassenger<BaseMessage> {
     private long channelInactiveTime;
 
     /**
-     * 玩家对应的游玩角色
+     * 玩家角色id
      */
-    private Role role;
+    private int roleId;
+    /**
+     * 匹配id
+     */
+    private int matchId;
+    /**
+     * 玩家所在战斗id
+     */
+    private int battleId;
     /**
      * 玩家是否在匹配
      */
@@ -64,14 +72,10 @@ public class Player implements IPassenger<BaseMessage> {
 
     /**
      * 玩家选择武器，进入匹配
-     * @param weaponType 武器
+     * @param roleId     角色id
      */
-    public void onPlayerApplyBattle(PlayerWeaponEnum weaponType) {
-        if (role != null) {
-            role.resetRole(weaponType);
-        } else {
-            role = Role.build(playerId, playerId, weaponType, true, 1, 1, 10);
-        }
+    public void onPlayerApplyBattle(int roleId) {
+        this.roleId = roleId;
         this.inMatch = true;
     }
 
@@ -88,11 +92,10 @@ public class Player implements IPassenger<BaseMessage> {
     /**
      * 发送进去匹配成功
      */
-    public void sendApplyBattleSuccess() {
-        this.role.enterMatch();
+    public void sendApplyBattleSuccess(int roleId, PlayerWeaponEnum weaponType) {
         ApplyBattleRespMessage resp = new ApplyBattleRespMessage();
-        resp.setRoleId(role.getRoleId());
-        resp.setWeaponType(this.role.getWeaponType().getTypeId());
+        resp.setRoleId(roleId);
+        resp.setWeaponType(weaponType.getTypeId());
         sendMessage(resp);
     }
 
@@ -165,14 +168,18 @@ public class Player implements IPassenger<BaseMessage> {
                 return;
             }
             if (inMatch) {
-                MessageDispatcher.getInstance().dispatchMessage(new SSPlayerLogoutToMatch(playerId, role.getRoleId()), null);
+                MessageDispatcher.getInstance().dispatchMessage(new SSPlayerLogoutToMatch(playerId, this.roleId), null);
             }
             PlayerService.getService().removePlayer(this);
         }
     }
 
-    public Role getRole() {
-        return role;
+    public int getRoleId() {
+        return this.roleId;
+    }
+
+    public int getPlayerId() {
+        return this.playerId;
     }
 
     public String getUserName() {
@@ -189,6 +196,10 @@ public class Player implements IPassenger<BaseMessage> {
 
     public boolean isInMatch() {
         return inMatch;
+    }
+
+    public int getBattleId() {
+        return battleId;
     }
 
     @Override

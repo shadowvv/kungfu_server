@@ -4,6 +4,7 @@ import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.MessageDispatcher;
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
+import org.npc.kungfu.logic.match.MatchRole;
 import org.npc.kungfu.logic.message.base.BaseClientPlayerMessage;
 
 public class ApplyBattleReqMessage extends BaseClientPlayerMessage {
@@ -33,9 +34,9 @@ public class ApplyBattleReqMessage extends BaseClientPlayerMessage {
             getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_IN_MATCH.getCode()));
             return;
         }
-        player.onPlayerApplyBattle(PlayerWeaponEnum.fromValue(weaponType));
-
-        MessageDispatcher.getInstance().dispatchMessage(new SSEnterMatch(player.getRole()), null);
+        player.onPlayerApplyBattle(player.getPlayerId());
+        MatchRole role = MatchRole.build(player.getPlayerId(), player.getPlayerId(), player.getUserName(), PlayerWeaponEnum.fromValue(weaponType));
+        MessageDispatcher.getInstance().dispatchMessage(new SSEnterMatch(role), null);
     }
 
     @Override
