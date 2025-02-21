@@ -2,20 +2,19 @@ package org.npc.kungfu.logic.battle;
 
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.constant.GameStateEnum;
 import org.npc.kungfu.logic.message.*;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
-import org.npc.kungfu.platfame.math.GeometricAlgorithms;
-import org.npc.kungfu.platfame.math.HitBox;
-import org.npc.kungfu.platfame.math.Sector;
+import org.npc.kungfu.platfame.math2.CollisionUtils;
+import org.npc.kungfu.platfame.math2.HitBox;
+import org.npc.kungfu.platfame.math2.Sector;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_ACTION_TICK;
 import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
 
 /**
@@ -30,20 +29,22 @@ public class BattleRing implements IPassenger<BaseMessage> {
     /**
      * 消息队列
      */
-    private final ArrayList<OperationReqMessage> messageList;
+    private final HashMap<Integer, OperationReqMessage> messageHashMap;
     /**
      * 参加决斗的角色
      */
-    private final HashMap<Integer, Role> roles;
+    private final HashMap<Integer, BattleRole> roles;
     /**
      * 决斗阶段
      */
     private GameStateEnum gameState = GameStateEnum.PREPARE;
     /**
-     *
+     * 倒计时
      */
     private long countDownTick = 0;
-
+    /**
+     * 上次tick
+     */
     private long lastTick = 0;
 
     /**
@@ -52,7 +53,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(int battleId, List<Role> roles) {
+    public static BattleRing build(int battleId, List<BattleRole> roles) {
         return new BattleRing(battleId, roles);
     }
 
@@ -60,27 +61,60 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param battleId 战斗id
      * @param roles    参与决斗的角色
      */
-    private BattleRing(int battleId, List<Role> roles) {
+    private BattleRing(int battleId, List<BattleRole> roles) {
         this.battleId = battleId;
         this.roles = new HashMap<>();
-        for (Role role : roles) {
+        for (BattleRole role : roles) {
             this.roles.put(role.getRoleId(), role);
             role.bindBattleId(battleId);
         }
-        messageList = new ArrayList<>();
+        messageHashMap = new HashMap<>();
     }
 
     public void start() {
-        for (Role role : roles.values()) {
-            role.sendMessage(new BattleStartPushMessage());
-        }
         gameState = GameStateEnum.WAIT_COMMAND;
         countDownTick = WAIT_COMMAND_TICK;
+        for (BattleRole role : roles.values()) {
+            role.sendMessage(new BattleStartPushMessage(gameState.getCode()));
+        }
     }
 
-    public void onRoleLogout(Role role) {
+    @Override
+    public boolean put(BaseMessage task) {
+        if (task instanceof OperationReqMessage) {
+            OperationReqMessage operationReqMessage = (OperationReqMessage) task;
+            if (gameState == GameStateEnum.WAIT_COMMAND) {
+                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
+                if (player != null) {
+                    BattleRole role = roles.get(player.getRoleId());
+                    if (role != null && !messageHashMap.containsKey(role.getRoleId())) {
+                        operationReqMessage.setRole(role);
+                        messageHashMap.put(role.getRoleId(), operationReqMessage);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    public void onRoleLogout(BattleRole role) {
         //TODO:结算战斗
         BattleService.getService().endBattle(this);
+    }
+
+    @Override
+    public void doActions() {
+        heartbeat();
+    }
+
+    @Override
+    public void heartbeat() {
+        if (lastTick == 0) {
+            lastTick = System.currentTimeMillis();
+        }
+        long now = System.currentTimeMillis();
+        update(now - lastTick);
+        lastTick = now;
     }
 
     /**
@@ -93,54 +127,74 @@ public class BattleRing implements IPassenger<BaseMessage> {
         //根据收到的玩家操作和倒计时切换战斗阶段
         if (gameState == GameStateEnum.WAIT_COMMAND) {
             this.countDownTick = this.countDownTick - deltaTime;
-            if (messageList.size() == roles.size() || countDownTick <= 0) {
-                this.countDownTick = 0;
-                gameState = GameStateEnum.ACTION;
+            if (messageHashMap.size() == roles.size() || this.countDownTick <= 0) {
+                gameState = GameStateEnum.WAIT_ACTION;
+                this.countDownTick = WAIT_ACTION_TICK;
+                for (BattleRole role : roles.values()) {
+                    role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+                }
+
+                for (OperationReqMessage req : messageHashMap.values()) {
+                    req.doAction(this);
+                }
+                messageHashMap.clear();
                 broadCastBattleResult();
             }
+            return;
         }
 
-//        if (gameState == GameStateEnum.ACTION) {
-//            for (OperationReqMessage message : messageList) {
-//                int roleId = message.getRoleId();
-//                Role role = roles.get(roleId);
-//                if (role != null) {
-//                    message.doLogic(role);
-//                }
-//            }
-//            messageList.clear();
-//
-//            checkHit();
-//
-//            for (Role role : roles.values()) {
-//                if (role.getHpPoint() == 0) {
-//                    gameState = GameStateEnum.END;
-//                    break;
-//                }
-//            }
-//            this.gameState = GameStateEnum.WAIT_COMMAND;
-//            this.countDownTick = WAIT_COMMAND_TICK;
-//            broadCastOperation();
-//        }
-//
-//        if (gameState == GameStateEnum.END) {
-//            broadBattleResult();
-//        }
+        if (gameState == GameStateEnum.WAIT_ACTION) {
+            this.countDownTick = this.countDownTick - deltaTime;
+            if (countDownTick <= 0) {
+                gameState = GameStateEnum.ACTION;
+                for (BattleRole role : roles.values()) {
+                    role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+                }
+            }
+            return;
+        }
+
+        if (gameState == GameStateEnum.ACTION) {
+            checkHit();
+
+            this.gameState = GameStateEnum.WAIT_COMMAND;
+            this.countDownTick = WAIT_COMMAND_TICK;
+            for (BattleRole role : roles.values()) {
+                role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+            }
+            for (BattleRole role : roles.values()) {
+                if (role.getHpPoint() == 0) {
+                    gameState = GameStateEnum.END;
+                    break;
+                }
+            }
+            broadCastBattleResult();
+            return;
+        }
+
+        if (gameState == GameStateEnum.END) {
+            for (BattleRole role : roles.values()) {
+                role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+            }
+            broadCastBattleResult();
+            BattleService.getService().endBattle(this);
+        }
     }
 
     private void broadCastBattleResult() {
         BattleResultBroadMessage message = new BattleResultBroadMessage();
         List<RoleMessage> roleMessages = new LinkedList<>();
-        for (OperationReqMessage req : messageList) {
+        for (BattleRole role : roles.values()) {
             RoleMessage roleMessage = new RoleMessage();
-            roleMessage.setRoleId(req.getRoleId());
-            roleMessage.setX(req.getX());
-            roleMessage.setY(req.getY());
-            roleMessage.setFaceAngle(req.getFaceAngle());
+            roleMessage.setRoleId(role.getRoleId());
+            roleMessage.setX((int) role.getCenter().getX());
+            roleMessage.setY((int) role.getCenter().getY());
+            roleMessage.setFaceAngle(role.getFaceAngle());
+            roleMessage.setHp(role.getHpPoint());
             roleMessages.add(roleMessage);
         }
         message.setRoleMessages(roleMessages);
-        for (Role role : roles.values()) {
+        for (BattleRole role : roles.values()) {
             role.sendMessage(message);
         }
     }
@@ -149,8 +203,8 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * 检测角色之间是否击中
      */
     private void checkHit() {
-        for (Role role : roles.values()) {
-            for (Role otherRole : roles.values()) {
+        for (BattleRole role : roles.values()) {
+            for (BattleRole otherRole : roles.values()) {
                 if (role.getRoleId() != otherRole.getRoleId() && checkHit(role.getAttackSector(), otherRole.getHitBox())) {
                     otherRole.onRoleBeHit(role.getAttackPoint());
                 }
@@ -165,43 +219,8 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param hitBox       受击盒
      * @return 是否击中
      */
-    private boolean checkHit(Sector<Integer> attackSector, HitBox<Integer> hitBox) {
-        return GeometricAlgorithms.isSectorCollidingWithRect(attackSector, hitBox);
-    }
-
-    @Override
-    public boolean put(BaseMessage task) {
-        if (task instanceof OperationReqMessage) {
-            OperationReqMessage operationReqMessage = (OperationReqMessage) task;
-            if (gameState == GameStateEnum.WAIT_COMMAND) {
-                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
-                if (player != null) {
-                    Role role = roles.get(player.getRole().getRoleId());
-                    if (role != null) {
-                        boolean operationSuccess = false;
-                        if (role.onRoleMove(operationReqMessage.getX(), operationReqMessage.getY())) {
-                            if (role.onRoleHit(operationReqMessage.getFaceAngle())) {
-                                operationSuccess = true;
-                            }
-                        }
-                        OperationRespMessage msg = new OperationRespMessage();
-                        msg.setSuccess(operationSuccess);
-                        player.sendMessage(msg);
-                    }
-                }
-                messageList.add(operationReqMessage);
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public void doActions() {
-    }
-
-    @Override
-    public void heartbeat() {
-
+    private boolean checkHit(Sector attackSector, HitBox hitBox) {
+        return CollisionUtils.isSectorCollidingWithRect(attackSector, hitBox.getBoxVectors());
     }
 
     @Override
@@ -211,6 +230,6 @@ public class BattleRing implements IPassenger<BaseMessage> {
 
     @Override
     public String description() {
-        return "";
+        return "battle battleId: " + battleId;
     }
 }

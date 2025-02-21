@@ -3,28 +3,30 @@ package org.npc.kungfu.logic.constant;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.npc.kungfu.logic.constant.BattleConstants.BASE_NUMBER;
+
 public enum PlayerWeaponEnum {
 
     /**
      * 剑
      */
-    BLADE(0, 3, 1, 1, 1, 1, 1),
+    BLADE(0, BASE_NUMBER * 3, 1, 0, BASE_NUMBER * 1.5f, 0, 90),
     /**
      * 刀
      */
-    SWORD(1, 3, 1, 1, 1, 1, 1),
+    SWORD(1, BASE_NUMBER * 3, 1.5f, 0, BASE_NUMBER * 1.5f, 0, 60),
     /**
      * 长矛
      */
-    SPEAR(2, 3, 1, 1, 1, 1, 1),
+    SPEAR(2, BASE_NUMBER * 2, 1, BASE_NUMBER * 4, BASE_NUMBER * 5, 0, 45),
     /**
      * 匕首
      */
-    KNIFE(3, 3, 1, 1, 1, 1, 1),
+    KNIFE(3, BASE_NUMBER * 4, 2, 0, BASE_NUMBER * 1, 0, 90),
     /**
      * 弓
      */
-    BOW(4, 3, 1, 1, 1, 1, 1),
+    BOW(4, BASE_NUMBER * 4, 1, BASE_NUMBER * 3, BASE_NUMBER * 7, 0, 45),
     ;
 
     private static final Map<Integer, PlayerWeaponEnum> map = new HashMap<>();
@@ -40,15 +42,15 @@ public enum PlayerWeaponEnum {
     }
 
     private final int typeId;
-    private final int moveRange;
-    private final int attack;
-    private final int attackInnerRadius;
-    private final int attackOuterRadius;
+    private final float moveRange;
+    private final float attack;
+    private final float attackInnerRadius;
+    private final float attackOuterRadius;
     private final int startAngle;
     private final int endAngle;
 
 
-    PlayerWeaponEnum(int typeId, int moveRange, int attack, int attackInnerRadius, int attackOuterRadius, int startAngle, int endAngle) {
+    PlayerWeaponEnum(int typeId, float moveRange, float attack, float attackInnerRadius, float attackOuterRadius, int startAngle, int endAngle) {
         this.typeId = typeId;
         this.moveRange = moveRange;
         this.attack = attack;
@@ -62,19 +64,19 @@ public enum PlayerWeaponEnum {
         return typeId;
     }
 
-    public int getMoveRange() {
+    public float getMoveRange() {
         return moveRange;
     }
 
-    public int getAttack() {
+    public float getAttack() {
         return attack;
     }
 
-    public int getAttackInnerRadius() {
+    public float getAttackInnerRadius() {
         return attackInnerRadius;
     }
 
-    public int getAttackOuterRadius() {
+    public float getAttackOuterRadius() {
         return attackOuterRadius;
     }
 

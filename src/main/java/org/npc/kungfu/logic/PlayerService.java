@@ -63,7 +63,10 @@ public class PlayerService {
     }
 
     public void putMessage(BaseServerMessage msg) {
-
+        if (msg instanceof SSPlayerChannelInactive) {
+            SSPlayerChannelInactive ss = (SSPlayerChannelInactive) msg;
+            taskStation.put(ss.getPlayerId(), ss);
+        }
     }
 
     /**

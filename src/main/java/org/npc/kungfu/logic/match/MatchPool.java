@@ -1,6 +1,5 @@
 package org.npc.kungfu.logic.match;
 
-import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.message.ErrorCode;
 import org.npc.kungfu.logic.message.ErrorMessage;
@@ -11,6 +10,7 @@ import org.npc.kungfu.platfame.bus.SimplePassenger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,7 +22,8 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
     /**
      * 角色列表
      */
-    private final ConcurrentLinkedDeque<Role> roles;
+    private final ConcurrentLinkedDeque<MatchRole> roles;
+    private final ConcurrentHashMap<Integer, MatchRole> matchRoleMap;
     /**
      * 匹配池玩家数量
      */
@@ -38,8 +39,9 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
      */
     public MatchPool(long id, String description) {
         super(id);
-        roles = new ConcurrentLinkedDeque<>();
-        roleNum = new AtomicInteger(0);
+        this.matchRoleMap = new ConcurrentHashMap<>();
+        this.roles = new ConcurrentLinkedDeque<>();
+        this.roleNum = new AtomicInteger(0);
         this.description = description;
     }
 
@@ -47,19 +49,29 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
      * 进入匹配
      * @param role 角色
      */
-    public void enterMatch(Role role) {
+    public void enterMatch(MatchRole role) {
+        matchRoleMap.put(role.getPlayerId(), role);
         roles.add(role);
         roleNum.incrementAndGet();
+        role.enterMatch();
     }
 
     /**
      * 取消匹配
      *
-     * @param role 角色
+     * @param roleId 角色 id
      * @return 是否成功
      */
-    public boolean cancelMatch(Role role) {
-        return roles.remove(role);
+    public boolean cancelMatch(int roleId) {
+        MatchRole role = matchRoleMap.remove(roleId);
+        if (role == null) {
+            return false;
+        }
+        boolean result = roles.remove(role);
+        if (result) {
+            roleNum.decrementAndGet();
+        }
+        return result;
     }
 
     @Override
@@ -68,72 +80,59 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
     }
 
     /**
-     * 匹配算法
+     * 匹配
      */
     private void matchUp() {
-        if (roles.isEmpty()) {
-            return;
-        }
-        if (roleNum.intValue() <= 1) {
-            return;
-        }
-        for (int i = 0; i < 10; i++) {
-            List<Role> list = new ArrayList<>();
-
-            Role role1 = roles.poll();
-            assert role1 != null;
+        while (roleNum.intValue() >= 2) {
+            MatchRole role1 = roles.poll();
+            if (role1 == null) break;
             if (System.currentTimeMillis() - role1.getEnterMatchTime() > 60 * 1000) {
                 role1.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
                 continue;
             }
-            role1.resetPosition(-200, 0, 0);
+            role1.resetPosition(550, 360, 0);
 
-            Role role2 = roles.poll();
-            assert role2 != null;
-            role2.resetPosition(200, 0, 0);
+            MatchRole role2 = roles.poll();
+            if (role2 == null) {
+                roles.addFirst(role1);
+                break;
+            }
+            role2.resetPosition(650, 360, 0);
             if (System.currentTimeMillis() - role2.getEnterMatchTime() > 60 * 1000) {
-                //TODO:推送超时协议，将role1重新放入列表
                 role2.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
                 roles.addFirst(role1);
                 continue;
             }
 
-            list.add(role1);
-            list.add(role2);
-            roleNum.decrementAndGet();
-            roleNum.decrementAndGet();
+            List<MatchRole> list = List.of(role1, role2);
+            roleNum.addAndGet(-2);
 
             MatchResultBroadMessage matchResultBroadMessage = buildMatchResultBroadMessage(list);
             role1.sendMessage(matchResultBroadMessage);
             role2.sendMessage(matchResultBroadMessage);
 
             BattleService.getService().startBattle(list);
-
-            if (roles.isEmpty()) {
-                return;
-            }
-            if (roleNum.intValue() <= 1) {
-                return;
-            }
         }
     }
+
 
     /**
      * 发送匹配结果
      * @param list 匹配战斗的玩家
      * @return 匹配结果消息
      */
-    private MatchResultBroadMessage buildMatchResultBroadMessage(List<Role> list) {
+    private MatchResultBroadMessage buildMatchResultBroadMessage(List<MatchRole> list) {
         MatchResultBroadMessage matchResultBroadMessage = new MatchResultBroadMessage();
         List<RoleMessage> roleMessages = new ArrayList<>();
-        for (Role role : list) {
+        for (MatchRole role : list) {
             RoleMessage roleMessage = new RoleMessage();
             roleMessage.setRoleId(role.getRoleId());
-            roleMessage.setUserName(role.getUserName());
+            roleMessage.setUserName(role.getUsername());
             roleMessage.setWeaponType(role.getWeaponType().getTypeId());
             roleMessage.setX(role.getCenter().getX());
             roleMessage.setY(role.getCenter().getY());
             roleMessage.setFaceAngle(role.getFaceAngle());
+            roleMessage.setHp(5);
             roleMessages.add(roleMessage);
         }
         matchResultBroadMessage.setRoles(roleMessages);

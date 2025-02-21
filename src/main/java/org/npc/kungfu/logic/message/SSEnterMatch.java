@@ -2,24 +2,24 @@ package org.npc.kungfu.logic.message;
 
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.Role;
 import org.npc.kungfu.logic.match.MatchPool;
+import org.npc.kungfu.logic.match.MatchRole;
 import org.npc.kungfu.logic.message.base.BaseServerMatchMessage;
 
 public class SSEnterMatch extends BaseServerMatchMessage {
 
-    private Role role;
+    private MatchRole role;
 
-    public SSEnterMatch(Role role) {
+    public SSEnterMatch(MatchRole role) {
         super(20003);
         this.role = role;
     }
 
-    public Role getRole() {
+    public MatchRole getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
+    public void setRole(MatchRole role) {
         this.role = role;
     }
 
@@ -37,7 +37,7 @@ public class SSEnterMatch extends BaseServerMatchMessage {
             player.sendMessage(new ErrorMessage(2001, ErrorCode.PLAYER_IN_MATCH.getCode()));
             return;
         }
-        player.sendApplyBattleSuccess();
+        player.sendApplyBattleSuccess(role.getRoleId(), role.getWeaponType());
         matchPool.enterMatch(role);
     }
 

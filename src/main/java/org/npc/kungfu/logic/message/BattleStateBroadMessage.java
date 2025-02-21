@@ -3,18 +3,18 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
-public class BattleStartPushMessage extends BaseRespMessage {
+public class BattleStateBroadMessage extends BaseRespMessage {
 
     @Expose
-    private int gameState;
+    private int battleState;
 
-    public BattleStartPushMessage(int gameState) {
-        super(10002);
-        this.gameState = gameState;
+    public BattleStateBroadMessage(int battleState) {
+        super(10004);
+        this.battleState = battleState;
     }
 
-    public int getGameState() {
-        return gameState;
+    public int getBattleState() {
+        return battleState;
     }
 
     @Override
@@ -24,6 +24,6 @@ public class BattleStartPushMessage extends BaseRespMessage {
 
     @Override
     public String description() {
-        return "BattleStartPushMessage";
+        return "BattleStateBroadMessage";
     }
 }

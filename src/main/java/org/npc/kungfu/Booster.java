@@ -43,6 +43,9 @@ public class Booster {
 
         //初始化战斗服务
         BusStation<Bus<BattleRing, BaseMessage>, BattleRing, BaseMessage> battleStation = new BusStation<>(threadNum, "battle", new BusHashSelector<>());
+        for (int i = 0; i < threadNum; i++) {
+            battleStation.put(new Bus<>(i, "battle"));
+        }
         StationDriver battleDriver = new StationDriver(battleStation, 100, 30);
         battleDriver.runStation();
         BattleService.getService().init(battleStation);
