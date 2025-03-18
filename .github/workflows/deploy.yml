@@ -1,0 +1,39 @@
+name: Deploy to Tencent Cloud
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+
+    - name: Build with Gradle
+      run: ./gradlew build
+
+    - name: Deploy to Tencent Cloud
+      env:
+        SECRET_ID: ${{ secrets.TENCENT_CLOUD_SECRET_ID }}
+        SECRET_KEY: ${{ secrets.TENCENT_CLOUD_SECRET_KEY }}
+        REGION: ${{ secrets.TENCENT_CLOUD_REGION }}
+        FUNCTION_NAME: ${{ secrets.TENCENT_CLOUD_FUNCTION_NAME }}
+      run: |
+        zip -r code.zip ./
+        curl -X POST https://scf.tencentcloudapi.com \
+          -d '{"Action":"UpdateFunctionCode","FunctionName":"${{ secrets.TENCENT_CLOUD_FUNCTION_NAME }}","ZipFile":"$(base64 code.zip)"}' \
+          -H "Content-Type: application/json" \
+          -H "X-TC-Action: UpdateFunctionCode" \
+          -H "X-TC-Version: 2018-04-16" \
+          -H "X-TC-Region: ${{ secrets.TENCENT_CLOUD_REGION }}" \
+          -H "X-TC-SecretId: ${{ secrets.TENCENT_CLOUD_SECRET_ID }}" \
+          -H "X-TC-SecretKey: ${{ secrets.TENCENT_CLOUD_SECRET_KEY }}"
