@@ -3,13 +3,13 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
-public class LoginRespMessage extends BaseRespMessage {
+public class RegisterRespMessage extends BaseRespMessage {
 
     @Expose
     private PlayerInfoMessage playerInfo;
 
-    public LoginRespMessage() {
-        super(1002);
+    public RegisterRespMessage() {
+        super(MessageEnum.REGISTER_RESP.getId());
     }
 
     public PlayerInfoMessage getPlayerInfo() {
@@ -21,12 +21,12 @@ public class LoginRespMessage extends BaseRespMessage {
     }
 
     @Override
-    public String description() {
-        return "login successful playerId: " + playerInfo.getPlayerId();
+    public MessageType getMessageType() {
+        return null;
     }
 
     @Override
-    public MessageType getMessageType() {
-        return MessageType.LOGIN_MESSAGE;
+    public String description() {
+        return "";
     }
 }

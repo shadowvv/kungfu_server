@@ -1,12 +1,15 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
+import org.npc.kungfu.database.MyBatisUtils;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.logic.message.base.BaseServerMessage;
 import org.npc.kungfu.platfame.bus.BusStation;
 import org.npc.kungfu.platfame.bus.SimplePassenger;
 import org.npc.kungfu.platfame.bus.SoloPassengerBus;
+import org.npc.kungfu.redis.JedisUtil;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +18,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 登录服务
  */
 public class LoginService {
+
+    private static final String USER_NAME_PLAYER_IDS = "userNamePlayerIds";
 
     private static final LoginService service = new LoginService();
 
@@ -37,10 +42,6 @@ public class LoginService {
      */
     private AtomicInteger playerIdCreator;
     /**
-     * 玩家昵称与玩家id的映射
-     */
-    private ConcurrentHashMap<String, Long> userNamePlayerIds;
-    /**
      * 使用玩家昵称作为登录的互斥量
      */
     private ConcurrentHashMap<String, Boolean> userNameMutex;
@@ -57,7 +58,6 @@ public class LoginService {
         taskStation = station;
         playerIdCreator = new AtomicInteger(0);
         channelMutex = new ConcurrentHashMap<>();
-        userNamePlayerIds = new ConcurrentHashMap<>();
         userNameMutex = new ConcurrentHashMap<>();
     }
 
@@ -108,20 +108,33 @@ public class LoginService {
      * @param userName 用户昵称
      * @return 是否可用
      */
-    public boolean checkUserName(String userName) {
-        return !userNamePlayerIds.containsKey(userName);
+    public boolean checkUserNameExist(String userName) {
+        try {
+            if (!JedisUtil.isConnectionOk()) {
+                System.err.println("Redis connection is not available.");
+                return false;
+            }
+            return JedisUtil.hget(USER_NAME_PLAYER_IDS, userName) != null;
+        } catch (JedisConnectionException e) {
+            // 记录日志或进行其他异常处理
+            e.printStackTrace();
+            return false; // 假设连接异常时认为用户名不可用
+        }
     }
 
     /**
      * 构建玩家
+     *
      * @param loginChannel 网络连接通道
-     * @param userName 用户昵称
+     * @param userName     用户昵称
+     * @param password
      * @return 玩家
      */
-    public Player createPlayer(Channel loginChannel, String userName) {
+    public Player createPlayer(Channel loginChannel, String userName, String password) {
         int id = playerIdCreator.incrementAndGet();
-        Player player = new Player(id, userName, loginChannel);
-        userNamePlayerIds.putIfAbsent(userName, player.getId());
+        Player player = new Player(id, userName, password, loginChannel);
+        JedisUtil.hset(USER_NAME_PLAYER_IDS, userName, String.valueOf(id));
+        MyBatisUtils.insertPlayerInfo(player.getEntity());
         return player;
     }
 
@@ -159,5 +172,12 @@ public class LoginService {
      */
     public void putMessage(BaseServerMessage serverMessage) {
 
+    }
+
+    public void onPlayerRegisterSuccess(Player player) {
+    }
+
+    public Player loadPlayer(Channel senderChannel, String userName, String password) {
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
+import org.npc.kungfu.database.PlayerInfoEntity;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
@@ -17,13 +18,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class Player implements IPassenger<BaseMessage> {
 
     /**
-     * 玩家id
+     * 玩家信息
      */
-    private final int playerId;
-    /**
-     * 玩家昵称
-     */
-    private final String username;
+    private final PlayerInfoEntity entity;
     /**
      * 网络通道
      */
@@ -61,13 +58,20 @@ public class Player implements IPassenger<BaseMessage> {
     /**
      * @param playerId 玩家id
      * @param userName 玩家昵称
+     * @param password
      * @param channel  网络通道
      */
-    Player(int playerId, String userName, Channel channel) {
-        this.playerId = playerId;
-        this.username = userName;
+    Player(int playerId, String userName, String password, Channel channel) {
         this.channel = channel;
         this.messages = new ConcurrentLinkedQueue<>();
+
+        this.entity = new PlayerInfoEntity();
+        this.entity.setId(playerId);
+        this.entity.setUserName(userName);
+        this.entity.setNickName(userName);
+        this.entity.setPassword(password);
+        this.entity.setWeaponWinCount("[]");
+        this.entity.setWeaponUseCount("[]");
     }
 
     /**
@@ -84,8 +88,8 @@ public class Player implements IPassenger<BaseMessage> {
      */
     public void sendLoginSuccess() {
         LoginRespMessage resp = new LoginRespMessage();
-        resp.setPlayerId(playerId);
-        resp.setSuccess(Boolean.TRUE);
+        resp.setPlayerId(entity.getId());
+
         sendMessage(resp);
     }
 
@@ -137,7 +141,7 @@ public class Player implements IPassenger<BaseMessage> {
      */
     public void sendMessage(BaseClientMessage message) {
         channel.writeAndFlush(message);
-        System.out.println("send message playerId: " + this.playerId + " " + message.description());
+        System.out.println("send message playerId: " + this.entity.getId() + " " + message.description());
     }
 
     @Override
@@ -168,7 +172,7 @@ public class Player implements IPassenger<BaseMessage> {
                 return;
             }
             if (inMatch) {
-                MessageDispatcher.getInstance().dispatchMessage(new SSPlayerLogoutToMatch(playerId, this.roleId), null);
+                MessageDispatcher.getInstance().dispatchMessage(new SSPlayerLogoutToMatch(this.entity.getId(), this.roleId), null);
             }
             PlayerService.getService().removePlayer(this);
         }
@@ -179,11 +183,11 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public int getPlayerId() {
-        return this.playerId;
+        return this.entity.getId();
     }
 
     public String getUserName() {
-        return username;
+        return this.entity.getUserName();
     }
 
     public Channel getChannel() {
@@ -204,11 +208,18 @@ public class Player implements IPassenger<BaseMessage> {
 
     @Override
     public long getId() {
-        return playerId;
+        return entity.getId();
     }
 
     @Override
     public String description() {
-        return "playerId:" + playerId + " username:" + username + " inMatch:" + inMatch + " inBattle:" + inBattle;
+        return "playerId:" + entity.getId() + " username:" + entity.getUserName() + " inMatch:" + inMatch + " inBattle:" + inBattle;
+    }
+
+    public PlayerInfoEntity getEntity() {
+        return entity;
+    }
+
+    public void sendRegisterSuccess() {
     }
 }

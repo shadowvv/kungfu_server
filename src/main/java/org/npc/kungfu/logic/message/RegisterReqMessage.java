@@ -8,15 +8,15 @@ import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
 import org.npc.kungfu.platfame.bus.ITask;
 
-public class LoginReqMessage extends BaseClientMessage {
+public class RegisterReqMessage extends BaseClientMessage {
 
     @Expose
     private String userName;
     @Expose
     private String password;
 
-    public LoginReqMessage() {
-        super(MessageEnum.LOGIN_REQ.getId());
+    public RegisterReqMessage() {
+        super(MessageEnum.REGISTER_REQ.getId());
     }
 
     @Override
@@ -57,25 +57,17 @@ public class LoginReqMessage extends BaseClientMessage {
             LoginService.getService().ExitMutex(getSenderChannel());
             return;
         }
-
         // 如果用户名在线
         Player player = PlayerService.getService().getPlayer(userName);
         if (player != null) {
-            // 如果用户名在线，顶号
-            if (player.getChannel().isActive()) {
-                //TODO:顶号
-            } else {
-                // 如果用户名不在线，重新登录
-                SSPlayerChannelReconnect ssPlayerChannelReconnect = new SSPlayerChannelReconnect(player.getId(), getSenderChannel());
-                PlayerService.getService().putMessage(ssPlayerChannelReconnect);
-            }
+            getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.LOGIN_SAME_USERNAME.getCode()));
             LoginService.getService().ExitMutex(userName);
             LoginService.getService().ExitMutex(getSenderChannel());
             return;
         }
 
         // 创建玩家
-        player = LoginService.getService().loadPlayer(getSenderChannel(), userName, password);
+        player = LoginService.getService().createPlayer(getSenderChannel(), userName, password);
         if (player == null) {
             getSenderChannel().writeAndFlush(new ErrorMessage(getId(), ErrorCode.SYSTEM_ERROR.getCode()));
             LoginService.getService().enterUserNameMutex(userName);
@@ -84,8 +76,8 @@ public class LoginReqMessage extends BaseClientMessage {
             return;
         }
         // 登录成功
-        LoginService.getService().onPlayerLoginSuccess(player);
-        player.sendLoginSuccess();
+        LoginService.getService().onPlayerRegisterSuccess(player);
+        player.sendRegisterSuccess();
 
         // 退出互斥
         LoginService.getService().ExitMutex(userName);
@@ -94,6 +86,6 @@ public class LoginReqMessage extends BaseClientMessage {
 
     @Override
     public String description() {
-        return "login request message userName:" + userName;
+        return "";
     }
 }

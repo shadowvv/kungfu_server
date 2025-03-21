@@ -9,6 +9,10 @@ public enum MessageEnum {
 
     LOGIN_REQ(1001, LoginReqMessage.class),
     LOGIN_RESP(1002, LoginRespMessage.class),
+    REGISTER_REQ(1003, RegisterReqMessage.class),
+    REGISTER_RESP(1004, RegisterRespMessage.class),
+    RENAME_REQ(1005, RenameReqMessage.class),
+    RENAME_RESP(1006, RenameRespMessage.class),
 
     APPLY_BATTLE_REQ(2001, ApplyBattleReqMessage.class),
     APPLY_BATTLE_RESP(2002, ApplyBattleRespMessage.class),
