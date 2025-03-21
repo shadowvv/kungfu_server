@@ -35,7 +35,7 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/dependency</outputDirectory>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                             <!-- 可选：是否包含传递依赖 -->
                             <includeScope>runtime</includeScope>
                         </configuration>
