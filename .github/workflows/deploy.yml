@@ -37,34 +37,21 @@ jobs:
           source: "deploy/*"  # 上传 deploy 目录下的所有文件
           target: "/opt/myapp/"  # 服务器上的目标路径
 
-      - name: Deploy application
-        run: |
-          chmod +x deploy.sh
-          ./deploy.sh
+      - name: Upload deploy script to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.TENCENT_CLOUD_HOST }}
+          username: ${{ secrets.TENCENT_CLOUD_USERNAME }}
+          key: ${{ secrets.TENCENT_CLOUD_SSH_KEY }}
+          source: "deploy.sh"  # 本地脚本路径
+          target: "/opt/myapp/deploy.sh"  # 服务器上的目标路径
 
-#      - name: Restart Java Application
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.TENCENT_CLOUD_HOST }}
-#          username: ${{ secrets.TENCENT_CLOUD_USERNAME }}
-#          key: ${{ secrets.TENCENT_CLOUD_SSH_KEY }}
-#          script: |
-#            cd /opt/myapp
-#            LOG_FILE="/opt/myapp/logs/app.log"
-#            # 停止正在运行的 Java 应用程序（如果存在）
-#            if pgrep -f "KungFu_Server-1.0.jar"; then
-#              pkill -f "KungFu_Server-1.0.jar"
-#              echo "已停止现有的 Java 应用程序。"
-#            else
-#              echo "未找到现有的 Java 应用程序。"
-#            fi
-#            # 启动新的 Java 应用程序
-#            nohup java -jar KungFu_Server-1.0.jar > $LOG_FILE 2>&1 &
-#            echo "Java 应用程序已启动。日志可以在 $LOG_FILE 中找到。"
-#            sleep 10 # 等待 10 秒以确保应用程序正确启动
-#            if pgrep -f "KungFu_Server-1.0.jar"; then
-#              echo "Java 应用程序正在运行。"
-#            else
-#              echo "Java 应用程序启动失败。"
-#              exit 1
-#            fi
+      - name: Run deploy script on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.TENCENT_CLOUD_HOST }}
+          username: ${{ secrets.TENCENT_CLOUD_USERNAME }}
+          key: ${{ secrets.TENCENT_CLOUD_SSH_KEY }}
+          script: |
+            chmod +x /opt/myapp/deploy.sh  # 赋予脚本执行权限
+            /opt/myapp/deploy.sh  # 运行脚本

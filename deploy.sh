@@ -1,19 +1,8 @@
 #!/bin/bash
 
 # 变量
-JAR_FILE="/opt/myapp/deploy/KungFu_Server-1.0.jar"
+JAR_FILE="/opt/myapp/KungFu_Server-1.0.jar"
 LOG_FILE="/opt/myapp/logs/app.log"
-
-# 打印调试信息
-echo "当前工作目录：$(pwd)"
-echo "JAR文件路径：$JAR_FILE"
-echo "日志文件路径：$LOG_FILE"
-
-# 确保JAR文件存在
-if [ ! -f "$JAR_FILE" ]; then
-  echo "错误：在 $JAR_FILE 找不到JAR文件"
-  exit 1
-fi
 
 # 确保日志目录存在
 LOG_DIR=$(dirname "$LOG_FILE")
