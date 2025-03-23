@@ -14,7 +14,7 @@ check_app_running() {
 # 尝试启动 Java 应用程序
 start_app() {
   echo "启动 Java 应用程序..."
-  nohup java -jar /path/to/KungFu_Server-1.0.jar &
+  nohup java -jar /opt/myapp/deploy/KungFu_Server-1.0.jar &
   sleep 10  # 等待应用程序启动
 }
 
