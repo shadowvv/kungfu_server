@@ -9,7 +9,7 @@ public class LoginRespMessage extends BaseRespMessage {
     private PlayerInfoMessage playerInfo;
 
     public LoginRespMessage() {
-        super(1002);
+        super(MessageEnum.LOGIN_RESP.getId());
     }
 
     public PlayerInfoMessage getPlayerInfo() {

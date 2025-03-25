@@ -4,15 +4,24 @@ import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class MyBatisUtils {
+
+    private static final Logger logger = LoggerFactory.getLogger(MyBatisUtils.class);
     private static SqlSessionFactory sqlSessionFactory;
 
-    static {
+
+    public static void init() {
+        initialize();
+    }
+
+    private static void initialize() {
         try {
             // 读取 MyBatis 配置文件
             InputStream inputStream = Resources.getResourceAsStream("mybatis-config.xml");
@@ -35,25 +44,26 @@ public class MyBatisUtils {
         return sqlSessionFactory.openSession();
     }
 
-    public static void insertPlayerInfo(PlayerInfoEntity entity) {
+    public static Boolean insertPlayerInfo(PlayerInfoEntity entity) {
         try (SqlSession session = MyBatisUtils.getSession()) {
             PlayerInfoMapper userMapper = session.getMapper(PlayerInfoMapper.class);
             userMapper.insertPlayerInfo(entity.getId(), entity.getUserName(), entity.getPassword(), entity.getNickName(),
                     entity.getBattleCount(), entity.getWinCount(), entity.getWeaponUseCount(), entity.getWeaponWinCount());
             session.commit();
+            return true;
+        } catch (Exception e) {
+            logger.error("Failed to insert player info: {}", e.getMessage());
+            return false;
         }
     }
 
-    public static void main(String[] args) {
+    public static PlayerInfoEntity getPlayerInfo(String userName, String password) {
         try (SqlSession session = MyBatisUtils.getSession()) {
             PlayerInfoMapper userMapper = session.getMapper(PlayerInfoMapper.class);
-            PlayerInfoEntity entity = userMapper.getPlayerInfo("admin", "123456");
-            if (entity != null) {
-                System.out.println("查询到的用户列表：" + entity);
-            } else {
-                System.out.println("查询不到用户");
-            }
+            return userMapper.getPlayerInfo(userName, password);
+        } catch (Exception e) {
+            logger.error("Failed to get player info: {}", e.getMessage());
+            return null;
         }
     }
 }
-

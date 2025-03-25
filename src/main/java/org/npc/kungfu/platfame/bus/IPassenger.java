@@ -29,7 +29,9 @@ public interface IPassenger<T extends ITask> {
      * 处理器心跳
      */
     //TODO:考虑增加delta time
-    void heartbeat();
+    default void heartbeat() {
+
+    }
 
     /**
      * @return 业务处理器描述

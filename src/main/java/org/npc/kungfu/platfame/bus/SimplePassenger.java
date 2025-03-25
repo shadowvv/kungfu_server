@@ -44,11 +44,6 @@ public class SimplePassenger<T extends ITask> implements IPassenger<T> {
     }
 
     @Override
-    public void heartbeat() {
-
-    }
-
-    @Override
     public long getId() {
         return this.id;
     }

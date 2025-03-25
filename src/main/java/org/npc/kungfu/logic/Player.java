@@ -5,6 +5,7 @@ import org.npc.kungfu.database.PlayerInfoEntity;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
 import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
 import org.npc.kungfu.logic.message.LoginRespMessage;
+import org.npc.kungfu.logic.message.PlayerInfoMessage;
 import org.npc.kungfu.logic.message.SSPlayerLogoutToMatch;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
@@ -74,6 +75,13 @@ public class Player implements IPassenger<BaseMessage> {
         this.entity.setWeaponUseCount("[]");
     }
 
+    Player(Channel channel, PlayerInfoEntity entity) {
+        this.channel = channel;
+        this.messages = new ConcurrentLinkedQueue<>();
+
+        this.entity = entity;
+    }
+
     /**
      * 玩家选择武器，进入匹配
      * @param roleId     角色id
@@ -88,6 +96,18 @@ public class Player implements IPassenger<BaseMessage> {
      */
     public void sendLoginSuccess() {
         LoginRespMessage resp = new LoginRespMessage();
+        PlayerInfoMessage info = new PlayerInfoMessage();
+        info.setUserName(entity.getUserName());
+        info.setFavouriteWeapon(1);
+        info.setWinRate(1);
+        info.setBladeRate(1);
+        info.setSwordRate(1);
+        info.setSpearRate(1);
+        info.setBowRate(1);
+        info.setKnifeRate(1);
+        info.setPlayerId(entity.getId());
+
+        resp.setPlayerInfo(info);
         resp.setPlayerId(entity.getId());
 
         sendMessage(resp);
@@ -187,7 +207,8 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public String getUserName() {
-        return this.entity.getUserName();
+        //TODO:临时
+        return this.entity.getNickName();
     }
 
     public Channel getChannel() {
@@ -221,5 +242,21 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public void sendRegisterSuccess() {
+        LoginRespMessage resp = new LoginRespMessage();
+        PlayerInfoMessage info = new PlayerInfoMessage();
+        info.setUserName(entity.getUserName());
+        info.setFavouriteWeapon(1);
+        info.setWinRate(1);
+        info.setBladeRate(1);
+        info.setSwordRate(1);
+        info.setSpearRate(1);
+        info.setBowRate(1);
+        info.setKnifeRate(1);
+        info.setPlayerId(entity.getId());
+
+        resp.setPlayerInfo(info);
+        resp.setPlayerId(entity.getId());
+
+        sendMessage(resp);
     }
 }

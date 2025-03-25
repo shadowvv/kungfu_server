@@ -4,7 +4,7 @@
 <configuration>
     <!-- 开启日志 -->
     <settings>
-        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="logImpl" value="SLF4J"/>
     </settings>
 
     <!-- 配置 MyBatis 别名 -->
@@ -15,5 +15,6 @@
     <!-- 加载 Mapper XML 文件 -->
     <mappers>
         <mapper class="org.npc.kungfu.database.PlayerInfoMapper"/>
+        <mapper class="org.npc.kungfu.database.GameInfoMapper"/>
     </mappers>
 </configuration>

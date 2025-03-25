@@ -1,7 +1,14 @@
 package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
+import org.apache.ibatis.session.SqlSession;
+import org.npc.kungfu.database.GameInfoMapper;
 import org.npc.kungfu.database.MyBatisUtils;
+import org.npc.kungfu.database.PlayerInfoEntity;
+import org.npc.kungfu.logic.message.ErrorCode;
+import org.npc.kungfu.logic.message.ErrorMessage;
+import org.npc.kungfu.logic.message.MessageEnum;
+import org.npc.kungfu.logic.message.SSPlayerChannelReconnect;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.logic.message.base.BaseServerMessage;
@@ -9,6 +16,8 @@ import org.npc.kungfu.platfame.bus.BusStation;
 import org.npc.kungfu.platfame.bus.SimplePassenger;
 import org.npc.kungfu.platfame.bus.SoloPassengerBus;
 import org.npc.kungfu.redis.JedisUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,6 +27,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 登录服务
  */
 public class LoginService {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoginService.class);
 
     private static final String USER_NAME_PLAYER_IDS = "userNamePlayerIds";
 
@@ -41,24 +52,27 @@ public class LoginService {
      * 玩家id生成器
      */
     private AtomicInteger playerIdCreator;
+    private volatile boolean nextPlayerIdChanged = false;
     /**
      * 使用玩家昵称作为登录的互斥量
      */
-    private ConcurrentHashMap<String, Boolean> userNameMutex;
+    private final ConcurrentHashMap<String, Boolean> userNameLocks = new ConcurrentHashMap<>();
+
     /**
      * 使用网络连接作为登录的互斥量
      */
-    private ConcurrentHashMap<Channel, Boolean> channelMutex;
+    private final ConcurrentHashMap<Channel, Boolean> channelLocks = new ConcurrentHashMap<>();
 
     /**
      * 初始化
-     * @param station 调度器
+     *
+     * @param station      调度器
+     * @param nextPlayerId 下一个玩家id
      */
-    public void init(BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> station) {
+    public void init(BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> station, int nextPlayerId) {
         taskStation = station;
-        playerIdCreator = new AtomicInteger(0);
-        channelMutex = new ConcurrentHashMap<>();
-        userNameMutex = new ConcurrentHashMap<>();
+        playerIdCreator = new AtomicInteger(nextPlayerId);
+        logger.info("LoginService initialized with taskStation and playerIdCreator:{}.", nextPlayerId);
     }
 
     /**
@@ -70,20 +84,183 @@ public class LoginService {
     }
 
     /**
+     * 玩家断开连接
+     *
+     * @param channel 网络通道
+     */
+    public void onChannelInactive(Channel channel) {
+        logger.debug("Channel {} is inactive.", channel);
+        //TODO: Implement channel inactive handling
+    }
+
+    /**
+     * 接收服务器消息
+     *
+     * @param serverMessage 服务器消息
+     */
+    public void putMessage(BaseServerMessage serverMessage) {
+
+    }
+
+    public void onPlayerRegister(Channel channel, String userName, String password) {
+        logger.info("Processing player registration request for username: {}", userName);
+        // 如果channel已经关闭，则不处理
+        if (!channel.isActive()) {
+            logger.warn("Channel is inactive, registration request for username: {} ignored", userName);
+            return;
+        }
+        // 如果channel已经登录，则不处理
+        if (PlayerService.getService().getPlayerId(channel) != 0) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.LOGIN_CHANNEL_BIND_PLAYER.getCode()));
+            logger.warn("Channel is already bound to a player, registration request for username: {} ignored", userName);
+            return;
+        }
+        // 如果用户名正在登录，则不处理
+        Boolean userNameMutex = LoginService.getService().enterUserNameMutex(userName);
+        if (userNameMutex != null) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.LOGIN_IS_LOGGING.getCode()));
+            channel.close();
+            logger.warn("Username: {} is already in use, registration request ignored", userName);
+            return;
+        }
+        // 如果channel正在登录，则不处理
+        Boolean channelMutex = LoginService.getService().enterChannelMutex(channel);
+        if (channelMutex != null) {
+            LoginService.getService().ExitMutex(userName);
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.LOGIN_IS_LOGGING.getCode()));
+            channel.close();
+            logger.warn("Channel is already in use for registration, request for username: {} ignored", userName);
+            return;
+        }
+        // 如果用户名存在，则不处理
+        if (LoginService.getService().checkUserNameExist(userName)) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.LOGIN_SAME_USERNAME.getCode()));
+            LoginService.getService().ExitMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            logger.warn("Username: {} already exists, registration request ignored", userName);
+            return;
+        }
+        // 如果用户名在线
+        Player player = PlayerService.getService().getPlayer(userName);
+        if (player != null) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.LOGIN_SAME_USERNAME.getCode()));
+            LoginService.getService().ExitMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            logger.warn("Username: {} is already online, registration request ignored", userName);
+            return;
+        }
+
+        // 创建玩家
+        player = LoginService.getService().createPlayer(channel, userName, password);
+        if (player == null) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.REGISTER_REQ.getId(), ErrorCode.SYSTEM_ERROR.getCode()));
+            LoginService.getService().enterUserNameMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            channel.close();
+            logger.error("Failed to create player for username: {}", userName);
+            return;
+        }
+        // 登录成功
+        LoginService.getService().onPlayerRegisterSuccess(player);
+        player.sendRegisterSuccess();
+
+        // 退出互斥
+        LoginService.getService().ExitMutex(userName);
+        LoginService.getService().ExitMutex(channel);
+        logger.info("Player registration successful for username: {}", userName);
+    }
+
+    public void onPlayerLogin(Channel channel, String userName, String password) {
+        logger.info("Processing player login request for username: {}", userName);
+        // 如果channel已经关闭，则不处理
+        if (!channel.isActive()) {
+            logger.warn("Channel is inactive, login request for username: {} ignored", userName);
+            return;
+        }
+        // 如果channel已经登录，则不处理
+        if (PlayerService.getService().getPlayerId(channel) != 0) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.LOGIN_REQ.getId(), ErrorCode.LOGIN_CHANNEL_BIND_PLAYER.getCode()));
+            logger.warn("Channel is already bound to a player, login request for username: {} ignored", userName);
+            return;
+        }
+        // 如果用户名正在登录，则不处理
+        Boolean userNameMutex = LoginService.getService().enterUserNameMutex(userName);
+        if (userNameMutex != null) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.LOGIN_REQ.getId(), ErrorCode.LOGIN_IS_LOGGING.getCode()));
+            channel.close();
+            logger.warn("Username: {} is already in use, login request ignored", userName);
+            return;
+        }
+        // 如果channel正在登录，则不处理
+        Boolean channelMutex = LoginService.getService().enterChannelMutex(channel);
+        if (channelMutex != null) {
+            LoginService.getService().ExitMutex(userName);
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.LOGIN_REQ.getId(), ErrorCode.LOGIN_IS_LOGGING.getCode()));
+            channel.close();
+            logger.warn("Channel is already in use for login, request for username: {} ignored", userName);
+            return;
+        }
+        // 如果用户名存在，则不处理
+        if (!LoginService.getService().checkUserNameExist(userName)) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.LOGIN_REQ.getId(), ErrorCode.LOGIN_USERNAME_PASSWORD_ERROR.getCode()));
+            LoginService.getService().ExitMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            logger.warn("Username: {} not exists, login request ignored", userName);
+            return;
+        }
+
+        // 如果用户名在线
+        Player player = PlayerService.getService().getPlayer(userName);
+        if (player != null) {
+            // 如果用户名在线，顶号
+            if (player.getChannel().isActive()) {
+                //TODO:顶号
+            } else {
+                // 如果用户名不在线，重新登录
+                SSPlayerChannelReconnect ssPlayerChannelReconnect = new SSPlayerChannelReconnect(player.getId(), channel);
+                PlayerService.getService().putMessage(ssPlayerChannelReconnect);
+            }
+            LoginService.getService().ExitMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            logger.info("Player reconnected for username: {}", userName);
+            return;
+        }
+
+        // 创建玩家
+        player = LoginService.getService().loadPlayer(channel, userName, password);
+        if (player == null) {
+            channel.writeAndFlush(new ErrorMessage(MessageEnum.LOGIN_REQ.getId(), ErrorCode.SYSTEM_ERROR.getCode()));
+            LoginService.getService().ExitMutex(userName);
+            LoginService.getService().ExitMutex(channel);
+            channel.close();
+            logger.error("Failed to load player for username: {}", userName);
+            return;
+        }
+        // 登录成功
+        LoginService.getService().onPlayerLoginSuccess(player);
+        player.sendLoginSuccess();
+
+        // 退出互斥
+        LoginService.getService().ExitMutex(userName);
+        LoginService.getService().ExitMutex(channel);
+        logger.info("Player login successful for username: {}", userName);
+    }
+
+    /**
      * 进入互斥区
      * @param userName 用户昵称
      * @return 是否成功
      */
-    public Boolean enterUserNameMutex(String userName) {
-        return userNameMutex.putIfAbsent(userName, true);
+    private Boolean enterUserNameMutex(String userName) {
+        return userNameLocks.putIfAbsent(userName, Boolean.TRUE);
     }
 
     /**
      * 退出互斥区
      * @param userName 用户昵称
      */
-    public void ExitMutex(String userName) {
-        userNameMutex.remove(userName);
+    private void ExitMutex(String userName) {
+        userNameLocks.remove(userName);
     }
 
     /**
@@ -91,16 +268,16 @@ public class LoginService {
      * @param senderChannel 网络通道
      * @return 是否成功
      */
-    public Boolean enterChannelMutex(Channel senderChannel) {
-        return channelMutex.putIfAbsent(senderChannel, true);
+    private Boolean enterChannelMutex(Channel senderChannel) {
+        return channelLocks.putIfAbsent(senderChannel,Boolean.TRUE);
     }
 
     /**
      * 退出互斥区
      * @param senderChannel 网络通道
      */
-    public void ExitMutex(Channel senderChannel) {
-        channelMutex.remove(senderChannel);
+    private void ExitMutex(Channel senderChannel) {
+        channelLocks.remove(senderChannel);
     }
 
     /**
@@ -108,16 +285,16 @@ public class LoginService {
      * @param userName 用户昵称
      * @return 是否可用
      */
-    public boolean checkUserNameExist(String userName) {
+    private boolean checkUserNameExist(String userName) {
+        logger.debug("Checking if username {} exists.", userName);
         try {
             if (!JedisUtil.isConnectionOk()) {
-                System.err.println("Redis connection is not available.");
+                logger.error("Redis connection is not available.");
                 return false;
             }
             return JedisUtil.hget(USER_NAME_PLAYER_IDS, userName) != null;
         } catch (JedisConnectionException e) {
-            // 记录日志或进行其他异常处理
-            e.printStackTrace();
+            logger.error("Redis connection exception occurred.", e);
             return false; // 假设连接异常时认为用户名不可用
         }
     }
@@ -127,14 +304,18 @@ public class LoginService {
      *
      * @param loginChannel 网络连接通道
      * @param userName     用户昵称
-     * @param password
+     * @param password  密码
      * @return 玩家
      */
-    public Player createPlayer(Channel loginChannel, String userName, String password) {
+    private Player createPlayer(Channel loginChannel, String userName, String password) {
         int id = playerIdCreator.incrementAndGet();
+        nextPlayerIdChanged = true;
         Player player = new Player(id, userName, password, loginChannel);
+        if (!MyBatisUtils.insertPlayerInfo(player.getEntity())) {
+            return null;
+        }
         JedisUtil.hset(USER_NAME_PLAYER_IDS, userName, String.valueOf(id));
-        MyBatisUtils.insertPlayerInfo(player.getEntity());
+        logger.info("Player created with id: {}, username: {}", id, userName);
         return player;
     }
 
@@ -142,42 +323,32 @@ public class LoginService {
      * 登录成功
      * @param player 玩家
      */
-    //TODO:
-    public void onPlayerLoginSuccess(Player player) {
+    private void onPlayerLoginSuccess(Player player) {
         PlayerService.getService().onPlayerLoginSuccess(player);
     }
 
-    /**
-     * 加载玩家
-     * @param playerId 玩家id
-     * @param loginChannel 用户网络通道
-     * @return 玩家
-     */
-    //TODO:
-    public Player LoadPlayer(int playerId, Channel loginChannel) {
+    private void onPlayerRegisterSuccess(Player player) {
+        PlayerService.getService().onPlayerLoginSuccess(player);
+    }
+
+    private Player loadPlayer(Channel senderChannel, String userName, String password) {
+        PlayerInfoEntity entity = MyBatisUtils.getPlayerInfo(userName, password);
+        if (entity != null) {
+            return new Player(senderChannel, entity);
+        }
         return null;
     }
 
-    /**
-     * 玩家断开连接
-     * @param channel 网络通道
-     */
-    //TODO:
-    public void onChannelInactive(Channel channel) {
-    }
-
-    /**
-     * 接收服务器消息
-     * @param serverMessage 服务器消息
-     */
-    public void putMessage(BaseServerMessage serverMessage) {
-
-    }
-
-    public void onPlayerRegisterSuccess(Player player) {
-    }
-
-    public Player loadPlayer(Channel senderChannel, String userName, String password) {
-        return null;
+    public void updateNextPlayerIdToDB() {
+        if (!nextPlayerIdChanged) {
+            return;
+        }
+        try (SqlSession session = MyBatisUtils.getSession()) {
+            GameInfoMapper gameInfoMapper = session.getMapper(GameInfoMapper.class);
+            gameInfoMapper.updateGameInfo(playerIdCreator.get());
+            session.commit();
+        } catch (Exception e) {
+            logger.error("Failed to get game info: {}", e.getMessage());
+        }
     }
 }

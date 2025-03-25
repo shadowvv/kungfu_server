@@ -1,5 +1,7 @@
 package org.npc.kungfu.redis;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
@@ -10,9 +12,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class JedisUtil {
-    private static final JedisPool jedisPool;
+    private static JedisPool jedisPool;
+    private static final Logger logger = LoggerFactory.getLogger(JedisUtil.class);
 
-    static {
+    public static void init() {
         // Jedis 连接池配置
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(50); // 最大连接数
@@ -22,8 +25,14 @@ public class JedisUtil {
         poolConfig.setTestOnReturn(true); // 归还连接时检测可用性
         poolConfig.setBlockWhenExhausted(true); // 连接耗尽时是否阻塞等待
 
+        // 记录 JedisPoolConfig 的关键参数
+        logger.info("JedisPoolConfig - MaxTotal: {}, MaxIdle: {}, MinIdle: {}, TestOnBorrow: {}, TestOnReturn: {}, BlockWhenExhausted: {}",
+                poolConfig.getMaxTotal(), poolConfig.getMaxIdle(), poolConfig.getMinIdle(),
+                poolConfig.getTestOnBorrow(), poolConfig.getTestOnReturn(), poolConfig.getBlockWhenExhausted());
+
         // 初始化连接池（单机模式）
         jedisPool = new JedisPool(poolConfig, "localhost", 6379);
+        logger.info("JedisPool initialized successfully with host: localhost and port: 6379.");
     }
 
     /**
@@ -168,27 +177,6 @@ public class JedisUtil {
         if (jedisPool != null) {
             jedisPool.close();
         }
-    }
-
-    public static void main(String[] args) {
-        // 设置 Key
-        JedisUtil.set("user:1001", "npc_kungfu");
-        System.out.println("获取 user:1001 -> " + JedisUtil.get("user:1001"));
-
-        // 操作 Hash
-        JedisUtil.hset("player:2001", "name", "Warrior");
-        System.out.println("获取 player:2001 name -> " + JedisUtil.hget("player:2001", "name"));
-
-        // 处理 List
-        JedisUtil.lpush("queue", "task1", "task2", "task3");
-        System.out.println("任务队列: " + JedisUtil.lrange("queue", 0, -1));
-
-        // 过期时间
-        JedisUtil.expire("user:1001", 10);
-        System.out.println("TTL user:1001 -> " + JedisUtil.ttl("user:1001"));
-
-        // 关闭连接池（应用退出时）
-        JedisUtil.closePool();
     }
 }
 
