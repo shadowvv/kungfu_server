@@ -5,23 +5,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class DruidDataSourceFactory {
     private static final DruidDataSource dataSource = new DruidDataSource();
     private static final Logger logger = LoggerFactory.getLogger(DruidDataSourceFactory.class);
 
-
     public static void init() {
         initialize();
     }
 
     private static void initialize() {
-        try {
+        try (InputStream inputStream = DruidDataSourceFactory.class.getClassLoader().getResourceAsStream("druid.properties")) {
+            if (inputStream == null) {
+                throw new RuntimeException("druid.properties 文件未找到");
+            }
+
             Properties properties = new Properties();
-            properties.load(new FileInputStream("src/main/resources/druid.properties"));
+            properties.load(inputStream);
 
             dataSource.setDriverClassName(properties.getProperty("jdbc.driver"));
             dataSource.setUrl(properties.getProperty("jdbc.url"));
