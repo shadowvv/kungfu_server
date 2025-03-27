@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # 变量
-JAR_FILE="/opt/myapp/Deploy/KungFu_Server-1.0.jar"
-LIB_DIR="/opt/myapp/Deploy/lib"
+JAR_FILE="/opt/myapp/deploy/KungFu_Server-1.0.jar"
+LIB_DIR="/opt/myapp/deploy/lib"
 
 LOG_FILE="/opt/myapp/logs/app.log"
 
