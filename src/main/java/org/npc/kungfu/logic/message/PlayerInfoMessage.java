@@ -2,6 +2,8 @@ package org.npc.kungfu.logic.message;
 
 import com.google.gson.annotations.Expose;
 
+import java.util.Map;
+
 public class PlayerInfoMessage {
 
     @Expose
@@ -9,19 +11,11 @@ public class PlayerInfoMessage {
     @Expose
     private String userName;
     @Expose
-    private int favouriteWeapon;
+    private String nickName;
     @Expose
-    private int winRate;
+    private Map<Integer, Integer> weaponUseCountMap;
     @Expose
-    private int bladeRate;
-    @Expose
-    private int swordRate;
-    @Expose
-    private int spearRate;
-    @Expose
-    private int bowRate;
-    @Expose
-    private int knifeRate;
+    private Map<Integer, Integer> weaponWinCountMap;
 
     public PlayerInfoMessage() {
     }
@@ -42,59 +36,27 @@ public class PlayerInfoMessage {
         this.userName = userName;
     }
 
-    public int getFavouriteWeapon() {
-        return favouriteWeapon;
+    public String getNickName() {
+        return nickName;
     }
 
-    public void setFavouriteWeapon(int favouriteWeapon) {
-        this.favouriteWeapon = favouriteWeapon;
+    public void setNickName(String nickName) {
+        this.nickName = nickName;
     }
 
-    public int getWinRate() {
-        return winRate;
+    public Map<Integer, Integer> getWeaponUseCountMap() {
+        return weaponUseCountMap;
     }
 
-    public void setWinRate(int winRate) {
-        this.winRate = winRate;
+    public void setWeaponUseCountMap(Map<Integer, Integer> weaponUseCountMap) {
+        this.weaponUseCountMap = weaponUseCountMap;
     }
 
-    public int getBladeRate() {
-        return bladeRate;
+    public Map<Integer, Integer> getWeaponWinCountMap() {
+        return weaponWinCountMap;
     }
 
-    public void setBladeRate(int bladeRate) {
-        this.bladeRate = bladeRate;
-    }
-
-    public int getSwordRate() {
-        return swordRate;
-    }
-
-    public void setSwordRate(int swordRate) {
-        this.swordRate = swordRate;
-    }
-
-    public int getSpearRate() {
-        return spearRate;
-    }
-
-    public void setSpearRate(int spearRate) {
-        this.spearRate = spearRate;
-    }
-
-    public int getBowRate() {
-        return bowRate;
-    }
-
-    public void setBowRate(int bowRate) {
-        this.bowRate = bowRate;
-    }
-
-    public int getKnifeRate() {
-        return knifeRate;
-    }
-
-    public void setKnifeRate(int knifeRate) {
-        this.knifeRate = knifeRate;
+    public void setWeaponWinCountMap(Map<Integer, Integer> weaponWinCountMap) {
+        this.weaponWinCountMap = weaponWinCountMap;
     }
 }

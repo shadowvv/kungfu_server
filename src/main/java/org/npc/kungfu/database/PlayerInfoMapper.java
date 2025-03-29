@@ -9,14 +9,11 @@ import java.util.List;
 
 public interface PlayerInfoMapper {
 
-    @Insert("INSERT INTO player_info(id, userName, password, nickName, battleCount, winCount, weaponUseCount, weaponWinCount) " +
-            "VALUES (#{id}, #{userName}, #{password}, #{nickName}, #{battleCount}, #{winCount}, #{weaponUseCount}, #{weaponWinCount})")
-    void insertPlayerInfo(@Param("id") Integer id, @Param("userName") String userName, @Param("password") String password,
-                          @Param("nickName") String nickName, @Param("battleCount") Integer battleCount,
-                          @Param("winCount") Integer winCount, @Param("weaponUseCount") String weaponUseCount,
-                          @Param("weaponWinCount") String weaponWinCount);
+    @Insert("INSERT INTO player_info(id, userName, password, nickName, weaponUseCount, weaponWinCount) " +
+            "VALUES (#{id}, #{userName}, #{password}, #{nickName}, #{weaponUseCount}, #{weaponWinCount})")
+    void insertPlayerInfo(PlayerInfoEntity playerInfo);
 
-    @Select("SELECT id, nickName, battleCount, winCount, weaponUseCount, weaponWinCount " +
+    @Select("SELECT id, nickName, weaponUseCount, weaponWinCount " +
             "FROM player_info WHERE userName = #{userName} AND password = #{password}")
     PlayerInfoEntity getPlayerInfo(@Param("userName") String userName, @Param("password") String password);
 
@@ -27,6 +24,10 @@ public interface PlayerInfoMapper {
     List<String> getAllPlayerUserNames();
 
     @Update("UPDATE player_info SET nickName = #{nickName} WHERE id = #{playerId}")
-    void updatePlayerInfo(@Param("playerId") Integer playerId, @Param("nickName") String nickName);
+    void updatePlayerNickName(@Param("playerId") Integer playerId, @Param("nickName") String nickName);
+
+    @Update("UPDATE player_info SET nickName = #{nickName}" +
+            "weaponUseCount = #{weaponUseCount}, weaponWinCount = #{weaponWinCount} WHERE id = #{id}")
+    void updatePlayerWeaponData(PlayerInfoEntity playerInfo);
 
 }

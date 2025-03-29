@@ -26,3 +26,7 @@ CREATE TABLE `player_info`
 ALTER TABLE `kungfu`.`game_param`
     ADD COLUMN `id` INT NOT NULL DEFAULT 1 FIRST,
     ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `kungfu`.`player_info`
+    DROP COLUMN `winCount`,
+    DROP COLUMN `battleCount`;

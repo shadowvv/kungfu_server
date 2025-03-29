@@ -56,20 +56,18 @@ public class Player implements IPassenger<BaseMessage> {
     /**
      * @param playerId 玩家id
      * @param userName 玩家昵称
-     * @param password
+     * @param password 密码
      * @param channel  网络通道
      */
     Player(int playerId, String userName, String password, Channel channel) {
         this.channel = channel;
         this.messages = new ConcurrentLinkedQueue<>();
 
-        this.entity = new PlayerInfoEntity();
+        this.entity = new PlayerInfoEntity(playerId, userName, userName, password);
         this.entity.setId(playerId);
         this.entity.setUserName(userName);
         this.entity.setNickName(userName);
         this.entity.setPassword(password);
-        this.entity.setWeaponWinCount("[]");
-        this.entity.setWeaponUseCount("[]");
     }
 
     Player(Channel channel, PlayerInfoEntity entity) {
@@ -93,21 +91,21 @@ public class Player implements IPassenger<BaseMessage> {
      */
     public void sendLoginSuccess() {
         LoginRespMessage resp = new LoginRespMessage();
-        PlayerInfoMessage info = new PlayerInfoMessage();
-        info.setUserName(entity.getUserName());
-        info.setFavouriteWeapon(1);
-        info.setWinRate(1);
-        info.setBladeRate(1);
-        info.setSwordRate(1);
-        info.setSpearRate(1);
-        info.setBowRate(1);
-        info.setKnifeRate(1);
-        info.setPlayerId(entity.getId());
-
+        PlayerInfoMessage info = getPlayerInfo();
         resp.setPlayerInfo(info);
         resp.setPlayerId(entity.getId());
 
         sendMessage(resp);
+    }
+
+    private PlayerInfoMessage getPlayerInfo() {
+        PlayerInfoMessage info = new PlayerInfoMessage();
+        info.setPlayerId(entity.getId());
+        info.setUserName(entity.getUserName());
+        info.setNickName(entity.getNickName());
+        info.setWeaponUseCountMap(entity.getWeaponUseCountMap());
+        info.setWeaponWinCountMap(entity.getWeaponWinCountMap());
+        return info;
     }
 
     /**
@@ -240,16 +238,8 @@ public class Player implements IPassenger<BaseMessage> {
 
     public void sendRegisterSuccess() {
         RegisterRespMessage resp = new RegisterRespMessage();
-        PlayerInfoMessage info = new PlayerInfoMessage();
-        info.setUserName(entity.getUserName());
-        info.setFavouriteWeapon(1);
-        info.setWinRate(1);
-        info.setBladeRate(1);
-        info.setSwordRate(1);
-        info.setSpearRate(1);
-        info.setBowRate(1);
-        info.setKnifeRate(1);
-        info.setPlayerId(entity.getId());
+        PlayerInfoMessage info = getPlayerInfo();
+        resp.setPlayerInfo(info);
 
         resp.setPlayerInfo(info);
         resp.setPlayerId(entity.getId());

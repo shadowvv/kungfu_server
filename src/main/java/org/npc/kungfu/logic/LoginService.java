@@ -341,7 +341,7 @@ public class LoginService {
         int id = playerIdCreator.incrementAndGet();
         nextPlayerIdChanged = true;
         Player player = new Player(id, userName, password, loginChannel);
-        if (!MyBatisUtils.insertPlayerInfo(player.getEntity())) {
+        if (!MyBatisUtils.insertPlayerInfo(player.getEntity().buildWeaponJson())) {
             return null;
         }
         JedisUtil.hset(USER_NAME_PLAYER_IDS, userName, String.valueOf(id));

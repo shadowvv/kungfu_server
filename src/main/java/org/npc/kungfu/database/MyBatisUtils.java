@@ -47,8 +47,7 @@ public class MyBatisUtils {
     public static Boolean insertPlayerInfo(PlayerInfoEntity entity) {
         try (SqlSession session = MyBatisUtils.getSession()) {
             PlayerInfoMapper userMapper = session.getMapper(PlayerInfoMapper.class);
-            userMapper.insertPlayerInfo(entity.getId(), entity.getUserName(), entity.getPassword(), entity.getNickName(),
-                    entity.getBattleCount(), entity.getWinCount(), entity.getWeaponUseCount(), entity.getWeaponWinCount());
+            userMapper.insertPlayerInfo(entity);
             session.commit();
             return true;
         } catch (Exception e) {
