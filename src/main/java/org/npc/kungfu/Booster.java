@@ -1,9 +1,6 @@
 package org.npc.kungfu;
 
-import org.apache.ibatis.session.SqlSession;
 import org.npc.kungfu.database.DruidDataSourceFactory;
-import org.npc.kungfu.database.GameInfoEntity;
-import org.npc.kungfu.database.GameInfoMapper;
 import org.npc.kungfu.database.MyBatisUtils;
 import org.npc.kungfu.logic.*;
 import org.npc.kungfu.logic.battle.BattleRing;
@@ -43,18 +40,8 @@ public class Booster {
         JedisUtil.init();
         logger.info("Jedis initialized successfully.");
 
-        GameInfoEntity gameInfoEntity = null;
-        try (SqlSession session = MyBatisUtils.getSession()) {
-            GameInfoMapper gameInfoMapper = session.getMapper(GameInfoMapper.class);
-            gameInfoEntity = gameInfoMapper.getGameInfo();
-            session.commit();
-        } catch (Exception e) {
-            logger.error("Failed to get game info: {}", e.getMessage());
-            return;
-        }
-
         initializeMainSingleThread();
-        initializeLoginService(gameInfoEntity.getNextPlayerId());
+        initializeLoginService();
         initializePlayerService();
         initializeMatchService();
         initializeBattleService();
@@ -76,12 +63,12 @@ public class Booster {
         logger.info("Main Single Thread initialized successfully.");
     }
 
-    private static void initializeLoginService(int nextPlayerId) {
+    private static void initializeLoginService() {
         logger.info("Initializing Login Service with THREAD_NUM: {}, MAX_QUEUE_SIZE: {}, TIMEOUT: {}...", THREAD_NUM, INITIAL_DELAY, TICK_PERIOD);
         SimpleBusStation<BaseMessage> loginStation = new SimpleBusStation<>(THREAD_NUM, "login");
         StationDriver loginDriver = new StationDriver(loginStation, INITIAL_DELAY, TICK_PERIOD);
         loginDriver.runStation();
-        LoginService.getService().init(loginStation, nextPlayerId);
+        LoginService.getService().init(loginStation);
         logger.info("Login Service initialized successfully.");
     }
 

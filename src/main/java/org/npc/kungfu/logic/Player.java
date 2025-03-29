@@ -3,10 +3,7 @@ package org.npc.kungfu.logic;
 import io.netty.channel.Channel;
 import org.npc.kungfu.database.PlayerInfoEntity;
 import org.npc.kungfu.logic.constant.PlayerWeaponEnum;
-import org.npc.kungfu.logic.message.ApplyBattleRespMessage;
-import org.npc.kungfu.logic.message.LoginRespMessage;
-import org.npc.kungfu.logic.message.PlayerInfoMessage;
-import org.npc.kungfu.logic.message.SSPlayerLogoutToMatch;
+import org.npc.kungfu.logic.message.*;
 import org.npc.kungfu.logic.message.base.BaseClientMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
@@ -242,7 +239,7 @@ public class Player implements IPassenger<BaseMessage> {
     }
 
     public void sendRegisterSuccess() {
-        LoginRespMessage resp = new LoginRespMessage();
+        RegisterRespMessage resp = new RegisterRespMessage();
         PlayerInfoMessage info = new PlayerInfoMessage();
         info.setUserName(entity.getUserName());
         info.setFavouriteWeapon(1);

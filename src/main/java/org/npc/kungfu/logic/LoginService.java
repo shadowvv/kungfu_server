@@ -2,9 +2,7 @@ package org.npc.kungfu.logic;
 
 import io.netty.channel.Channel;
 import org.apache.ibatis.session.SqlSession;
-import org.npc.kungfu.database.GameInfoMapper;
-import org.npc.kungfu.database.MyBatisUtils;
-import org.npc.kungfu.database.PlayerInfoEntity;
+import org.npc.kungfu.database.*;
 import org.npc.kungfu.logic.message.ErrorCode;
 import org.npc.kungfu.logic.message.ErrorMessage;
 import org.npc.kungfu.logic.message.MessageEnum;
@@ -20,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,12 +69,40 @@ public class LoginService {
      * 初始化
      *
      * @param station      调度器
-     * @param nextPlayerId 下一个玩家id
      */
-    public void init(BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> station, int nextPlayerId) {
+    public void init(BusStation<SoloPassengerBus<SimplePassenger<BaseMessage>, BaseMessage>, SimplePassenger<BaseMessage>, BaseMessage> station) {
         taskStation = station;
-        playerIdCreator = new AtomicInteger(nextPlayerId);
-        logger.info("LoginService initialized with taskStation and playerIdCreator:{}.", nextPlayerId);
+
+        logger.info("load nextPlayerId and load all userName to Redis");
+        GameInfoEntity gameInfoEntity = null;
+        List<String> userNames = new ArrayList<>();
+        try (SqlSession session = MyBatisUtils.getSession()) {
+            GameInfoMapper gameInfoMapper = session.getMapper(GameInfoMapper.class);
+            gameInfoEntity = gameInfoMapper.getGameInfo();
+
+            PlayerInfoMapper playerInfoMapper = session.getMapper(PlayerInfoMapper.class);
+            userNames = playerInfoMapper.getAllPlayerUserNames();
+
+            session.commit(); // 统一提交事务
+        } catch (Exception e) {
+            logger.error("Failed to get game info: {}", e.getMessage());
+            return;
+        }
+
+        if (!JedisUtil.isConnectionOk()) {
+            logger.error("Redis connection is not available.");
+            return;
+        }
+
+        Map<String, String> userNameMap = new HashMap<>();
+        for (String nickName : userNames) {
+            userNameMap.put(nickName, "1");
+        }
+        JedisUtil.hmset(USER_NAME_PLAYER_IDS, userNameMap);
+
+
+        playerIdCreator = new AtomicInteger(gameInfoEntity.getNextPlayerId());
+        logger.info("LoginService initialized with taskStation and playerIdCreator:{}.", gameInfoEntity.getNextPlayerId());
     }
 
     /**

@@ -5,6 +5,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 public interface PlayerInfoMapper {
 
     @Insert("INSERT INTO player_info(id, userName, password, nickName, battleCount, winCount, weaponUseCount, weaponWinCount) " +
@@ -21,6 +23,10 @@ public interface PlayerInfoMapper {
     @Select("SELECT id FROM player_info WHERE userName = #{userName}")
     Integer getPlayerId(@Param("userName") String userName);
 
+    @Select("SELECT player_info.userName FROM player_info")
+    List<String> getAllPlayerUserNames();
+
     @Update("UPDATE player_info SET nickName = #{nickName} WHERE id = #{playerId}")
     void updatePlayerInfo(@Param("playerId") Integer playerId, @Param("nickName") String nickName);
+
 }

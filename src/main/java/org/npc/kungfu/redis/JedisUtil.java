@@ -94,6 +94,12 @@ public class JedisUtil {
         }
     }
 
+    public static void hmset(String userNamePlayerIds, Map<String, String> nickNameMap) {
+        try (Jedis jedis = getJedis()) {
+            jedis.hmset(userNamePlayerIds, nickNameMap);
+        }
+    }
+
     public static String hget(String key, String field) {
         try (Jedis jedis = getJedis()) {
             return jedis.hget(key, field);
