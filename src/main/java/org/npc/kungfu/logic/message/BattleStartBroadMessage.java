@@ -3,18 +3,23 @@ package org.npc.kungfu.logic.message;
 import com.google.gson.annotations.Expose;
 import org.npc.kungfu.logic.message.base.BaseRespMessage;
 
-public class BattleStartPushMessage extends BaseRespMessage {
+import java.util.List;
+
+public class BattleStartBroadMessage extends BaseRespMessage {
 
     @Expose
-    private int gameState;
+    List<RoleMessage> roles;
 
-    public BattleStartPushMessage(int gameState) {
-        super(10002);
-        this.gameState = gameState;
+    public BattleStartBroadMessage() {
+        super(MessageEnum.BATTLE_START_BROAD_MESSAGE.getId());
     }
 
-    public int getGameState() {
-        return gameState;
+    public List<RoleMessage> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<RoleMessage> roles) {
+        this.roles = roles;
     }
 
     @Override

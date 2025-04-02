@@ -11,7 +11,7 @@ public class ApplyBattleRespMessage extends BaseRespMessage {
     private int weaponType;
 
     public ApplyBattleRespMessage() {
-        super(2002);
+        super(MessageEnum.APPLY_BATTLE_RESP.getId());
     }
 
     public int getRoleId() {

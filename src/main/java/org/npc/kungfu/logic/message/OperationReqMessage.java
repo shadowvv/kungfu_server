@@ -19,7 +19,7 @@ public class OperationReqMessage extends BaseClientBattleMessage {
     private BattleRole role;
 
     public OperationReqMessage() {
-        super(3001);
+        super(MessageEnum.OPERATION_REQ.getId());
     }
 
     @Override

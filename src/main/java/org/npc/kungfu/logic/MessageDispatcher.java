@@ -60,6 +60,8 @@ public class MessageDispatcher implements IMessageDispatcher {
                 break;
             }
             case MATCH_MESSAGE: {
+                long playerId = PlayerService.getService().getPlayerId(senderChannel);
+                clientMessage.setPlayerId(playerId);
                 MatchService.getService().putMessage(clientMessage);
                 break;
             }

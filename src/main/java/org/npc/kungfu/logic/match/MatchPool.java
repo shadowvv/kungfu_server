@@ -1,10 +1,12 @@
 package org.npc.kungfu.logic.match;
 
+import org.npc.kungfu.logic.Player;
+import org.npc.kungfu.logic.PlayerService;
 import org.npc.kungfu.logic.battle.BattleService;
 import org.npc.kungfu.logic.message.ErrorCode;
 import org.npc.kungfu.logic.message.ErrorMessage;
 import org.npc.kungfu.logic.message.MatchResultBroadMessage;
-import org.npc.kungfu.logic.message.RoleMessage;
+import org.npc.kungfu.logic.message.PlayerInfoMessage;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.SimplePassenger;
 
@@ -123,19 +125,12 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
      */
     private MatchResultBroadMessage buildMatchResultBroadMessage(List<MatchRole> list) {
         MatchResultBroadMessage matchResultBroadMessage = new MatchResultBroadMessage();
-        List<RoleMessage> roleMessages = new ArrayList<>();
+        List<PlayerInfoMessage> playerInfoMessages = new ArrayList<>();
         for (MatchRole role : list) {
-            RoleMessage roleMessage = new RoleMessage();
-            roleMessage.setRoleId(role.getRoleId());
-            roleMessage.setUserName(role.getUsername());
-            roleMessage.setWeaponType(role.getWeaponType().getTypeId());
-            roleMessage.setX(role.getCenter().getX());
-            roleMessage.setY(role.getCenter().getY());
-            roleMessage.setFaceAngle(role.getFaceAngle());
-            roleMessage.setHp(5);
-            roleMessages.add(roleMessage);
+            Player player = PlayerService.getService().getPlayer(role.getPlayerId());
+            playerInfoMessages.add(player.getPlayerInfo());
         }
-        matchResultBroadMessage.setRoles(roleMessages);
+        matchResultBroadMessage.setPlayerInfoList(playerInfoMessages);
         return matchResultBroadMessage;
     }
 

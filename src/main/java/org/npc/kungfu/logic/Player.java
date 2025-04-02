@@ -32,6 +32,7 @@ public class Player implements IPassenger<BaseMessage> {
      * 玩家角色id
      */
     private int roleId;
+    private int weaponType;
     /**
      * 匹配id
      */
@@ -39,7 +40,7 @@ public class Player implements IPassenger<BaseMessage> {
     /**
      * 玩家所在战斗id
      */
-    private int battleId;
+    private long battleId;
     /**
      * 玩家是否在匹配
      */
@@ -79,10 +80,13 @@ public class Player implements IPassenger<BaseMessage> {
 
     /**
      * 玩家选择武器，进入匹配
+     *
      * @param roleId     角色id
+     * @param weaponType 武器类型
      */
-    public void onPlayerApplyBattle(int roleId) {
+    public void onPlayerApplyBattle(int roleId, int weaponType) {
         this.roleId = roleId;
+        this.weaponType = weaponType;
         this.inMatch = true;
     }
 
@@ -98,13 +102,15 @@ public class Player implements IPassenger<BaseMessage> {
         sendMessage(resp);
     }
 
-    private PlayerInfoMessage getPlayerInfo() {
+    public PlayerInfoMessage getPlayerInfo() {
         PlayerInfoMessage info = new PlayerInfoMessage();
         info.setPlayerId(entity.getId());
         info.setUserName(entity.getUserName());
         info.setNickName(entity.getNickName());
         info.setWeaponUseCountMap(entity.getWeaponUseCountMap());
         info.setWeaponWinCountMap(entity.getWeaponWinCountMap());
+        info.setRoleId(roleId);
+        info.setWeaponType(weaponType);
         return info;
     }
 
@@ -218,8 +224,13 @@ public class Player implements IPassenger<BaseMessage> {
         return inMatch;
     }
 
-    public int getBattleId() {
+    public long getBattleId() {
         return battleId;
+    }
+
+    public void setBattleId(long battleId) {
+        this.battleId = battleId;
+        this.inBattle = true;
     }
 
     @Override

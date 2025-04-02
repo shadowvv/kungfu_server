@@ -13,7 +13,7 @@ public class BattleResultBroadMessage extends BaseRespMessage {
     private int winRoleId;
 
     public BattleResultBroadMessage() {
-        super(10003);
+        super(MessageEnum.BATTLE_RESULT_BROAD.getId());
     }
 
     @Override

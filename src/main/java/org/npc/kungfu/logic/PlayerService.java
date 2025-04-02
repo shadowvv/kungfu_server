@@ -128,6 +128,18 @@ public class PlayerService {
     }
 
     /**
+     * @param channel
+     * @return
+     */
+    public Player getPlayer(Channel channel) {
+        if (!channelPlayerIds.containsKey(channel)) {
+            return null;
+        }
+        long playerId = channelPlayerIds.get(channel);
+        return idPlayers.get(playerId);
+    }
+
+    /**
      * @param channel 通道
      * @return 玩家
      */

@@ -9,7 +9,7 @@ public class OperationRespMessage extends BaseRespMessage {
     private boolean success;
 
     public OperationRespMessage() {
-        super(4002);
+        super(MessageEnum.OPERATION_RESP.getId());
     }
 
     @Override

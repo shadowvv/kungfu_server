@@ -11,7 +11,7 @@ public class SSEnterMatch extends BaseServerMatchMessage {
     private MatchRole role;
 
     public SSEnterMatch(MatchRole role) {
-        super(20003);
+        super(MessageEnum.SS_ENTER_MATCH.getId());
         this.role = role;
     }
 

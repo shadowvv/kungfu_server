@@ -19,7 +19,7 @@ public class SSPlayerLogoutToMatch extends BaseServerMatchMessage {
      * @param roleId   角色id
      */
     public SSPlayerLogoutToMatch(int playerId, long roleId) {
-        super(20004);
+        super(MessageEnum.SS_LOGOUT_TO_MATCH.getId());
         this.playerId = playerId;
         this.roleId = roleId;
     }

@@ -8,7 +8,7 @@ public class SSPlayerChannelInactive extends BaseServerPlayerMessage {
     private final long playerId;
 
     public SSPlayerChannelInactive(long playerId) {
-        super(20001);
+        super(MessageEnum.SS_PLAYER_CHANNEL_INACTIVE.getId());
         this.playerId = playerId;
     }
 

@@ -11,7 +11,7 @@ public class SSPlayerChannelReconnect extends BaseServerPlayerMessage {
     private final Channel channel;
 
     public SSPlayerChannelReconnect(long playerId, Channel channel) {
-        super(20002);
+        super(MessageEnum.SS_PLAYER_CHANNEL_RECONNECT.getId());
         this.playerId = playerId;
         this.channel = channel;
     }

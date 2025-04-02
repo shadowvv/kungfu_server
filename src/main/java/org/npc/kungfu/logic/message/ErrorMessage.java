@@ -12,7 +12,7 @@ public class ErrorMessage extends BaseRespMessage {
     private int errorCode;
 
     public ErrorMessage() {
-        super(9999);
+        super(MessageEnum.ERROR_MESSAGE.getId());
     }
 
     public ErrorMessage(int reqId, int errorCode) {

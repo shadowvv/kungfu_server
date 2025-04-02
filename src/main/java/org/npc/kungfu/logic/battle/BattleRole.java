@@ -21,7 +21,7 @@ public class BattleRole extends BaseRole {
     /**
      * 角色所在战斗id
      */
-    private int battleId;
+    private long battleId;
     /**
      * 角色是否为激活状态
      */
@@ -237,14 +237,14 @@ public class BattleRole extends BaseRole {
      *
      * @param battleId 战斗id
      */
-    public void bindBattleId(int battleId) {
+    public void bindBattleId(long battleId) {
         this.battleId = battleId;
     }
 
     /**
      * @return 角色绑定的战斗id
      */
-    public int getBattleId() {
+    public long getBattleId() {
         return battleId;
     }
 

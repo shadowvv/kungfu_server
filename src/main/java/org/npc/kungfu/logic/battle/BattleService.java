@@ -12,7 +12,7 @@ import org.npc.kungfu.platfame.bus.BusStation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 战斗服务
@@ -43,7 +43,7 @@ public class BattleService {
     /**
      * 战斗id生成器
      */
-    private AtomicInteger battleIdCounter;
+    private AtomicLong battleIdCounter;
 
     /**
      * 初始化
@@ -52,7 +52,7 @@ public class BattleService {
     public void init(BusStation<Bus<BattleRing, BaseMessage>, BattleRing, BaseMessage> battleStation) {
         taskStation = battleStation;
         battleRingHashMap = new HashMap<>();
-        battleIdCounter = new AtomicInteger(0);
+        battleIdCounter = new AtomicLong(0);
     }
 
     /**
@@ -68,7 +68,13 @@ public class BattleService {
         BattleRing battleRing = BattleRing.build(battleIdCounter.incrementAndGet(), battleRoles);
         battleRingHashMap.put(battleRing.getId(), battleRing);
         taskStation.put(battleRing);
-        battleRing.start();
+
+        for (BattleRole battleRole : battleRoles) {
+            Player player = PlayerService.getService().getPlayer(battleRole.getPlayerId());
+            if (player != null) {
+                player.setBattleId(battleRing.getId());
+            }
+        }
     }
 
     /**
@@ -96,7 +102,7 @@ public class BattleService {
         if (player == null) {
             return;
         }
-        int battleId = player.getBattleId();
+        long battleId = player.getBattleId();
         taskStation.put(battleId, msg);
     }
 

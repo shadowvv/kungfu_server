@@ -10,9 +10,7 @@ import org.npc.kungfu.platfame.math2.CollisionUtils;
 import org.npc.kungfu.platfame.math2.HitBox;
 import org.npc.kungfu.platfame.math2.Sector;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_ACTION_TICK;
 import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
@@ -25,7 +23,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
     /**
      * 战斗id
      */
-    private final int battleId;
+    private final long battleId;
     /**
      * 消息队列
      */
@@ -47,13 +45,15 @@ public class BattleRing implements IPassenger<BaseMessage> {
      */
     private long lastTick = 0;
 
+    private int readyNum = 0;
+
     /**
      * 决斗工厂
      *
      * @param roles 参与决斗的角色
      * @return 决斗场
      */
-    public static BattleRing build(int battleId, List<BattleRole> roles) {
+    public static BattleRing build(long battleId, List<BattleRole> roles) {
         return new BattleRing(battleId, roles);
     }
 
@@ -61,7 +61,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
      * @param battleId 战斗id
      * @param roles    参与决斗的角色
      */
-    private BattleRing(int battleId, List<BattleRole> roles) {
+    private BattleRing(long battleId, List<BattleRole> roles) {
         this.battleId = battleId;
         this.roles = new HashMap<>();
         for (BattleRole role : roles) {
@@ -74,9 +74,38 @@ public class BattleRing implements IPassenger<BaseMessage> {
     public void start() {
         gameState = GameStateEnum.WAIT_COMMAND;
         countDownTick = WAIT_COMMAND_TICK;
+        BattleStartBroadMessage message = buildBattleStartBroadMessage(roles.values());
         for (BattleRole role : roles.values()) {
-            role.sendMessage(new BattleStartPushMessage(gameState.getCode()));
+            role.sendMessage(message);
         }
+    }
+
+    public void onBattleReady(long playerId) {
+
+    }
+
+    /**
+     * 发送匹配结果
+     *
+     * @param list 匹配战斗的玩家
+     * @return 匹配结果消息
+     */
+    private BattleStartBroadMessage buildBattleStartBroadMessage(Collection<BattleRole> list) {
+        BattleStartBroadMessage battleStartBroadMessage = new BattleStartBroadMessage();
+        List<RoleMessage> roleMessages = new ArrayList<>();
+        for (BattleRole role : list) {
+            RoleMessage roleMessage = new RoleMessage();
+            roleMessage.setRoleId(role.getRoleId());
+            roleMessage.setUserName(role.getRoleId() + "");
+            roleMessage.setWeaponType(role.getWeaponType().getTypeId());
+            roleMessage.setX(role.getCenter().getX());
+            roleMessage.setY(role.getCenter().getY());
+            roleMessage.setFaceAngle(role.getFaceAngle());
+            roleMessage.setHp(5);
+            roleMessages.add(roleMessage);
+        }
+        battleStartBroadMessage.setRoles(roleMessages);
+        return battleStartBroadMessage;
     }
 
     @Override
@@ -92,6 +121,14 @@ public class BattleRing implements IPassenger<BaseMessage> {
                         messageHashMap.put(role.getRoleId(), operationReqMessage);
                     }
                 }
+            }
+        } else if (task instanceof LoadBattleReadyReqMessage) {
+            LoadBattleReadyReqMessage loadBattleReadyReqMessage = (LoadBattleReadyReqMessage) task;
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!! LoadBattleReadyReqMessage:" + loadBattleReadyReqMessage.getPlayerId());
+            readyNum++;
+            if (readyNum == 2) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!! LoadBattleReadyReqMessage: start");
+                start();
             }
         }
         return true;

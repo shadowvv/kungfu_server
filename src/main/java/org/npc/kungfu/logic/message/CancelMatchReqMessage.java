@@ -8,7 +8,7 @@ import org.npc.kungfu.logic.message.base.BaseClientMatchMessage;
 public class CancelMatchReqMessage extends BaseClientMatchMessage {
 
     public CancelMatchReqMessage() {
-        super(3001);
+        super(MessageEnum.CANCEL_MATCH_REQ.getId());
     }
 
     @Override

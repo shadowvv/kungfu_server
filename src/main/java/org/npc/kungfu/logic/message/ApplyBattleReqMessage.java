@@ -13,7 +13,7 @@ public class ApplyBattleReqMessage extends BaseClientPlayerMessage {
     private int weaponType;
 
     public ApplyBattleReqMessage() {
-        super(2001);
+        super(MessageEnum.APPLY_BATTLE_REQ.getId());
     }
 
     public int getWeaponType() {
@@ -34,7 +34,7 @@ public class ApplyBattleReqMessage extends BaseClientPlayerMessage {
             getSenderChannel().writeAndFlush(new ErrorMessage(2001, ErrorCode.PLAYER_IN_MATCH.getCode()));
             return;
         }
-        player.onPlayerApplyBattle(player.getPlayerId());
+        player.onPlayerApplyBattle(player.getPlayerId(), weaponType);
         MatchRole role = MatchRole.build(player.getPlayerId(), player.getPlayerId(), player.getUserName(), PlayerWeaponEnum.fromValue(weaponType));
         MessageDispatcher.getInstance().dispatchMessage(new SSEnterMatch(role), null);
     }

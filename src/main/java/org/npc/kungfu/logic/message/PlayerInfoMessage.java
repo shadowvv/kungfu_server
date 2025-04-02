@@ -16,6 +16,10 @@ public class PlayerInfoMessage {
     private Map<Integer, Integer> weaponUseCountMap;
     @Expose
     private Map<Integer, Integer> weaponWinCountMap;
+    @Expose
+    private int roleId;
+    @Expose
+    private int weaponType;
 
     public PlayerInfoMessage() {
     }
@@ -58,5 +62,21 @@ public class PlayerInfoMessage {
 
     public void setWeaponWinCountMap(Map<Integer, Integer> weaponWinCountMap) {
         this.weaponWinCountMap = weaponWinCountMap;
+    }
+
+    public int getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
+    }
+
+    public int getWeaponType() {
+        return weaponType;
+    }
+
+    public void setWeaponType(int weaponType) {
+        this.weaponType = weaponType;
     }
 }

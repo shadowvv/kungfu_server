@@ -19,6 +19,8 @@ public enum MessageEnum {
 
     CANCEL_MATCH_REQ(3001, CancelMatchReqMessage.class),
     CANCEL_MATCH_RESP(3002, CancelMatchRespMessage.class),
+    BATTLE_LOAD_READY_REQ(5001, LoadBattleReadyReqMessage.class),
+    BATTLE_LOAD_READY_RESP(5002, LoadBattleReadyRespMessage.class),
 
     OPERATION_REQ(4001, OperationReqMessage.class),
     OPERATION_RESP(4002, OperationRespMessage.class),
@@ -26,7 +28,7 @@ public enum MessageEnum {
     ERROR_MESSAGE(9999, ErrorMessage.class),
 
     MATCH_RESULT_BROAD(10001, MatchResultBroadMessage.class),
-    BATTLE_START_PUSH(10002, BattleStartPushMessage.class),
+    BATTLE_START_BROAD_MESSAGE(10002, BattleStartBroadMessage.class),
     BATTLE_RESULT_BROAD(10003, BattleResultBroadMessage.class),
     BATTLE_STATE_BROAD(10004, BattleStateBroadMessage.class),
 

@@ -9,7 +9,7 @@ public class BattleStateBroadMessage extends BaseRespMessage {
     private int battleState;
 
     public BattleStateBroadMessage(int battleState) {
-        super(10004);
+        super(MessageEnum.BATTLE_STATE_BROAD.getId());
         this.battleState = battleState;
     }
 

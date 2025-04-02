@@ -8,10 +8,10 @@ import java.util.List;
 public class MatchResultBroadMessage extends BaseRespMessage {
 
     @Expose
-    List<RoleMessage> roles;
+    List<PlayerInfoMessage> playerInfoList;
 
     public MatchResultBroadMessage() {
-        super(10001);
+        super(MessageEnum.MATCH_RESULT_BROAD.getId());
     }
 
     @Override
@@ -19,12 +19,12 @@ public class MatchResultBroadMessage extends BaseRespMessage {
         return "";
     }
 
-    public List<RoleMessage> getRoles() {
-        return roles;
+    public List<PlayerInfoMessage> getPlayerInfoList() {
+        return playerInfoList;
     }
 
-    public void setRoles(List<RoleMessage> roles) {
-        this.roles = roles;
+    public void setPlayerInfoList(List<PlayerInfoMessage> playerInfoList) {
+        this.playerInfoList = playerInfoList;
     }
 
     @Override
