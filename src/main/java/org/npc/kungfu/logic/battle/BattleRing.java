@@ -2,7 +2,7 @@ package org.npc.kungfu.logic.battle;
 
 import org.npc.kungfu.logic.Player;
 import org.npc.kungfu.logic.PlayerService;
-import org.npc.kungfu.logic.constant.GameStateEnum;
+import org.npc.kungfu.logic.constant.BattleStateEnum;
 import org.npc.kungfu.logic.message.*;
 import org.npc.kungfu.logic.message.base.BaseMessage;
 import org.npc.kungfu.platfame.bus.IPassenger;
@@ -12,40 +12,12 @@ import org.npc.kungfu.platfame.math2.Sector;
 
 import java.util.*;
 
-import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_ACTION_TICK;
-import static org.npc.kungfu.logic.constant.BattleConstants.WAIT_COMMAND_TICK;
+import static org.npc.kungfu.logic.constant.BattleConstants.*;
 
 /**
  * 决斗场
  */
 public class BattleRing implements IPassenger<BaseMessage> {
-
-    /**
-     * 战斗id
-     */
-    private final long battleId;
-    /**
-     * 消息队列
-     */
-    private final HashMap<Integer, OperationReqMessage> messageHashMap;
-    /**
-     * 参加决斗的角色
-     */
-    private final HashMap<Integer, BattleRole> roles;
-    /**
-     * 决斗阶段
-     */
-    private GameStateEnum gameState = GameStateEnum.PREPARE;
-    /**
-     * 倒计时
-     */
-    private long countDownTick = 0;
-    /**
-     * 上次tick
-     */
-    private long lastTick = 0;
-
-    private int readyNum = 0;
 
     /**
      * 决斗工厂
@@ -56,6 +28,36 @@ public class BattleRing implements IPassenger<BaseMessage> {
     public static BattleRing build(long battleId, List<BattleRole> roles) {
         return new BattleRing(battleId, roles);
     }
+
+    /**
+     * 战斗id
+     */
+    private final long battleId;
+    /**
+     * 参加决斗的角色
+     */
+    private final HashMap<Integer, BattleRole> roles;
+    /**
+     * 准备好的玩家人数
+     */
+    private int readyNum = 0;
+    /**
+     * 消息队列
+     */
+    private final HashMap<Integer, OperationReqMessage> messageHashMap;
+    /**
+     * 决斗阶段
+     */
+    private BattleStateEnum gameState = BattleStateEnum.PREPARE;
+    /**
+     * 倒计时
+     */
+    private long countDownTick = 0;
+    /**
+     * 上次tick
+     */
+    private long lastTick = 0;
+
 
     /**
      * @param battleId 战斗id
@@ -71,17 +73,37 @@ public class BattleRing implements IPassenger<BaseMessage> {
         messageHashMap = new HashMap<>();
     }
 
-    public void start() {
-        gameState = GameStateEnum.WAIT_COMMAND;
-        countDownTick = WAIT_COMMAND_TICK;
+    @Override
+    public boolean put(BaseMessage task) {
+        if (task instanceof OperationReqMessage) {
+            OperationReqMessage operationReqMessage = (OperationReqMessage) task;
+            if (gameState == BattleStateEnum.WAIT_COMMAND) {
+                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
+                if (player != null) {
+                    BattleRole role = roles.get(player.getRoleId());
+                    if (role != null && !messageHashMap.containsKey(role.getRoleId())) {
+                        operationReqMessage.setRole(role);
+                        messageHashMap.put(role.getRoleId(), operationReqMessage);
+                    }
+                }
+            }
+        } else if (task instanceof LoadBattleReadyReqMessage) {
+            LoadBattleReadyReqMessage loadBattleReadyReqMessage = (LoadBattleReadyReqMessage) task;
+            readyNum++;
+            if (readyNum == 2) {
+                start();
+            }
+        }
+        return true;
+    }
+
+    private void start() {
+        gameState = BattleStateEnum.PREPARE;
+        countDownTick = PREPARE_TICK;
         BattleStartBroadMessage message = buildBattleStartBroadMessage(roles.values());
         for (BattleRole role : roles.values()) {
             role.sendMessage(message);
         }
-    }
-
-    public void onBattleReady(long playerId) {
-
     }
 
     /**
@@ -109,37 +131,6 @@ public class BattleRing implements IPassenger<BaseMessage> {
     }
 
     @Override
-    public boolean put(BaseMessage task) {
-        if (task instanceof OperationReqMessage) {
-            OperationReqMessage operationReqMessage = (OperationReqMessage) task;
-            if (gameState == GameStateEnum.WAIT_COMMAND) {
-                Player player = PlayerService.getService().getPlayer(operationReqMessage.getPlayerId());
-                if (player != null) {
-                    BattleRole role = roles.get(player.getRoleId());
-                    if (role != null && !messageHashMap.containsKey(role.getRoleId())) {
-                        operationReqMessage.setRole(role);
-                        messageHashMap.put(role.getRoleId(), operationReqMessage);
-                    }
-                }
-            }
-        } else if (task instanceof LoadBattleReadyReqMessage) {
-            LoadBattleReadyReqMessage loadBattleReadyReqMessage = (LoadBattleReadyReqMessage) task;
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!! LoadBattleReadyReqMessage:" + loadBattleReadyReqMessage.getPlayerId());
-            readyNum++;
-            if (readyNum == 2) {
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!! LoadBattleReadyReqMessage: start");
-                start();
-            }
-        }
-        return true;
-    }
-
-    public void onRoleLogout(BattleRole role) {
-        //TODO:结算战斗
-        BattleService.getService().endBattle(this);
-    }
-
-    @Override
     public void doActions() {
         heartbeat();
     }
@@ -161,12 +152,25 @@ public class BattleRing implements IPassenger<BaseMessage> {
      */
     public void update(long deltaTime) {
 
+        if (gameState == BattleStateEnum.PREPARE) {
+            if (this.countDownTick > 0) {
+                this.countDownTick = this.countDownTick - deltaTime;
+                if (this.countDownTick <= 0) {
+                    gameState = BattleStateEnum.WAIT_COMMAND;
+                    this.countDownTick = WAIT_COMMAND_TICK;
+                    for (BattleRole role : roles.values()) {
+                        role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+                    }
+                }
+            }
+            return;
+        }
+
         //根据收到的玩家操作和倒计时切换战斗阶段
-        if (gameState == GameStateEnum.WAIT_COMMAND) {
+        if (gameState == BattleStateEnum.WAIT_COMMAND) {
             this.countDownTick = this.countDownTick - deltaTime;
             if (messageHashMap.size() == roles.size() || this.countDownTick <= 0) {
-                gameState = GameStateEnum.WAIT_ACTION;
-                this.countDownTick = WAIT_ACTION_TICK;
+                gameState = BattleStateEnum.ACTION;
                 for (BattleRole role : roles.values()) {
                     role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
                 }
@@ -180,36 +184,38 @@ public class BattleRing implements IPassenger<BaseMessage> {
             return;
         }
 
-        if (gameState == GameStateEnum.WAIT_ACTION) {
-            this.countDownTick = this.countDownTick - deltaTime;
-            if (countDownTick <= 0) {
-                gameState = GameStateEnum.ACTION;
-                for (BattleRole role : roles.values()) {
-                    role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
-                }
-            }
-            return;
-        }
-
-        if (gameState == GameStateEnum.ACTION) {
+        if (gameState == BattleStateEnum.ACTION) {
             checkHit();
 
-            this.gameState = GameStateEnum.WAIT_COMMAND;
-            this.countDownTick = WAIT_COMMAND_TICK;
+            this.gameState = BattleStateEnum.WAIT_CLIENT_ACTION;
+            this.countDownTick = WAIT_ACTION_TICK;
             for (BattleRole role : roles.values()) {
                 role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
-            }
-            for (BattleRole role : roles.values()) {
-                if (role.getHpPoint() == 0) {
-                    gameState = GameStateEnum.END;
-                    break;
-                }
             }
             broadCastBattleResult();
             return;
         }
 
-        if (gameState == GameStateEnum.END) {
+        if (gameState == BattleStateEnum.WAIT_CLIENT_ACTION) {
+            this.countDownTick = this.countDownTick - deltaTime;
+            if (countDownTick <= 0) {
+                gameState = BattleStateEnum.WAIT_COMMAND;
+                this.countDownTick = WAIT_COMMAND_TICK;
+                for (BattleRole role : roles.values()) {
+                    role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
+                }
+            }
+            for (BattleRole role : roles.values()) {
+                if (role.getHpPoint() == 0) {
+                    gameState = BattleStateEnum.END;
+                    System.out.println("战斗结束");
+                    break;
+                }
+            }
+            return;
+        }
+
+        if (gameState == BattleStateEnum.END) {
             for (BattleRole role : roles.values()) {
                 role.sendMessage(new BattleStateBroadMessage(gameState.getCode()));
             }
@@ -244,6 +250,7 @@ public class BattleRing implements IPassenger<BaseMessage> {
             for (BattleRole otherRole : roles.values()) {
                 if (role.getRoleId() != otherRole.getRoleId() && checkHit(role.getAttackSector(), otherRole.getHitBox())) {
                     otherRole.onRoleBeHit(role.getAttackPoint());
+                    System.out.println("击中了" + otherRole.getRoleId());
                 }
             }
         }
@@ -258,6 +265,11 @@ public class BattleRing implements IPassenger<BaseMessage> {
      */
     private boolean checkHit(Sector attackSector, HitBox hitBox) {
         return CollisionUtils.isSectorCollidingWithRect(attackSector, hitBox.getBoxVectors());
+    }
+
+    public void onRoleLogout(BattleRole role) {
+        //TODO:结算战斗
+        BattleService.getService().endBattle(this);
     }
 
     @Override

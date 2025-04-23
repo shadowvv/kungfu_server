@@ -99,7 +99,7 @@ public class MatchPool extends SimplePassenger<BaseMessage> {
                 roles.addFirst(role1);
                 break;
             }
-            role2.resetPosition(650, 360, 0);
+            role2.resetPosition(650, 360, 180);
             if (System.currentTimeMillis() - role2.getEnterMatchTime() > 60 * 1000) {
                 role2.sendMessage(new ErrorMessage(2001, ErrorCode.MATCH_TIMEOUT.getCode()));
                 roles.addFirst(role1);

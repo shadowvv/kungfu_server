@@ -5,6 +5,7 @@ package org.npc.kungfu.logic.constant;
  */
 public class BattleConstants {
 
+    public static final int PREPARE_TICK = 5 * 1000;
     public static final int WAIT_COMMAND_TICK = 10 * 1000;
     public static final int WAIT_ACTION_TICK = 5 * 1000;
     public static final int BASE_NUMBER = 25;
